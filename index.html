@@ -277,8 +277,8 @@
 <script>
 /* =================== DATA & STATE =================== */
 const OFFER={
-  name:"Dangote Petrochemicals Refinery-Petrochemicals",ticker:"DPRP",
-  price:245.50,minAmount:100000,maxShares:100000,                   // [DEMO] — minAmount is min NGN investment
+  name:"Dangote Petroleum Refinery & Petrochemicals",ticker:"DPRP",
+  price:245.50,minAmount:100000,                                    // [DEMO] — minAmount is min NGN investment; no maximum
   opensAt:new Date("2026-07-10T09:00:00+01:00"),                    // [DEMO]
   closesAt:new Date("2026-07-31T17:00:00+01:00"),                   // [DEMO]
 };
@@ -288,7 +288,7 @@ function roundQty(shares,floor){
   floor=floor==null?OFFER.minShares:floor;
   const step=qtyStep(shares);
   const rounded=Math.round(shares/step)*step;
-  return Math.max(floor,Math.min(OFFER.maxShares,rounded));
+  return Math.max(floor,rounded);
 }
 // Minimum shares is derived from the minimum investment amount ÷ price per share, then rounded up
 // to a valid step — so it automatically follows the price, rather than being a fixed number.
@@ -363,7 +363,7 @@ entry(){
     <div class="hero-illus"><div class="hero-circle">📈</div></div>
     <div class="pad">
       <h2 class="big" style="text-align:center;margin-top:20px">Invest in Nigeria's biggest IPOs</h2>
-      <p class="lead" style="text-align:center;margin-bottom:8px">Early access to public offers like the Dangote Petrochemicals IPO — with bank-grade security for your BVN and data.</p>
+      <p class="lead" style="text-align:center;margin-bottom:8px">Early access to offers like the Dangote Petroleum Refinery & Petrochemicals IPO.</p>
       <div class="sec" style="margin-top:14px">
         <div class="sh">I'm subscribing as</div>
         <div class="seg">
@@ -383,11 +383,11 @@ bvn(){
   screenEl.innerHTML=nav("Create account")+`
     <div class="pad">
       <h2 class="big">Verify your identity</h2>
-      <p class="lead">Enter your Bank Verification Number (BVN) to get started.</p>
+      <p class="lead">Enter your BVN to get started.</p>
       <label class="fl" for="bvnIn">BVN</label>
       <input id="bvnIn" class="in" inputmode="numeric" maxlength="11" placeholder="11-digit BVN" autocomplete="off">
       <div class="errline" id="bvnErr" style="display:none">BVN must be 11 digits</div>
-      <div class="hint">Your BVN is used only to verify your identity and is never shared.</div>
+      <div class="hint">Used only to verify your identity — never shared.</div>
       <button class="linkbtn" style="margin-top:8px" onclick="document.getElementById('bvnIn').value='22212345678';document.getElementById('bvnIn').dispatchEvent(new Event('input'))">Use demo BVN <span class="demoTag">DEMO</span></button>
       <div class="footbar"><button class="btn" id="bvnGo" disabled>Continue</button></div>
     </div>`;
@@ -411,10 +411,10 @@ isYou(){
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
         <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
       </div>
-      <div class="hint">Name, date of birth, and phone come directly from your BVN record and can't be edited here.</div>
+      <div class="hint">Pulled from your BVN — can't be edited here.</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
-      <div class="hint">Pulled from BVN like the rest — but this is the email we'll use to create your account, so it stays editable. Update it if it's wrong, then we'll send your verification code here.</div>
+      <div class="hint">Also from BVN, but editable — this creates your account, so update it if needed.</div>
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
       <div class="footbar"><button class="btn" id="isYouGo">Send verification code</button></div>
     </div>`;
@@ -434,7 +434,7 @@ verify(){
       <button class="linkbtn" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button>
       <label class="fl" for="pw1">Create a password</label>
       <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
-      <div class="hint">You'll use this password to log in and approve transactions.</div>
+      <div class="hint">Used to log in and approve transactions.</div>
       <label class="fl" for="pw2">Re-enter password</label>
       <div class="pwwrap"><input id="pw2" class="in" type="password" placeholder="Repeat the same password"><button type="button" class="pweye" data-target="pw2" aria-label="Show password">Show</button></div>
       <div class="errline" id="pwErr" style="display:none">Passwords don't match</div>
@@ -459,7 +459,7 @@ login(){
   screenEl.innerHTML=nav("Log in")+`
     <div class="pad">
       <h2 class="big">Welcome back</h2>
-      <p class="lead">Log in with your email and password. No re-verification needed.</p>
+      <p class="lead">Log in to continue.</p>
       <label class="fl">Email</label><input class="in" value="${esc(S.user.email)}">
       <label class="fl">Password</label>
       <div class="pwwrap"><input class="in" id="lgPw" type="password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
@@ -513,7 +513,6 @@ live(){
         <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
         <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
         <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
-        <div class="sumrow"><span class="k">Maximum</span><span class="v">${OFFER.maxShares.toLocaleString()} shares</span></div>
         <div class="sumrow"><span class="k">Offer closes</span><span class="v">31 Jul 2026, 5:00 PM <span class="demoTag">DEMO</span></span></div>
         <p class="hint" style="margin-top:8px">Offer closes in:</p>
         ${countdownHTML("cdClose")}
@@ -568,7 +567,7 @@ subscribe(arg){
 
       <!-- CSCS -->
       <div class="sec">
-        <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with the Lead Adviser?</div>
+        <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with Vetiva?</div>
         <div class="sd" id="cscsHelp">If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.</div>
         <input id="cscsIn" class="in" style="margin-top:12px" inputmode="numeric" maxlength="11" placeholder="Enter your 11-digit Vetiva CSCS number">
         <div id="cscsFb"></div>
@@ -581,8 +580,8 @@ subscribe(arg){
 
       <!-- dividend -->
       <div class="sec">
-        <div class="sh">🏦 Dividend payout account</div>
-        <div class="sd" id="divSd">Where should we pay your dividends when they're declared?</div>
+        <div class="sh">🏦 Bank account</div>
+        <div class="sd" id="divSd">Where should we pay your dividends when they are declared?</div>
         <div id="divBody"></div>
       </div>
 
@@ -769,7 +768,7 @@ window.subMode=(m)=>{
     body.innerHTML=S.selfSub
       ?`<div class="warnband">You've already subscribed for yourself (${S.selfSub.shares} shares). Use <b>Top up</b> to add more, or switch to "A minor". <button class="linkbtn" style="padding:0 0 0 4px" onclick="go('topup',{for:'self'})">Top up instead →</button></div>`
       :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)}</div>`;
-    $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with the Lead Adviser?`;
+    $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with Vetiva?`;
     $("#cscsHelp").innerHTML=`If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.`;
     $("#cscsIn").placeholder="Enter your 11-digit Vetiva CSCS number";
   }else{
@@ -836,7 +835,7 @@ function renderDividend(){
       <span class="chip">GUARDIAN</span></div></div>`;
     flow.divOk=true;
   }else{
-    sd.textContent="Where should we pay your dividends when they're declared?";
+    sd.textContent="Where should we pay your dividends when they are declared?";
     flow.divOk=false;
     body.innerHTML=`
       <label class="fl">Bank</label>
