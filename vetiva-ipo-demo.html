@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vetiva · Dangote IPO — Flow Demo v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FAF8F1; --card:#FFFFFF;
+    --olive:#78814B; --olive-deep:#5F673A; --olive-soft:#EEF0E3; --olive-light:#8D976269;
+    --olive-pale:#E4E7D6; --olive-pale-text:#9CA283;
+    --ink:#181A10; --ink-btn:#161A0C; --muted:#6E7261; --line:#E8E5D8;
+    --good:#1E9E52; --good-soft:#E7F5EC;
+    --bad:#C43D3D; --bad-soft:#FBEBEB; --bad-line:#EFC9C9;
+    --amber:#B7791F; --amber-soft:#FCF3E3;
+    --r:18px; --r-btn:16px; --r-in:12px; --r-lg:22px;
+    --shadow-1: rgba(24,26,16,.03) 0 0 0 1px, rgba(24,26,16,.05) 0 2px 6px 0, rgba(24,26,16,.08) 0 4px 8px 0;
+    --shadow-card: 0 1px 2px rgba(24,26,16,.045), 0 10px 26px -8px rgba(24,26,16,.10);
+    --shadow-btn: 0 10px 22px -8px rgba(95,103,58,.55), 0 2px 6px -2px rgba(95,103,58,.35);
+    font-size:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Instrument Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    background:#23251B;background-image:radial-gradient(1200px 800px at 70% -10%, #3A3D2A 0%, #23251B 55%);
+    color:var(--ink);min-height:100%;display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .stage{display:flex;gap:28px;align-items:flex-start;max-width:1200px;width:100%;justify-content:center}
+  /* presenter rail */
+  .rail{width:280px;flex:0 0 280px;color:#E9E7D9;position:sticky;top:24px}
+  .rail h1{font-size:1.05rem;font-weight:700;margin-bottom:2px}
+  .rail .sub{font-size:.78rem;color:#A6A88F;margin-bottom:18px;line-height:1.45}
+  .rail .grp{font-size:.68rem;text-transform:uppercase;letter-spacing:.12em;color:#8B8D74;margin:16px 0 8px}
+  .rail button{display:block;width:100%;text-align:left;background:#2E3122;color:#E9E7D9;border:1px solid #3D402C;border-radius:10px;padding:10px 12px;font-size:.85rem;cursor:pointer;margin-bottom:6px;font-family:inherit}
+  .rail button:hover{background:#383C29}
+  .rail button:focus-visible{outline:2px solid #C9CDA0;outline-offset:2px}
+  .rail .note{font-size:.72rem;color:#8B8D74;line-height:1.5;margin-top:14px;border-top:1px solid #3D402C;padding-top:12px}
+  .rail .pill{display:inline-block;background:#3D402C;border-radius:999px;padding:2px 8px;font-size:.66rem;margin-left:6px;color:#C9CDA0}
+  /* phone */
+  .phone{width:400px;flex:0 0 400px;height:min(860px,94vh);background:var(--cream);border-radius:34px;overflow:hidden;position:relative;
+    box-shadow:0 30px 80px rgba(0,0,0,.5),0 0 0 10px #14150E,0 0 0 12px #3A3D2A;display:flex;flex-direction:column;position:relative}
+  .statusbar{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;padding:10px 18px 6px;font-size:.8rem;font-weight:600;color:var(--ink);background:var(--cream)}
+  .island{position:absolute;top:9px;left:50%;transform:translateX(-50%);width:96px;height:26px;background:#0B0C08;border-radius:20px;z-index:40;pointer-events:none}
+  .statusbar .right{font-weight:500;color:var(--muted);font-size:.72rem}
+  .screen{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column}
+  .screen.scrIn{animation:scrIn .32s cubic-bezier(.2,.7,.3,1) both}
+  @keyframes scrIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.screen.scrIn{animation:none}}
+  .screen::-webkit-scrollbar{width:0}
+  /* shared */
+  .pad{padding:8px 20px 28px;display:flex;flex-direction:column;flex:1}
+  .topnav{display:flex;align-items:center;gap:14px;padding:10px 20px;background:rgba(244,242,232,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);position:sticky;top:0;z-index:5;box-shadow:0 1px 0 rgba(24,26,16,.06)}
+  .backbtn{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--ink);padding:2px 6px;line-height:1;font-family:inherit}
+  .backbtn:focus-visible{outline:2px solid var(--olive);border-radius:6px}
+  .topnav .t{font-weight:700;font-size:.95rem}
+  h2.big{font-size:1.65rem;font-weight:700;margin:14px 0 8px;letter-spacing:-.025em;line-height:1.15;color:var(--ink)}
+  p.lead{color:var(--muted);font-size:.92rem;line-height:1.55;margin-bottom:18px;letter-spacing:-.005em}
+  label.fl{display:block;font-size:.82rem;font-weight:600;margin:14px 0 7px}
+  .in{width:100%;border:1px solid var(--line);border-radius:var(--r-in);background:var(--card);padding:15px 16px;font-size:.95rem;font-family:inherit;color:var(--ink);box-shadow:0 1px 2px rgba(24,26,16,.03);transition:border-color .12s,box-shadow .12s}
+  .in:focus{outline:none;border-color:var(--olive-deep);box-shadow:inset 0 0 0 1px var(--olive-deep)}
+  .in.err{border-color:var(--bad)}
+  .in::placeholder{color:#B4B2A2}
+  .in:disabled{background:#F1EFE3;color:#A09D8B}
+  .pwwrap{position:relative}
+  .pwwrap .in{padding-right:64px}
+  .pweye{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--olive-deep);font-weight:600;font-size:.78rem;cursor:pointer;font-family:inherit;padding:8px 10px}
+  .pweye:hover{text-decoration:underline}
+  .pweye:focus-visible{outline:2px solid var(--olive);outline-offset:2px;border-radius:6px}
+  .errline{color:var(--bad);font-size:.76rem;margin-top:6px}
+  .hint{color:var(--muted);font-size:.76rem;margin-top:6px;line-height:1.45}
+  .btn{display:flex;align-items:center;justify-content:center;width:100%;background:linear-gradient(155deg,#828C54,var(--olive) 45%,var(--olive-deep));color:#F7F8EF;font-weight:700;font-size:.95rem;letter-spacing:-.01em;border:none;border-radius:var(--r-btn);padding:17px 18px;cursor:pointer;font-family:inherit;box-shadow:var(--shadow-btn);transition:transform .15s cubic-bezier(.34,1.56,.64,1),box-shadow .15s,filter .15s}
+  .btn:hover{filter:brightness(1.04)}
+  .btn:active{transform:scale(.97);box-shadow:0 4px 10px -4px rgba(95,103,58,.5)}
+  .btn:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .btn:disabled{background:var(--olive-pale);color:var(--olive-pale-text);cursor:not-allowed;filter:none;box-shadow:none;transform:none}
+  .btn.ghost{background:var(--card);color:var(--olive-deep);border:1.5px solid var(--line);font-weight:700;box-shadow:0 1px 2px rgba(24,26,16,.03)}
+  .btn.ghost:hover{background:var(--olive-soft);border-color:var(--olive)}
+  .btn.ghost:active{transform:scale(.97)}
+  @media (prefers-reduced-motion:reduce){.btn,.btn:active{transition:none;transform:none}}
+  .linkbtn{background:none;border:none;color:var(--olive-deep);font-weight:600;font-size:.85rem;cursor:pointer;font-family:inherit;padding:6px 2px}
+  .linkbtn:focus-visible{outline:2px solid var(--olive);border-radius:6px}
+  .card{background:var(--card);border:1px solid rgba(232,229,216,.7);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-card)}
+  .row{display:flex;align-items:center;gap:12px}
+  .grow{flex:1}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--good-soft);color:var(--good);font-size:.68rem;font-weight:700;border-radius:999px;padding:4px 10px 4px 8px;letter-spacing:.05em}
+  .chip .dot{width:6px;height:6px;border-radius:50%;background:var(--good);position:relative;flex:0 0 6px}
+  .chip .dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--good);opacity:.35;animation:pulse 1.8s ease-out infinite}
+  @keyframes pulse{0%{transform:scale(.6);opacity:.5}70%{transform:scale(2.2);opacity:0}100%{opacity:0}}
+  @media (prefers-reduced-motion:reduce){.chip .dot::after{animation:none;display:none}}
+  .chip.soon{background:var(--amber-soft);color:var(--amber)}
+  .demoTag{display:inline-block;background:#EFEDDF;border:1px dashed #C9C6AE;color:#8A8768;font-size:.62rem;font-weight:700;letter-spacing:.08em;border-radius:6px;padding:2px 6px;vertical-align:middle}
+  .divider{height:1px;background:var(--line);margin:18px 0}
+  /* section blocks on one-pager */
+  .sec{margin-top:24px}
+  .sec .sh{display:flex;align-items:center;gap:8px;font-weight:700;font-size:.95rem}
+  .sec .sh .opt{font-weight:600;color:var(--muted);font-size:.78rem}
+  .sec .sd{color:var(--muted);font-size:.78rem;margin-top:3px;line-height:1.45}
+  /* countdown */
+  .cd{display:flex;gap:8px;margin-top:12px}
+  .cd .u{background:var(--card);border:1px solid rgba(232,229,216,.7);box-shadow:0 1px 2px rgba(24,26,16,.04);border-radius:12px;padding:8px 0;text-align:center;flex:1}
+  .cd .u b{display:block;font-size:1.15rem;font-variant-numeric:tabular-nums}
+  .cd .u small{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+  /* onboarding */
+  .hero-illus{background:#ECEADD;height:250px;display:flex;align-items:center;justify-content:center}
+  .hero-circle{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#8D9760,var(--olive) 55%,var(--olive-deep) 100%);box-shadow:0 16px 32px -12px rgba(95,103,58,.5);display:flex;align-items:center;justify-content:center;font-size:3rem}
+  /* segments */
+  .seg{display:flex;gap:4px;margin-top:10px;background:var(--olive-soft);padding:4px;border-radius:calc(var(--r-btn) + 4px)}
+  .seg button{flex:1;border:none;background:transparent;border-radius:var(--r-btn);padding:12px;font-weight:700;font-size:.87rem;cursor:pointer;font-family:inherit;color:var(--muted);transition:background .18s,color .18s,box-shadow .18s,transform .15s}
+  .seg button.on{background:var(--card);color:var(--ink);box-shadow:0 2px 8px rgba(24,26,16,.1),0 1px 2px rgba(24,26,16,.05)}
+  .seg button:active{transform:scale(.96)}
+  .seg button:focus-visible{outline:2px solid var(--olive);outline-offset:2px}
+  /* shares */
+  .qp{display:flex;gap:8px;margin-top:12px}
+  .qp button{flex:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:10px 0;font-weight:600;font-size:.85rem;cursor:pointer;font-family:inherit;color:var(--ink);transition:transform .12s,background .12s}
+  .qp button:active{transform:scale(.94)}
+  .qp button.on{background:var(--olive);color:var(--ink-btn);border-color:var(--olive)}
+  .stepper{display:flex;align-items:center;gap:12px;margin-top:12px}
+  .stepper .num{flex:1;text-align:center;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .stepper button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.3rem;cursor:pointer;font-family:inherit;color:var(--ink);box-shadow:0 1px 2px rgba(24,26,16,.05);transition:transform .12s}
+  .stepper button:active{transform:scale(.9)}
+  .mathline{margin-top:12px;background:var(--olive-soft);border-radius:12px;padding:12px 14px;font-size:.85rem;display:flex;justify-content:space-between;align-items:center}
+  .mathline b{font-size:1rem;font-variant-numeric:tabular-nums}
+  /* bands */
+  .okband{display:flex;align-items:center;gap:10px;background:var(--good-soft);border:1px solid #CBE8D6;border-radius:12px;padding:12px 14px;margin-top:10px;font-weight:700;font-size:.86rem;color:#12683A}
+  .okband .tick{width:22px;height:22px;border-radius:50%;background:var(--good);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex:0 0 22px}
+  .warnband{display:flex;gap:10px;background:var(--amber-soft);border:1px solid #EDD9B4;border-radius:12px;padding:12px 14px;margin-top:12px;font-size:.8rem;line-height:1.45;color:#7A5310}
+  .dangerbox{background:var(--bad-soft);border:1.5px solid var(--bad-line);border-radius:14px;padding:14px 16px;margin-top:14px}
+  .dangerbox .dt{color:var(--bad);font-weight:800;font-size:.88rem;display:flex;gap:8px;align-items:center}
+  .dangerbox .dd{color:#8A4040;font-size:.79rem;line-height:1.5;margin-top:6px}
+  /* payment methods */
+  .pm{border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);padding:14px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;margin-top:10px;width:100%;text-align:left;font-family:inherit;transition:box-shadow .12s,transform .12s}
+  .pm:active{transform:scale(.98)}
+  .pm:hover{box-shadow:var(--shadow-1)}
+  .pm.on{border-color:var(--olive);background:#FCFBF4}
+  .pm:focus-visible{outline:2px solid var(--olive);outline-offset:2px}
+  .pm .radio{width:20px;height:20px;border-radius:50%;border:2px solid #C9C6AE;flex:0 0 20px;position:relative}
+  .pm.on .radio{border-color:var(--olive)}
+  .pm.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
+  .pm .nm{font-weight:700;font-size:.88rem}
+  .pm .fee{font-size:.73rem;color:var(--muted);margin-top:2px}
+  .pm .tot{font-weight:700;font-variant-numeric:tabular-nums;font-size:.9rem;text-align:right}
+  .pm .tot small{display:block;font-weight:500;color:var(--muted);font-size:.66rem}
+  .bestpill{font-size:.6rem;font-weight:800;letter-spacing:.06em;color:var(--good);background:var(--good-soft);border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:middle}
+  .checkline{display:flex;gap:10px;align-items:flex-start;margin-top:12px;font-size:.82rem;line-height:1.45;cursor:pointer}
+  .checkline input{width:18px;height:18px;margin-top:1px;accent-color:var(--olive-deep)}
+  /* radio-style option row (reference: "Don't know / Don't have one") */
+  .optrow{display:flex;align-items:center;gap:12px;border:1.5px solid var(--line);background:var(--card);border-radius:14px;padding:13px 15px;margin-top:10px;cursor:pointer;width:100%;text-align:left;font-family:inherit;font-weight:600;font-size:.88rem;color:var(--ink);transition:box-shadow .12s,transform .12s}
+  .optrow:active{transform:scale(.98)}
+  .optrow:hover{box-shadow:var(--shadow-1)}
+  .optrow.on{border-color:var(--olive);background:var(--olive-soft)}
+  .optrow .radio{width:20px;height:20px;border-radius:50%;border:2px solid #C9C6AE;flex:0 0 20px;position:relative}
+  .optrow.on .radio{border-color:var(--olive)}
+  .optrow.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
+  /* timeline */
+  .tl{margin-top:6px}
+  .tl .step{display:flex;gap:14px;position:relative;padding-bottom:22px}
+  .tl .step:last-child{padding-bottom:4px}
+  .tl .step::before{content:"";position:absolute;left:11px;top:26px;bottom:0;width:1.5px;background:#DAD7C6}
+  .tl .step:last-child::before{display:none}
+  .tl .dot{width:23px;height:23px;border-radius:50%;flex:0 0 23px;border:2px solid #C9C6AE;background:var(--card);z-index:1}
+  .tl .dot.done{background:var(--good);border-color:var(--good);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem}
+  .tl .st{font-weight:700;font-size:.87rem}
+  .tl .st .tag{font-weight:600;font-size:.72rem;margin-left:8px}
+  .tl .st .tag.done{color:var(--good)}
+  .tl .st .tag.up{color:#A09D8B}
+  .tl .sd{color:var(--muted);font-size:.77rem;margin-top:3px;line-height:1.4}
+  .bighalo{width:130px;height:130px;border-radius:50%;background:#DFF0E5;display:flex;align-items:center;justify-content:center;margin:26px auto 6px;animation:haloPop .5s cubic-bezier(.34,1.56,.64,1) both}
+  .bighalo .inner{width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#33B56C,var(--good));box-shadow:0 10px 24px -6px rgba(30,158,82,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.2rem}
+  @keyframes haloPop{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
+  @media (prefers-reduced-motion:reduce){.bighalo{animation:none}}
+  .spin{width:52px;height:52px;border-radius:50%;border:4px solid var(--olive-soft);border-top-color:var(--olive);animation:sp .9s linear infinite;margin:0 auto}
+  .minispin{width:18px;height:18px;border-radius:50%;border:3px solid var(--olive-soft);border-top-color:var(--olive);animation:sp .9s linear infinite;display:inline-block;vertical-align:middle}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){.spin,.minispin{animation-duration:2.5s}}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;padding:20px}
+  /* offerings rail */
+  .offrail{display:flex;gap:10px;overflow-x:auto;padding:4px 2px 8px;margin:0 -2px}
+  .offrail::-webkit-scrollbar{height:0}
+  .offcard{flex:0 0 190px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;transition:box-shadow .12s}
+  .offcard:hover{box-shadow:var(--shadow-1)}
+  .offcard .on{font-weight:700;font-size:.84rem}
+  .offcard .od{font-size:.72rem;color:var(--muted);margin-top:4px;line-height:1.4}
+  .offcard .oy{font-size:.8rem;font-weight:700;color:var(--olive-deep);margin-top:8px}
+  /* position */
+  .poscard{background:linear-gradient(155deg,#8D9760,var(--olive) 45%,var(--olive-deep));border-radius:var(--r);padding:20px;color:#F5F4E8;box-shadow:0 16px 32px -12px rgba(95,103,58,.45);position:relative;overflow:hidden}
+  .poscard::before{content:"";position:absolute;top:-40%;right:-20%;width:140%;height:140%;background:radial-gradient(circle,rgba(255,255,255,.10),transparent 60%);pointer-events:none}
+  .poscard .pl{font-size:.72rem;opacity:.85;letter-spacing:.05em;text-transform:uppercase}
+  .poscard .pv{font-size:1.5rem;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .poscard .ps{font-size:.8rem;opacity:.9;margin-top:2px}
+  .sublist .subrow{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+  .sublist .subrow:last-child{border-bottom:none}
+  .avat{width:38px;height:38px;border-radius:50%;background:var(--olive-soft);color:var(--olive-deep);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.8rem;flex:0 0 38px}
+  .subrow .sn{font-weight:700;font-size:.87rem}
+  .subrow .sv{font-size:.75rem;color:var(--muted);margin-top:1px}
+  .topupbtn{background:var(--olive-soft);border:none;color:var(--olive-deep);font-weight:700;font-size:.76rem;border-radius:999px;padding:7px 14px;cursor:pointer;font-family:inherit}
+  /* summary */
+  .sumrow{display:flex;justify-content:space-between;font-size:.86rem;padding:7px 0}
+  .sumrow .k{color:var(--muted)}
+  .sumrow .v{font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+  .sumrow.total{border-top:1px solid var(--line);margin-top:6px;padding-top:12px}
+  .sumrow.total .v{font-weight:800;font-size:1rem}
+  /* sticky footer bar (one-pager) */
+  .footbar{position:sticky;bottom:0;background:rgba(250,248,241,.88);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);box-shadow:0 -8px 24px -8px rgba(24,26,16,.12);margin:auto -20px 0;padding:14px 20px 18px;z-index:6}
+  .footbar .fr{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+  .footbar .fk{font-size:.82rem;color:var(--muted)}
+  .footbar .fv{font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
+  #toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(20px);background:#1E2013;color:#F1EFDF;font-size:.85rem;padding:12px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:all .25s;z-index:99;max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .sheet-veil{position:absolute;inset:0;background:rgba(20,21,12,.45);display:flex;align-items:flex-end;z-index:20}
+  .sheet{background:var(--cream);border-radius:22px 22px 0 0;padding:22px 20px 26px;width:100%;animation:up .22s ease-out}
+  @keyframes up{from{transform:translateY(30px);opacity:.6}to{transform:none;opacity:1}}
+  @media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+  .sheet h3{font-size:1.1rem;margin-bottom:4px}
+  .railToggle{
+    display:flex;align-items:center;gap:6px;position:fixed;right:18px;bottom:18px;z-index:70;
+    background:#1E2013;color:#E9E7D9;border:1px solid #4A4E36;border-radius:999px;
+    padding:12px 18px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;
+    box-shadow:0 8px 24px rgba(0,0,0,.45);
+  }
+  .railToggle:hover{background:#282B1B}
+  .railToggle:focus-visible{outline:2px solid #C9CDA0;outline-offset:2px}
+  @media (max-width:820px){
+    body{padding:0;align-items:stretch}
+    .stage{flex-direction:column;gap:0;align-items:center}
+    .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;background:#1E2013;z-index:50;padding:16px 18px 22px;border-radius:18px 18px 0 0;max-height:70vh;overflow:auto;transform:translateY(105%);transition:transform .25s}
+    .rail.open{transform:none}
+    .railToggle{right:14px;bottom:14px}
+    .phone{width:100%;flex:1;height:100vh;height:100dvh;border-radius:0;box-shadow:none}
+    .island{display:none}
+  }
+</style>
+</head>
+<body>
+<noscript><div style="background:#F4EBEB;color:#C43D3D;padding:16px;text-align:center;font-family:sans-serif;font-size:.9rem">This demo needs JavaScript enabled, and must be opened in a browser (Safari/Chrome) — not a document preview.</div></noscript>
+
+<div class="stage">
+  <aside class="rail" id="rail">
+    <h1>Vetiva · Dangote IPO <span class="pill">DEMO v3</span></h1>
+    <div class="sub">Clickable prototype — one-page subscription flow. All figures, fees and rates are placeholders marked [DEMO].</div>
+    <div class="grp">Journeys</div>
+    <button onclick="demo.newUser()">🆕 New user — full journey</button>
+    <button onclick="demo.oldUser()">🔁 Returning user — login</button>
+    <div class="grp">Jump to state</div>
+    <button onclick="demo.prelive()">⏳ Pre-live landing (waitlist)</button>
+    <button onclick="demo.liveFresh()">🟢 Live — not subscribed</button>
+    <button onclick="demo.minor()">🧒 Subscribe for a minor</button>
+    <button onclick="demo.subscribed()">📈 Live — subscribed (top-up)</button>
+    <div class="grp">Controls</div>
+    <button onclick="demo.reset()">♻️ Reset demo</button>
+    <div class="note">
+      <b>v3 changes:</b> Individual/Corporate selector on entry · entire purchase on ONE page with sticky amount + submit · CSCS created inline (no interstitial page) · next of kin optional, self path only (hidden for minors) · optional invitation code · success page follows payment.
+    </div>
+  </aside>
+
+  <div class="phone">
+    <div class="island"></div>
+    <div class="statusbar"><span id="clock">22:31</span><span class="right">📶 ⚡ 85%</span></div>
+    <div class="screen" id="screen" aria-live="polite">
+      <div style="padding:40px 24px;text-align:center;font-size:.85rem;color:#6E7261;line-height:1.6">
+        Loading demo…<br><br>
+        If this message doesn't disappear in a second, this file opened in a preview mode that doesn't run scripts.<br><br>
+        <b>Fix:</b> tap the Share icon and choose <b>"Open in Safari"</b> (or open the file from within Safari directly, not from a Files/Messages/Mail preview).
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="railToggle" onclick="document.getElementById('rail').classList.toggle('open')">☰ Presenter</button>
+<div id="toast" role="status"></div>
+
+<script>
+/* =================== DATA & STATE =================== */
+const OFFER={
+  name:"Dangote Petrochemicals Refinery-Petrochemicals",ticker:"DPRP",
+  price:245.50,minShares:10,maxShares:100000,                       // [DEMO]
+  opensAt:new Date("2026-07-10T09:00:00+01:00"),                    // [DEMO]
+  closesAt:new Date("2026-07-31T17:00:00+01:00"),                   // [DEMO]
+};
+const FEES={ // [DEMO]
+  transfer:{label:"Bank transfer",fee:a=>0,feeLabel:"No fee",icon:"🏦"},
+  flwNgn:{label:"Flutterwave · Card (NGN)",fee:a=>a*0.014,feeLabel:"1.4% fee",icon:"💳"},
+  paystack:{label:"Paystack · Card (NGN)",fee:a=>a*0.015+100,feeLabel:"1.5% + ₦100 fee",icon:"💳"},
+  flwUsd:{label:"Flutterwave · Card (USD)",fee:a=>a*0.038,feeLabel:"3.8% + FX",icon:"🌍",usd:true},
+};
+const FX=1470; // [DEMO] ₦ per $
+const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
+
+const S={
+  registered:false, acctType:"individual",
+  user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",bank:"Access Bank",acct:"5635665556"},
+  nok:null, selfSub:null, minors:[], waitlisted:false, offerLive:true,
+};
+let flow={};
+const hist=[];
+
+/* =================== HELPERS =================== */
+const $=s=>document.querySelector(s);
+const screenEl=$("#screen");
+const ngn=n=>"₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
+const usd=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600);}
+function go(name,arg){hist.push({name,arg});render(name,arg);}
+function back(){hist.pop();const p=hist[hist.length-1];if(p)render(p.name,p.arg);else render("entry");}
+function reset(name,arg){hist.length=0;go(name,arg);}
+function render(name,arg){
+  SCREENS[name](arg);
+  screenEl.scrollTop=0;
+  if(innerWidth<=820)document.getElementById('rail').classList.remove('open');
+  screenEl.classList.remove("scrIn");
+  void screenEl.offsetWidth;
+  screenEl.classList.add("scrIn");
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function initials(n){return n.split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();}
+function genCSCS(){return "5"+Math.floor(1e9+Math.random()*9e9);}
+function nav(title){return `<div class="topnav"><button class="backbtn" onclick="back()" aria-label="Back">←</button>${title?`<span class="t">${title}</span>`:""}</div>`;}
+function countdownHTML(id){return `<div class="cd" id="${id}">
+  <div class="u"><b data-u="d">–</b><small>days</small></div><div class="u"><b data-u="h">–</b><small>hrs</small></div>
+  <div class="u"><b data-u="m">–</b><small>min</small></div><div class="u"><b data-u="s">–</b><small>sec</small></div></div>`;}
+function tickCountdown(id,target){
+  const upd=()=>{const node=document.getElementById(id);if(!node){clearInterval(h);return;}
+    let ms=target-Date.now();if(ms<0)ms=0;
+    const d=Math.floor(ms/864e5),hh=Math.floor(ms/36e5)%24,m=Math.floor(ms/6e4)%60,s=Math.floor(ms/1e3)%60;
+    node.querySelector('[data-u=d]').textContent=d;
+    node.querySelector('[data-u=h]').textContent=String(hh).padStart(2,"0");
+    node.querySelector('[data-u=m]').textContent=String(m).padStart(2,"0");
+    node.querySelector('[data-u=s]').textContent=String(s).padStart(2,"0");};
+  upd();const h=setInterval(upd,1000);
+}
+setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});},1000);
+function tlStep(done,title,sub){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
+  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":"Upcoming"}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
+
+/* =================== SCREENS =================== */
+const SCREENS={
+
+/* ---------- entry: account type + create/login, one page ---------- */
+entry(){
+  screenEl.innerHTML=`
+    <div style="display:flex;padding:10px 20px"><span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span></div>
+    <div class="hero-illus"><div class="hero-circle">📈</div></div>
+    <div class="pad">
+      <h2 class="big" style="text-align:center;margin-top:20px">Invest in Nigeria's biggest IPOs</h2>
+      <p class="lead" style="text-align:center;margin-bottom:8px">Early access to public offers like the Dangote Petrochemicals IPO — with bank-grade security for your BVN and data.</p>
+      <div class="sec" style="margin-top:14px">
+        <div class="sh">I'm subscribing as</div>
+        <div class="seg">
+          <button id="atInd" class="${S.acctType==="individual"?"on":""}" onclick="setAcctType('individual')">🙋 Individual</button>
+          <button id="atCor" class="${S.acctType==="corporate"?"on":""}" onclick="setAcctType('corporate')">🏢 Corporate</button>
+        </div>
+        <div id="atNote">${S.acctType==="corporate"?corpNote():""}</div>
+      </div>
+      <div class="footbar" style="border-top:none;background:transparent">
+        <button class="btn" onclick="go('bvn')">Create new account</button>
+        <button class="btn ghost" style="margin-top:10px" onclick="go('login')">I already have an account</button>
+      </div>
+    </div>`;
+},
+
+bvn(){
+  screenEl.innerHTML=nav("Create account")+`
+    <div class="pad">
+      <h2 class="big">Verify your identity</h2>
+      <p class="lead">Enter your Bank Verification Number (BVN) to get started.</p>
+      <label class="fl" for="bvnIn">BVN</label>
+      <input id="bvnIn" class="in" inputmode="numeric" maxlength="11" placeholder="11-digit BVN" autocomplete="off">
+      <div class="errline" id="bvnErr" style="display:none">BVN must be 11 digits</div>
+      <div class="hint">Your BVN is used only to verify your identity and is never shared.</div>
+      <button class="linkbtn" style="margin-top:8px" onclick="document.getElementById('bvnIn').value='22212345678';document.getElementById('bvnIn').dispatchEvent(new Event('input'))">Use demo BVN <span class="demoTag">DEMO</span></button>
+      <div class="footbar"><button class="btn" id="bvnGo" disabled>Continue</button></div>
+    </div>`;
+  const inp=$("#bvnIn"),btn=$("#bvnGo"),err=$("#bvnErr");
+  inp.addEventListener("input",()=>{inp.value=inp.value.replace(/\D/g,"").slice(0,11);
+    const bad=inp.value.length>0&&inp.value.length<11;
+    err.style.display=bad?"block":"none";inp.classList.toggle("err",bad);
+    btn.disabled=inp.value.length!==11;});
+  btn.onclick=()=>go("isYou");
+},
+
+isYou(){
+  const u=S.user;
+  screenEl.innerHTML=nav("Create account")+`
+    <div class="pad">
+      <h2 class="big">Is this you?</h2>
+      <p class="lead">We pulled these details from your BVN.</p>
+      <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
+      <div class="card">
+        <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
+        <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
+        <div class="sumrow"><span class="k">Email address</span><span class="v">${esc(u.email)}</span></div>
+      </div>
+      <div class="hint">These details come directly from your BVN record and can't be edited here. We'll send a verification code to the email above.</div>
+      <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
+      <div class="footbar"><button class="btn" onclick="go('verify')">Send verification code</button></div>
+    </div>`;
+},
+
+verify(){
+  screenEl.innerHTML=nav("Create account")+`
+    <div class="pad">
+      <h2 class="big">Verify your email</h2>
+      <p class="lead">Enter the 6-digit code we sent to ${esc(S.user.email)}.</p>
+      <div style="display:flex;gap:8px" id="otp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
+      <button class="linkbtn" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button>
+      <label class="fl" for="pw1">Create a password</label>
+      <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
+      <div class="hint">You'll use this password to log in and approve transactions.</div>
+      <label class="fl" for="pw2">Re-enter password</label>
+      <div class="pwwrap"><input id="pw2" class="in" type="password" placeholder="Repeat the same password"><button type="button" class="pweye" data-target="pw2" aria-label="Show password">Show</button></div>
+      <div class="errline" id="pwErr" style="display:none">Passwords don't match</div>
+      <div class="footbar"><button class="btn" id="finBtn" disabled>Finish setup</button></div>
+    </div>`;
+  wirePwToggles();
+  const boxes=[...document.querySelectorAll("#otp input")];
+  boxes.forEach((b,i)=>{b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"");if(b.value&&i<5)boxes[i+1].focus();check();});
+    b.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!b.value&&i>0)boxes[i-1].focus();});});
+  const pw1=$("#pw1"),pw2=$("#pw2"),err=$("#pwErr"),btn=$("#finBtn");
+  window.fillOtp=()=>{["4","8","2","9","1","7"].forEach((d,i)=>boxes[i].value=d);check();};
+  function check(){const otpOk=boxes.every(b=>b.value.length===1);
+    const alnum=/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pw1.value);
+    const match=pw1.value===pw2.value&&pw2.value.length>0;
+    err.style.display=(pw2.value&&!match)?"block":"none";
+    btn.disabled=!(otpOk&&alnum&&match);}
+  pw1.addEventListener("input",check);pw2.addEventListener("input",check);
+  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.offerLive?"live":"prelive");};
+},
+
+login(){
+  screenEl.innerHTML=nav("Log in")+`
+    <div class="pad">
+      <h2 class="big">Welcome back</h2>
+      <p class="lead">Log in with your email and password. No re-verification needed.</p>
+      <label class="fl">Email</label><input class="in" value="${esc(S.user.email)}">
+      <label class="fl">Password</label>
+      <div class="pwwrap"><input class="in" id="lgPw" type="password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
+      <label class="checkline" style="margin-top:14px"><input type="checkbox" checked> Enable biometric unlock <span class="demoTag">NICE-TO-HAVE</span></label>
+      <div class="footbar"><button class="btn" onclick="S.registered=true;toast('Logged in');reset(S.offerLive?'live':'prelive')">Log in</button></div>
+    </div>`;
+  wirePwToggles();
+},
+
+/* ---------- landings ---------- */
+prelive(){
+  screenEl.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px">
+      <span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span>
+      <div class="avat" style="width:34px;height:34px;font-size:.72rem">${initials(S.user.name)}</div>
+    </div>
+    <div class="pad">
+      <div class="card" style="background:linear-gradient(150deg,#FFFFFF,#F4F3E7)">
+        <span class="chip soon">OPENS SOON</span>
+        <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
+        <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
+        <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
+        <div class="sumrow"><span class="k">Offer opens</span><span class="v">10 Jul 2026, 9:00 AM <span class="demoTag">DEMO</span></span></div>
+        <p class="hint" style="margin-top:8px">Offer opens in:</p>
+        ${countdownHTML("cdOpen")}
+        <div style="margin-top:16px">${S.waitlisted
+          ?`<div class="okband"><span class="tick">✓</span> You're on the waiting list — we'll notify you the moment it opens.</div>`
+          :`<button class="btn" onclick="openWaitlist()">Join the waiting list</button>`}</div>
+        <button class="linkbtn" style="margin-top:8px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
+      </div>
+      <h3 style="font-size:.95rem;margin:22px 0 10px">While you wait — other offerings</h3>
+      <div class="offrail">
+        <div class="offcard"><div class="on">Vetiva Money Market Fund</div><div class="od">Low-risk fund, quarterly income</div><div class="oy">18.2% p.a. <span class="demoTag">DEMO</span></div></div>
+        <div class="offcard"><div class="on">Vetiva Griffin 30 ETF</div><div class="od">Tracks the NGX 30 index</div><div class="oy">+24.6% YTD <span class="demoTag">DEMO</span></div></div>
+        <div class="offcard"><div class="on">Dollar Fund</div><div class="od">USD-denominated fixed income</div><div class="oy">6.1% p.a. <span class="demoTag">DEMO</span></div></div>
+      </div>
+      <button class="btn ghost" style="margin-top:14px" onclick="demo.liveFresh();toast('Demo: offer switched to LIVE')">▶ Demo: simulate offer going live</button>
+    </div>`;
+  tickCountdown("cdOpen",OFFER.opensAt.getTime());
+},
+
+live(){
+  const hasAny=S.selfSub||S.minors.length;
+  screenEl.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px">
+      <span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span>
+      <div class="avat" style="width:34px;height:34px;font-size:.72rem">${initials(S.user.name)}</div>
+    </div>
+    <div class="pad">
+      ${hasAny?renderPosition():""}
+      <div class="card" ${hasAny?'style="margin-top:12px"':''}>
+        <span class="chip"><span class="dot"></span>LIVE</span>
+        <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
+        <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
+        <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
+        <div class="sumrow"><span class="k">Maximum</span><span class="v">${OFFER.maxShares.toLocaleString()} shares</span></div>
+        <div class="sumrow"><span class="k">Offer closes</span><span class="v">31 Jul 2026, 5:00 PM <span class="demoTag">DEMO</span></span></div>
+        <p class="hint" style="margin-top:8px">Offer closes in:</p>
+        ${countdownHTML("cdClose")}
+        <button class="linkbtn" style="margin-top:10px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
+      </div>
+      <div style="margin-top:16px">
+        <button class="btn" onclick="startSubscribe(${S.selfSub?"'minor'":"'self'"})">Subscribe${hasAny?" for a child":" now"}</button>
+        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
+      </div>
+    </div>`;
+  tickCountdown("cdClose",OFFER.closesAt.getTime());
+},
+
+/* ---------- THE ONE-PAGER ---------- */
+subscribe(arg){
+  flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:OFFER.minShares,pm:"transfer",
+        cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:""};
+  screenEl.innerHTML=nav("Subscribe")+`
+    <div class="pad">
+
+      <!-- offer -->
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center">
+        <div><b style="font-size:.9rem">${OFFER.name}</b>
+        <div class="hint" style="margin-top:2px">(${OFFER.ticker}) · ${ngn(OFFER.price)}/share <span class="demoTag">DEMO</span> · closes 31 Jul</div></div>
+        <span class="chip"><span class="dot"></span>LIVE</span>
+      </div>
+
+      <!-- who for -->
+      <div class="sec">
+        <div class="sh">👤 Who is this subscription for?</div>
+        <div class="seg">
+          <button id="whoSelf" onclick="subMode('self')">🙋 Myself</button>
+          <button id="whoMinor" onclick="subMode('minor')">🧒 A minor</button>
+        </div>
+        <div id="whoBody"></div>
+      </div>
+
+      <!-- shares -->
+      <div class="sec">
+        <div class="sh">🧮 Number of shares</div>
+        <div class="stepper">
+          <button aria-label="Fewer shares" onclick="subShares(-10)">−</button>
+          <div class="num" id="shNum">${flow.shares}</div>
+          <button aria-label="More shares" onclick="subShares(10)">＋</button>
+        </div>
+        <div class="qp" id="qpRow">
+          ${[10,25,50,100].map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q}</button>`).join("")}
+        </div>
+        <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
+      </div>
+
+      <!-- CSCS -->
+      <div class="sec">
+        <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with the Lead Adviser?</div>
+        <div class="sd" id="cscsHelp">If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.</div>
+        <input id="cscsIn" class="in" style="margin-top:12px" inputmode="numeric" maxlength="11" placeholder="Enter your 11-digit Vetiva CSCS number">
+        <div id="cscsFb"></div>
+        <button class="linkbtn" onclick="document.getElementById('cscsIn').value='56854667865';document.getElementById('cscsIn').dispatchEvent(new Event('input'))">Use demo number <span class="demoTag">DEMO</span></button>
+        <button class="optrow" id="cscsNone" onclick="subCscsNone()">
+          <span class="radio"></span><span class="grow">I don't know / I don't have one</span>
+        </button>
+        <div id="cscsCreate"></div>
+      </div>
+
+      <!-- next of kin (optional, self only) -->
+      <div class="sec" id="nokSec">
+        <div class="sh">🪪 Next of kin <span class="opt">(Optional)</span></div>
+        <div class="sd">Who should we contact in an emergency? You can skip this and add it later.</div>
+        <div id="nokBody"></div>
+      </div>
+
+      <!-- dividend -->
+      <div class="sec">
+        <div class="sh">🏦 Dividend payout account</div>
+        <div class="sd" id="divSd">Where should we pay your dividends when they're declared?</div>
+        <div id="divBody"></div>
+      </div>
+
+      <!-- invitation code -->
+      <div class="sec" id="invSec">
+        <div class="sh">🎟️ Invitation code <span class="opt">(Optional)</span></div>
+        <input class="in" style="margin-top:10px" id="invIn" placeholder="e.g. DPRP-AOK24">
+      </div>
+
+      <!-- payment -->
+      <div class="sec">
+        <div class="sh">💳 How would you like to pay?</div>
+        <div class="sd">Fees are added on top of your subscription. The amount shown is the final total you'll pay.</div>
+        <div id="pmRows"></div>
+        <div id="fxNote"></div>
+      </div>
+
+      <!-- summary + irreversible -->
+      <div class="sec">
+        <div class="card">
+          <div class="sumrow"><span class="k" id="sumSharesK"></span><span class="v" id="sumSharesV"></span></div>
+          <div class="sumrow"><span class="k" id="sumFeeK"></span><span class="v" id="sumFeeV"></span></div>
+          <div class="sumrow total"><span class="k" style="color:var(--ink);font-weight:700">Total</span><span class="v" id="sumTotV"></span></div>
+        </div>
+        <div class="dangerbox">
+          <div class="dt">⚠️ Subscription is final and irreversible</div>
+          <div class="dd">Once payment is made, your funds are committed for allotment. This subscription cannot be cancelled or reversed.</div>
+        </div>
+        <label class="checkline"><input type="checkbox" id="irrCk"> <span><b>I understand and agree.</b></span></label>
+      </div>
+
+      <!-- sticky footer -->
+      <div class="footbar">
+        <div class="fr"><span class="fk">Subscription amount</span><span class="fv" id="footAmt"></span></div>
+        <button class="btn" id="subGo" disabled>Submit subscription</button>
+      </div>
+    </div>`;
+
+  /* --- wiring --- */
+  const cscsIn=$("#cscsIn"),cscsFb=$("#cscsFb");
+  cscsIn.addEventListener("input",()=>{
+    if(flow.cscsChoice==="none")return;
+    flow.cscsChoice="have";
+    cscsIn.value=cscsIn.value.replace(/\D/g,"").slice(0,11);
+    if(cscsIn.value.length===11){
+      const nm=flow.mode==="minor"&&flow.child?flow.child.name:S.user.name;
+      cscsFb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(nm.toUpperCase())} — account verified <span class="demoTag" style="margin-left:6px">OPEN ITEM: real-time check</span></div>`;
+      cscsIn.classList.remove("err");flow.cscs=cscsIn.value;
+    }else if(cscsIn.value.length>0){
+      cscsFb.innerHTML=`<div class="errline">We couldn't find this account — check the number, or choose "I don't have one" below.</div>`;
+      cscsIn.classList.add("err");flow.cscs=null;
+    }else{cscsFb.innerHTML="";cscsIn.classList.remove("err");flow.cscs=null;flow.cscsChoice=null;}
+    validate();
+  });
+  $("#irrCk").addEventListener("change",e=>{flow.irr=e.target.checked;validate();});
+  $("#invIn").addEventListener("input",e=>flow.inv=e.target.value);
+
+  subMode(flow.mode);
+  updateMoney();
+},
+
+/* ---------- top-up one-pager ---------- */
+topup(arg){
+  flow={type:"topup",for:arg.for,minorIdx:arg.minorIdx,shares:10,pm:"transfer",irr:false};
+  const rec=arg.for==="self"?S.selfSub:S.minors[arg.minorIdx];
+  const who=arg.for==="self"?"You":rec.name;
+  screenEl.innerHTML=nav("Top up")+`
+    <div class="pad">
+      <div class="card">
+        <div class="sumrow" style="padding:2px 0"><span class="k">Current position · ${esc(who)}</span><span class="v">${rec.shares} shares · ${ngn(rec.paid)}</span></div>
+        <div class="hint">CSCS ${rec.cscs} — nothing else to re-enter. Just choose shares and pay.</div>
+      </div>
+      <div class="sec">
+        <div class="sh">🧮 How many more shares?</div>
+        <div class="stepper">
+          <button aria-label="Fewer shares" onclick="subShares(-10)">−</button>
+          <div class="num" id="shNum">${flow.shares}</div>
+          <button aria-label="More shares" onclick="subShares(10)">＋</button>
+        </div>
+        <div class="qp" id="qpRow">${[10,25,50,100].map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q}</button>`).join("")}</div>
+        <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
+      </div>
+      <div class="sec">
+        <div class="sh">💳 How would you like to pay?</div>
+        <div id="pmRows"></div><div id="fxNote"></div>
+      </div>
+      <div class="sec">
+        <div class="card">
+          <div class="sumrow"><span class="k" id="sumSharesK"></span><span class="v" id="sumSharesV"></span></div>
+          <div class="sumrow"><span class="k" id="sumFeeK"></span><span class="v" id="sumFeeV"></span></div>
+          <div class="sumrow total"><span class="k" style="color:var(--ink);font-weight:700">Total</span><span class="v" id="sumTotV"></span></div>
+        </div>
+        <div class="dangerbox"><div class="dt">⚠️ Top-up is final and irreversible</div>
+        <div class="dd">Once payment is made, funds are committed for allotment and cannot be reversed.</div></div>
+        <label class="checkline"><input type="checkbox" id="irrCk"> <span><b>I understand and agree.</b></span></label>
+      </div>
+      <div class="footbar">
+        <div class="fr"><span class="fk">Top-up amount</span><span class="fv" id="footAmt"></span></div>
+        <button class="btn" id="subGo" disabled>Pay top-up</button>
+      </div>
+    </div>`;
+  $("#irrCk").addEventListener("change",e=>{flow.irr=e.target.checked;validate();});
+  updateMoney();
+},
+
+processing(){
+  const m=FEES[flow.pm];
+  screenEl.innerHTML=`
+    <div class="center">
+      <div class="spin" role="status" aria-label="Processing payment"></div>
+      <h2 class="big" style="margin-top:24px">${flow.pm==="transfer"?"Confirming your transfer…":"Processing payment…"}</h2>
+      <p class="lead">${m.label} · ${m.usd?usd(flow.total/FX):ngn(flow.total)}<br><span class="demoTag">DEMO — completes instantly</span></p>
+    </div>`;
+  setTimeout(()=>{
+    const amount=flow.shares*OFFER.price;
+    if(flow.type==="sub"&&flow.mode==="self"){
+      S.selfSub={shares:flow.shares,paid:amount,payments:1,cscs:flow.cscs};
+    }else if(flow.type==="sub"&&flow.mode==="minor"){
+      S.minors.push({name:flow.child.name,dob:flow.child.dob,shares:flow.shares,paid:amount,payments:1,cscs:flow.cscs});
+    }else if(flow.type==="topup"){
+      const t=flow.for==="self"?S.selfSub:S.minors[flow.minorIdx];
+      t.shares+=flow.shares;t.paid+=amount;t.payments+=1;
+    }
+    go("success");
+  },1700);
+},
+
+/* ---------- success: the page after payment ---------- */
+success(){
+  const isTopup=flow.type==="topup",isMinor=flow.type==="sub"&&flow.mode==="minor";
+  const rec=isTopup?(flow.for==="self"?S.selfSub:S.minors[flow.minorIdx])
+        :isMinor?S.minors[S.minors.length-1]:S.selfSub;
+  const who=isMinor?flow.child.name:(isTopup&&flow.for==="minor"?rec.name:null);
+  screenEl.innerHTML=`
+    <div class="pad" style="padding-top:0">
+      <div class="bighalo"><div class="inner">✓</div></div>
+      <h2 class="big" style="text-align:center">${isTopup?"Top-up successful!":"Subscription submitted!"}</h2>
+      <p class="lead" style="text-align:center">Thank you, ${esc(S.user.name.split(" ")[0])}. ${isTopup
+        ?`Your top-up of ${flow.shares} shares has been added.`
+        :`Your subscription for ${flow.shares} shares of the ${OFFER.name} IPO has been received successfully${who?` for ${esc(who)}`:""}.`}</p>
+      <div class="card">
+        <div style="text-align:center;padding-bottom:12px;border-bottom:1px solid var(--line)">
+          <div class="hint">${isTopup?"Amount paid (this top-up)":"Amount invested"}</div>
+          <div style="font-size:1.7rem;font-weight:800;font-variant-numeric:tabular-nums">${ngn(flow.total)}</div>
+          ${flow.fee>0?`<div class="hint">incl. ${ngn(flow.fee)} payment fee · ${FEES[flow.pm].label} <span class="demoTag">DEMO</span></div>`:`<div class="hint">${FEES[flow.pm].label} · no fee</div>`}
+        </div>
+        <div class="sumrow"><span class="k">${isTopup?"Total shares":"Shares"}</span><span class="v">${rec.shares}${isTopup?` (${rec.payments} payments · ${ngn(rec.paid)})`:""}</span></div>
+        <div class="sumrow"><span class="k">CSCS account</span><span class="v">${rec.cscs}</span></div>
+        ${who?`<div class="sumrow"><span class="k">Account holder</span><span class="v">${esc(who)} (guardian: you)</span></div>`:""}
+      </div>
+      <h3 style="font-size:.95rem;margin:20px 0 12px">What happens next</h3>
+      <div class="tl">
+        ${tlStep(true,"Application created")}
+        ${tlStep(true,"Funds received")}
+        ${tlStep(true,"CSCS account linked")}
+        ${tlStep(false,"Allotment","Expected by 8 Aug 2026 [DEMO]. If the offer is oversubscribed, your allotment may be scaled back.")}
+        ${tlStep(false,"Shares credited to CSCS account")}
+        ${tlStep(false,"Listing day","You can trade your shares from this date")}
+      </div>
+      <div class="divider"></div>
+      <button class="btn" onclick="shareOffer()">📤 Share this IPO</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>
+      <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
+      <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('live')">Done</button>
+    </div>`;
+},
+};
+
+/* =================== ONE-PAGER LOGIC =================== */
+window.setAcctType=(t)=>{S.acctType=t;
+  $("#atInd").classList.toggle("on",t==="individual");
+  $("#atCor").classList.toggle("on",t==="corporate");
+  $("#atNote").innerHTML=t==="corporate"?corpNote():"";};
+function corpNote(){return `<div class="warnband">🏢 Corporate onboarding uses CAC/RC verification instead of BVN. <span class="demoTag">FLOW TO BE SPECIFIED — proceeds as Individual in this demo</span></div>`;}
+
+window.subMode=(m)=>{
+  flow.mode=m;flow.child=null;flow.cscs=null;flow.cscsChoice=null;
+  $("#whoSelf").classList.toggle("on",m==="self");
+  $("#whoMinor").classList.toggle("on",m==="minor");
+  const body=$("#whoBody"),nok=$("#nokSec");
+  if(m==="self"){
+    nok.style.display="";
+    body.innerHTML=S.selfSub
+      ?`<div class="warnband">You've already subscribed for yourself (${S.selfSub.shares} shares). Use <b>Top up</b> to add more, or switch to "A minor". <button class="linkbtn" style="padding:0 0 0 4px" onclick="go('topup',{for:'self'})">Top up instead →</button></div>`
+      :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)} — verified via BVN</div>`;
+    $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with the Lead Adviser?`;
+    $("#cscsHelp").innerHTML=`If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.`;
+    $("#cscsIn").placeholder="Enter your 11-digit Vetiva CSCS number";
+  }else{
+    nok.style.display="none"; /* no next of kin on child */
+    body.innerHTML=`
+      <label class="fl">Child's NIN</label>
+      <input class="in" id="ninIn" inputmode="numeric" maxlength="11" placeholder="11-digit NIN">
+      <div class="hint">Used only to verify the child's identity and open their CSCS account. You (${esc(S.user.name)}) are recorded as guardian.</div>
+      <div id="ninFb"></div>
+      <button class="linkbtn" onclick="document.getElementById('ninIn').value='98765432101';document.getElementById('ninIn').dispatchEvent(new Event('input'))">Use demo NIN <span class="demoTag">DEMO</span></button>`;
+    $("#cscsQ").innerHTML=`🏛️ Has this child invested with Vetiva before?`;
+    $("#cscsHelp").innerHTML=`If yes, enter the child's Vetiva CSCS account number. If not, select "I don't know / I don't have one" — we'll create one in the child's name, with you as guardian.`;
+    $("#cscsIn").placeholder="Enter the child's 11-digit CSCS number";
+    const nin=$("#ninIn"),fb=$("#ninFb");
+    nin.addEventListener("input",()=>{
+      nin.value=nin.value.replace(/\D/g,"").slice(0,11);
+      if(nin.value.length===11){
+        const nm=DEMO_KIDS[S.minors.length%DEMO_KIDS.length];
+        flow.child={name:nm,dob:"14 Mar 2017",nin:nin.value}; // [DEMO]
+        fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(nm)} verified · NIN ••••${nin.value.slice(-4)} <span class="demoTag" style="margin-left:6px">DEMO</span></div>
+        <div class="hint">When ${esc(nm.split(" ")[0])} turns 18, the account converts to their sole control.</div>`;
+      }else{flow.child=null;fb.innerHTML=nin.value.length?`<div class="errline">NIN must be 11 digits</div>`:"";}
+      validate();
+    });
+  }
+  /* reset CSCS UI */
+  $("#cscsIn").value="";$("#cscsIn").disabled=false;$("#cscsFb").innerHTML="";
+  $("#cscsNone").classList.remove("on");$("#cscsCreate").innerHTML="";
+  renderDividend();
+  if(m==="self")renderNok();
+  const invSec=$("#invSec");if(invSec)invSec.style.display=(m==="minor")?"none":"";
+  validate();
+};
+
+window.subCscsNone=()=>{
+  if(flow.cscsChoice==="none")return;
+  flow.cscsChoice="none";flow.cscs=null;
+  $("#cscsNone").classList.add("on");
+  const inp=$("#cscsIn");inp.value="";inp.disabled=true;inp.classList.remove("err");$("#cscsFb").innerHTML="";
+  const box=$("#cscsCreate");
+  const nm=flow.mode==="minor"?(flow.child?flow.child.name:"the child"):"your";
+  box.innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Requesting ${flow.mode==="minor"?esc(nm)+"'s":"your"} CSCS account with Vetiva…</div>`;
+  setTimeout(()=>{
+    flow.cscs=genCSCS();
+    box.innerHTML=`<div class="okband"><span class="tick">✓</span> CSCS account created — you'll be notified once it's available.</div>
+    <button class="linkbtn" onclick="subCscsUndo()">I actually have one — enter it instead</button>`;
+    validate();
+  },1400);
+  validate();
+};
+window.subCscsUndo=()=>{
+  flow.cscsChoice=null;flow.cscs=null;
+  $("#cscsNone").classList.remove("on");
+  const inp=$("#cscsIn");inp.disabled=false;inp.focus();
+  $("#cscsCreate").innerHTML="";validate();
+};
+
+function renderDividend(){
+  const body=$("#divBody"),sd=$("#divSd");
+  if(!body)return;
+  if(flow.mode==="minor"){
+    sd.textContent="Dividends are paid to your account as guardian.";
+    body.innerHTML=`<div class="card" style="margin-top:10px"><div class="row"><span style="font-size:1.3rem">🏦</span>
+      <div class="grow"><b style="font-size:.9rem">${esc(S.user.bank)}</b>
+      <div class="hint" style="margin-top:1px">${esc(S.user.name.toUpperCase())} · ${esc(S.user.acct)}</div></div>
+      <span class="chip">GUARDIAN</span></div></div>`;
+    flow.divOk=true;
+  }else{
+    sd.textContent="Where should we pay your dividends when they're declared?";
+    flow.divOk=false;
+    body.innerHTML=`
+      <label class="fl">Bank</label>
+      <select class="in" id="dvB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
+      <div id="dvAcctWrap"></div>`;
+    const bSel=$("#dvB"),wrap=$("#dvAcctWrap");
+    bSel.addEventListener("change",()=>{
+      if(!bSel.value){wrap.innerHTML="";flow.divOk=false;validate();return;}
+      wrap.innerHTML=`
+        <label class="fl">Account number</label>
+        <input class="in" id="dvA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
+        <div id="dvFb"></div>`;
+      const a=$("#dvA"),fb=$("#dvFb");
+      const check=()=>{a.value=a.value.replace(/\D/g,"").slice(0,10);
+        if(a.value.length===10){fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name.toUpperCase())} <span class="demoTag">DEMO</span></div>`;flow.divOk=true;}
+        else{fb.innerHTML="";flow.divOk=false;}
+        validate();};
+      a.addEventListener("input",check);a.focus();
+      validate();
+    });
+  }
+}
+
+function wirePwToggles(){
+  document.querySelectorAll(".pweye").forEach(btn=>{
+    btn.onclick=()=>{
+      const inp=document.getElementById(btn.dataset.target);
+      if(!inp)return;
+      const showing=inp.type==="text";
+      inp.type=showing?"password":"text";
+      btn.textContent=showing?"Show":"Hide";
+      btn.setAttribute("aria-label",showing?"Show password":"Hide password");
+    };
+  });
+}
+
+function renderNok(){
+
+  const body=$("#nokBody");
+  if(!body)return;
+  flow.nokOk=true; // optional — never blocks submit
+  body.innerHTML=`
+    <label class="fl">Relationship</label>
+    <select class="in" id="nkR"><option value="">Select relationship</option>${["Family","Spouse"].map(r=>`<option ${S.nok&&S.nok.rel===r?"selected":""}>${r}</option>`).join("")}</select>
+    <div id="nkWrap"></div>`;
+  const rSel=$("#nkR"),wrap=$("#nkWrap");
+  const showFields=()=>{
+    wrap.innerHTML=`
+      <label class="fl">Full name</label>
+      <input class="in" id="nkN" value="${S.nok?esc(S.nok.name):""}" placeholder="e.g. Ada Okafor">
+      <label class="fl">Phone number</label>
+      <input class="in" id="nkP" inputmode="numeric" maxlength="11" value="${S.nok?esc(S.nok.phone):""}" placeholder="e.g. 08012345678">
+      <div id="nkFb"></div>`;
+    const n=$("#nkN"),p=$("#nkP"),fb=$("#nkFb");
+    const check=()=>{
+      p.value=p.value.replace(/\D/g,"").slice(0,11);
+      if(n.value.trim()&&p.value.length===11){
+        fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(n.value.trim().toUpperCase())} — ${esc(rSel.value)} <span class="demoTag">DEMO</span></div>`;
+      }else{fb.innerHTML="";}
+    };
+    n.addEventListener("input",check);p.addEventListener("input",check);
+    if(S.nok&&S.nok.rel===rSel.value)check();
+  };
+  rSel.addEventListener("change",()=>{if(rSel.value)showFields();else wrap.innerHTML="";});
+  if(rSel.value)showFields();
+}
+
+window.subShares=(d)=>{subSetShares(Math.max(OFFER.minShares,Math.min(OFFER.maxShares,flow.shares+d)));};
+window.subSetShares=(v)=>{flow.shares=v;
+  const n=$("#shNum");if(n)n.textContent=v;
+  document.querySelectorAll("#qpRow button").forEach(b=>{
+    const on=+b.dataset.q===v;b.classList.toggle("on",on);
+    b.textContent=(on?"✓ ":"")+b.dataset.q;});
+  updateMoney();};
+
+window.subPm=(k)=>{flow.pm=k;updateMoney();};
+
+function updateMoney(){
+  const amount=flow.shares*OFFER.price;
+  const mL=$("#mathL"),mV=$("#mathV");
+  if(mL){mL.textContent=`${flow.shares} shares × ${ngn(OFFER.price)}`;mV.textContent=ngn(amount);}
+  /* payment rows */
+  const rowsEl=$("#pmRows");
+  if(rowsEl){
+    rowsEl.innerHTML=Object.entries(FEES).map(([k,m])=>{
+      const fee=m.fee(amount),tot=amount+fee;
+      const totTxt=m.usd?`${usd(tot/FX)}<small>≈ ${ngn(tot)} @ ₦${FX.toLocaleString()}/$</small>`:ngn(tot);
+      return `<button class="pm ${flow.pm===k?"on":""}" onclick="subPm('${k}')">
+        <span class="radio"></span><span style="font-size:1.15rem">${m.icon}</span>
+        <span class="grow"><span class="nm">${m.label}${k==="transfer"?'<span class="bestpill">CHEAPEST</span>':""}</span>
+        <span class="fee" style="display:block">${m.feeLabel} <span class="demoTag">DEMO</span></span></span>
+        <span class="tot">${totTxt}</span></button>`;
+    }).join("");
+  }
+  const m=FEES[flow.pm],fee=m.fee(amount),tot=amount+fee;
+  flow.fee=fee;flow.total=tot;
+  const fx=$("#fxNote");
+  if(fx)fx.innerHTML=m.usd?`<div class="warnband">💱 You'll be charged <b>${usd(tot/FX)}</b> at <b>₦${FX.toLocaleString()}/$</b> — rate provided by Flutterwave, valid for this transaction. <span class="demoTag">DEMO RATE</span></div>`:"";
+  /* summary */
+  const sk=$("#sumSharesK");
+  if(sk){sk.textContent=`${flow.shares} shares × ${ngn(OFFER.price)}`;
+    $("#sumSharesV").textContent=ngn(amount);
+    $("#sumFeeK").textContent=`Payment fee · ${m.label}`;
+    $("#sumFeeV").textContent=fee>0?ngn(fee):"₦0.00";
+    $("#sumTotV").textContent=m.usd?`${usd(tot/FX)} (≈ ${ngn(tot)})`:ngn(tot);}
+  const fa=$("#footAmt");if(fa)fa.textContent=m.usd?usd(tot/FX):ngn(tot);
+  validate();
+}
+
+function validate(){
+  const btn=$("#subGo");if(!btn)return;
+  let ok=flow.irr&&flow.shares>=OFFER.minShares;
+  if(flow.type==="sub"){
+    ok=ok&&!!flow.cscs&&flow.divOk;
+    if(flow.mode==="minor")ok=ok&&!!flow.child;
+    if(flow.mode==="self")ok=ok&&!S.selfSub;
+  }
+  btn.disabled=!ok;
+  btn.onclick=ok?()=>{
+    if(flow.type==="sub"&&flow.mode==="self"){
+      const n=$("#nkN")?$("#nkN").value.trim():"",p=$("#nkP")?$("#nkP").value.trim():"",r=$("#nkR")?$("#nkR").value:"";
+      if(n&&p)S.nok={name:n,phone:p,rel:r||"—"};   /* optional — save only if provided */
+    }
+    go("processing");
+  }:null;
+}
+
+/* =================== SHARED ACTIONS =================== */
+function renderPosition(){
+  const rows=[];
+  if(S.selfSub)rows.push({label:"You",sub:S.selfSub,idx:"self"});
+  S.minors.forEach((m,i)=>rows.push({label:m.name,sub:m,idx:i}));
+  const totalShares=rows.reduce((a,r)=>a+r.sub.shares,0);
+  const totalPaid=rows.reduce((a,r)=>a+r.sub.paid,0);
+  return `
+    <div class="poscard">
+      <div class="pl">Your ${OFFER.ticker} position</div>
+      <div class="pv">${totalShares} shares</div>
+      <div class="ps">${ngn(totalPaid)} across ${rows.length} account${rows.length>1?"s":""}</div>
+    </div>
+    <div class="card sublist" style="margin-top:12px">
+      <b style="font-size:.85rem">Your subscriptions</b>
+      ${rows.map(r=>`<div class="subrow">
+        <div class="avat">${initials(r.label==="You"?S.user.name:r.label)}</div>
+        <div class="grow"><div class="sn">${esc(r.label)}</div><div class="sv">${r.sub.shares} shares · ${ngn(r.sub.paid)}${r.sub.payments>1?` · ${r.sub.payments} payments`:""}</div></div>
+        <button class="topupbtn" onclick="startTopup('${r.idx}')">Top up</button>
+      </div>`).join("")}
+    </div>`;
+}
+function startSubscribe(mode){go("subscribe",{mode});}
+function startTopup(idx){go("topup",idx==="self"?{for:"self"}:{for:"minor",minorIdx:+idx});}
+function topupFromSuccess(){
+  if(flow.type==="topup")startTopup(flow.for==="self"?"self":String(flow.minorIdx));
+  else if(flow.mode==="minor")startTopup(String(S.minors.length-1));
+  else startTopup("self");
+}
+function shareOffer(){
+  const msg=`I just subscribed to the ${OFFER.name} IPO on Vetiva 🚀 Offer closes 31 Jul — get in: https://vetiva.demo/dprp`;
+  if(navigator.share){navigator.share({title:"Dangote IPO on Vetiva",text:msg}).catch(()=>{});}
+  else{navigator.clipboard&&navigator.clipboard.writeText(msg);toast("Share link copied — WhatsApp-ready with rich preview [DEMO]");}
+}
+function openWaitlist(){
+  const veil=document.createElement("div");veil.className="sheet-veil";
+  veil.innerHTML=`<div class="sheet">
+    <h3>Join the waiting list</h3>
+    <p class="hint" style="margin-top:2px">How would you like to be notified the moment the offer opens?</p>
+    <div class="seg" style="margin-top:14px"><button id="wlE" class="on">📧 Email</button><button id="wlW">💬 WhatsApp</button></div>
+    <button class="btn" style="margin-top:16px" id="wlGo">Notify me</button>
+    <button class="linkbtn" style="margin-top:8px;width:100%;text-align:center" id="wlX">Cancel</button></div>`;
+  $(".phone").appendChild(veil);
+  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
+  veil.querySelector("#wlE").onclick=()=>{veil.querySelector("#wlE").classList.add("on");veil.querySelector("#wlW").classList.remove("on");};
+  veil.querySelector("#wlW").onclick=()=>{veil.querySelector("#wlW").classList.add("on");veil.querySelector("#wlE").classList.remove("on");};
+  veil.querySelector("#wlX").onclick=()=>veil.remove();
+  veil.querySelector("#wlGo").onclick=()=>{S.waitlisted=true;veil.remove();
+    toast("You're on the list — we'll deep-link you straight into the offer when it opens.");render("prelive");};
+}
+
+/* =================== PRESENTER =================== */
+const demo={
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});S.nok=null;reset("entry");},
+  oldUser(){S.registered=true;S.offerLive=true;reset("login");},
+  prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
+  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
+  minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"live"});go("subscribe",{mode:"minor"});},
+  subscribed(){
+    S.registered=true;S.offerLive=true;
+    S.selfSub={shares:50,paid:50*OFFER.price,payments:2,cscs:"56854667865"};
+    S.minors=[{name:"Chidi Okafor",dob:"14 Mar 2017",shares:25,paid:25*OFFER.price,payments:1,cscs:genCSCS()}];
+    S.nok={name:"Ngozi Okafor",phone:"07085965321",rel:"Sibling"};
+    reset("live");
+  },
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});S.nok=null;hist.length=0;reset("entry");toast("Demo reset");},
+};
+
+/* boot */
+try{
+  reset("entry");
+}catch(e){
+  screenEl.innerHTML=`<div style="padding:40px 24px;text-align:center;font-size:.82rem;color:#C43D3D;line-height:1.6">
+    Something went wrong loading the demo.<br><br>${(e&&e.message)?e.message.replace(/[<>]/g,""):"Unknown error"}<br><br>
+    Try opening this file directly in Safari rather than a preview pane.
+  </div>`;
+  console.error(e);
+}
+</script>
+</body>
+</html>
