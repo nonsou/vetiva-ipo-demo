@@ -119,7 +119,9 @@
   .qp button:active{transform:scale(.94)}
   .qp button.on{background:var(--olive);color:var(--ink-btn);border-color:var(--olive)}
   .stepper{display:flex;align-items:center;gap:12px;margin-top:12px}
-  .stepper .num{flex:1;text-align:center;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums}
+  .stepper .num{flex:1;text-align:center;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px;font-size:1.3rem;font-weight:700;font-variant-numeric:tabular-nums;font-family:inherit;color:var(--ink);-moz-appearance:textfield}
+  .stepper .num::-webkit-outer-spin-button,.stepper .num::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .stepper .num:focus{outline:none;border-color:var(--olive-deep)}
   .stepper button{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card);font-size:1.3rem;cursor:pointer;font-family:inherit;color:var(--ink);box-shadow:0 1px 2px rgba(24,26,16,.05);transition:transform .12s}
   .stepper button:active{transform:scale(.9)}
   .mathline{margin-top:12px;background:var(--olive-soft);border-radius:12px;padding:12px 14px;font-size:.85rem;display:flex;justify-content:space-between;align-items:center}
@@ -252,7 +254,7 @@
     <div class="grp">Controls</div>
     <button onclick="demo.reset()">♻️ Reset demo</button>
     <div class="note">
-      <b>v3 changes:</b> Individual/Corporate selector on entry · entire purchase on ONE page with sticky amount + submit · CSCS created inline (no interstitial page) · next of kin optional, self path only (hidden for minors) · optional invitation code · success page follows payment.
+      <b>v3 changes:</b> Individual/Corporate selector on entry · entire purchase on ONE page with sticky amount + submit · CSCS created inline (no interstitial page) · optional invitation code · success page follows payment.
     </div>
   </aside>
 
@@ -276,10 +278,26 @@
 /* =================== DATA & STATE =================== */
 const OFFER={
   name:"Dangote Petrochemicals Refinery-Petrochemicals",ticker:"DPRP",
-  price:245.50,minShares:10,maxShares:100000,                       // [DEMO]
+  price:245.50,minAmount:100000,maxShares:100000,                   // [DEMO] — minAmount is min NGN investment
   opensAt:new Date("2026-07-10T09:00:00+01:00"),                    // [DEMO]
   closesAt:new Date("2026-07-31T17:00:00+01:00"),                   // [DEMO]
 };
+// Quantity rounds to the nearest 100 shares below 10,000, and the nearest 1,000 at/above 10,000.
+function qtyStep(shares){ return shares>=10000?1000:100; }
+function roundQty(shares,floor){
+  floor=floor==null?OFFER.minShares:floor;
+  const step=qtyStep(shares);
+  const rounded=Math.round(shares/step)*step;
+  return Math.max(floor,Math.min(OFFER.maxShares,rounded));
+}
+// Minimum shares is derived from the minimum investment amount ÷ price per share, then rounded up
+// to a valid step — so it automatically follows the price, rather than being a fixed number.
+(function(){
+  const raw=Math.ceil(OFFER.minAmount/OFFER.price);
+  const step=qtyStep(raw);
+  OFFER.minShares=Math.ceil(raw/step)*step;
+})();
+const QUICK_PICKS=[500,1000,5000,10000]; // [DEMO] — flexible entry still allowed; these are shortcuts only
 const FEES={ // [DEMO]
   transfer:{label:"Bank transfer",fee:a=>0,feeLabel:"No fee",icon:"🏦"},
   flwNgn:{label:"Flutterwave · Card (NGN)",fee:a=>a*0.014,feeLabel:"1.4% fee",icon:"💳"},
@@ -292,7 +310,7 @@ const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",bank:"Access Bank",acct:"5635665556"},
-  nok:null, selfSub:null, minors:[], waitlisted:false, offerLive:true,
+  selfSub:null, minors:[], waitlisted:false, offerLive:true,
 };
 let flow={};
 const hist=[];
@@ -454,8 +472,6 @@ prelive(){
       <div class="card" style="background:linear-gradient(150deg,#FFFFFF,#F4F3E7)">
         <span class="chip soon">OPENS SOON</span>
         <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
-        <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
-        <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
         <div class="sumrow"><span class="k">Offer opens</span><span class="v">10 Jul 2026, 9:00 AM <span class="demoTag">DEMO</span></span></div>
         <p class="hint" style="margin-top:8px">Offer opens in:</p>
         ${countdownHTML("cdOpen")}
@@ -530,13 +546,14 @@ subscribe(arg){
       <!-- shares -->
       <div class="sec">
         <div class="sh">🧮 Number of shares</div>
+        <div class="sd" id="shHint">Minimum ${OFFER.minShares.toLocaleString()} shares. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
         <div class="stepper">
-          <button aria-label="Fewer shares" onclick="subShares(-10)">−</button>
-          <div class="num" id="shNum">${flow.shares}</div>
-          <button aria-label="More shares" onclick="subShares(10)">＋</button>
+          <button aria-label="Fewer shares" onclick="subShares(-1)">−</button>
+          <input class="num" id="shNum" inputmode="numeric" value="${flow.shares}" onchange="subInputShares(this.value)" onblur="subInputShares(this.value)">
+          <button aria-label="More shares" onclick="subShares(1)">＋</button>
         </div>
         <div class="qp" id="qpRow">
-          ${[10,25,50,100].map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q}</button>`).join("")}
+          ${QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}
         </div>
         <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
       </div>
@@ -552,13 +569,6 @@ subscribe(arg){
           <span class="radio"></span><span class="grow">I don't know / I don't have one</span>
         </button>
         <div id="cscsCreate"></div>
-      </div>
-
-      <!-- next of kin (optional, self only) -->
-      <div class="sec" id="nokSec">
-        <div class="sh">🪪 Next of kin <span class="opt">(Optional)</span></div>
-        <div class="sd">Who should we contact in an emergency? You can skip this and add it later.</div>
-        <div id="nokBody"></div>
       </div>
 
       <!-- dividend -->
@@ -628,7 +638,7 @@ subscribe(arg){
 
 /* ---------- top-up one-pager ---------- */
 topup(arg){
-  flow={type:"topup",for:arg.for,minorIdx:arg.minorIdx,shares:10,pm:"transfer",irr:false};
+  flow={type:"topup",for:arg.for,minorIdx:arg.minorIdx,shares:100,pm:"transfer",irr:false};
   const rec=arg.for==="self"?S.selfSub:S.minors[arg.minorIdx];
   const who=arg.for==="self"?"You":rec.name;
   screenEl.innerHTML=nav("Top up")+`
@@ -639,12 +649,13 @@ topup(arg){
       </div>
       <div class="sec">
         <div class="sh">🧮 How many more shares?</div>
+        <div class="sd" id="shHint">Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
         <div class="stepper">
-          <button aria-label="Fewer shares" onclick="subShares(-10)">−</button>
-          <div class="num" id="shNum">${flow.shares}</div>
-          <button aria-label="More shares" onclick="subShares(10)">＋</button>
+          <button aria-label="Fewer shares" onclick="subShares(-1)">−</button>
+          <input class="num" id="shNum" inputmode="numeric" value="${flow.shares}" onchange="subInputShares(this.value)" onblur="subInputShares(this.value)">
+          <button aria-label="More shares" onclick="subShares(1)">＋</button>
         </div>
-        <div class="qp" id="qpRow">${[10,25,50,100].map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q}</button>`).join("")}</div>
+        <div class="qp" id="qpRow">${QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}</div>
         <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
       </div>
       <div class="sec">
@@ -745,24 +756,22 @@ window.subMode=(m)=>{
   flow.mode=m;flow.child=null;flow.cscs=null;flow.cscsChoice=null;
   $("#whoSelf").classList.toggle("on",m==="self");
   $("#whoMinor").classList.toggle("on",m==="minor");
-  const body=$("#whoBody"),nok=$("#nokSec");
+  const body=$("#whoBody");
   if(m==="self"){
-    nok.style.display="";
     body.innerHTML=S.selfSub
       ?`<div class="warnband">You've already subscribed for yourself (${S.selfSub.shares} shares). Use <b>Top up</b> to add more, or switch to "A minor". <button class="linkbtn" style="padding:0 0 0 4px" onclick="go('topup',{for:'self'})">Top up instead →</button></div>`
-      :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)} — verified via BVN</div>`;
+      :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)}</div>`;
     $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with the Lead Adviser?`;
     $("#cscsHelp").innerHTML=`If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.`;
     $("#cscsIn").placeholder="Enter your 11-digit Vetiva CSCS number";
   }else{
-    nok.style.display="none"; /* no next of kin on child */
     body.innerHTML=`
       <label class="fl">Child's NIN</label>
       <input class="in" id="ninIn" inputmode="numeric" maxlength="11" placeholder="11-digit NIN">
       <div class="hint">Used only to verify the child's identity and open their CSCS account. You (${esc(S.user.name)}) are recorded as guardian.</div>
       <div id="ninFb"></div>
       <button class="linkbtn" onclick="document.getElementById('ninIn').value='98765432101';document.getElementById('ninIn').dispatchEvent(new Event('input'))">Use demo NIN <span class="demoTag">DEMO</span></button>`;
-    $("#cscsQ").innerHTML=`🏛️ Has this child invested with Vetiva before?`;
+    $("#cscsQ").innerHTML=`🏛️ Does your child have CSCS with Vetiva?`;
     $("#cscsHelp").innerHTML=`If yes, enter the child's Vetiva CSCS account number. If not, select "I don't know / I don't have one" — we'll create one in the child's name, with you as guardian.`;
     $("#cscsIn").placeholder="Enter the child's 11-digit CSCS number";
     const nin=$("#ninIn"),fb=$("#ninFb");
@@ -781,7 +790,6 @@ window.subMode=(m)=>{
   $("#cscsIn").value="";$("#cscsIn").disabled=false;$("#cscsFb").innerHTML="";
   $("#cscsNone").classList.remove("on");$("#cscsCreate").innerHTML="";
   renderDividend();
-  if(m==="self")renderNok();
   const invSec=$("#invSec");if(invSec)invSec.style.display=(m==="minor")?"none":"";
   validate();
 };
@@ -796,7 +804,7 @@ window.subCscsNone=()=>{
   box.innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Requesting ${flow.mode==="minor"?esc(nm)+"'s":"your"} CSCS account with Vetiva…</div>`;
   setTimeout(()=>{
     flow.cscs=genCSCS();
-    box.innerHTML=`<div class="okband"><span class="tick">✓</span> CSCS account created — you'll be notified once it's available.</div>
+    box.innerHTML=`<div class="okband"><span class="tick">✓</span> CSCS creation request received and is processing. This will be provided in your profile once available.</div>
     <button class="linkbtn" onclick="subCscsUndo()">I actually have one — enter it instead</button>`;
     validate();
   },1400);
@@ -857,44 +865,24 @@ function wirePwToggles(){
   });
 }
 
-function renderNok(){
-
-  const body=$("#nokBody");
-  if(!body)return;
-  flow.nokOk=true; // optional — never blocks submit
-  body.innerHTML=`
-    <label class="fl">Relationship</label>
-    <select class="in" id="nkR"><option value="">Select relationship</option>${["Family","Spouse"].map(r=>`<option ${S.nok&&S.nok.rel===r?"selected":""}>${r}</option>`).join("")}</select>
-    <div id="nkWrap"></div>`;
-  const rSel=$("#nkR"),wrap=$("#nkWrap");
-  const showFields=()=>{
-    wrap.innerHTML=`
-      <label class="fl">Full name</label>
-      <input class="in" id="nkN" value="${S.nok?esc(S.nok.name):""}" placeholder="e.g. Ada Okafor">
-      <label class="fl">Phone number</label>
-      <input class="in" id="nkP" inputmode="numeric" maxlength="11" value="${S.nok?esc(S.nok.phone):""}" placeholder="e.g. 08012345678">
-      <div id="nkFb"></div>`;
-    const n=$("#nkN"),p=$("#nkP"),fb=$("#nkFb");
-    const check=()=>{
-      p.value=p.value.replace(/\D/g,"").slice(0,11);
-      if(n.value.trim()&&p.value.length===11){
-        fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(n.value.trim().toUpperCase())} — ${esc(rSel.value)} <span class="demoTag">DEMO</span></div>`;
-      }else{fb.innerHTML="";}
-    };
-    n.addEventListener("input",check);p.addEventListener("input",check);
-    if(S.nok&&S.nok.rel===rSel.value)check();
-  };
-  rSel.addEventListener("change",()=>{if(rSel.value)showFields();else wrap.innerHTML="";});
-  if(rSel.value)showFields();
-}
-
-window.subShares=(d)=>{subSetShares(Math.max(OFFER.minShares,Math.min(OFFER.maxShares,flow.shares+d)));};
-window.subSetShares=(v)=>{flow.shares=v;
-  const n=$("#shNum");if(n)n.textContent=v;
+function shareFloor(){ return flow.type==="topup"?100:OFFER.minShares; }
+window.subShares=(dir)=>{
+  const step=qtyStep(flow.shares);
+  subSetShares(roundQty(flow.shares+dir*step,shareFloor()));
+};
+window.subSetShares=(v)=>{
+  flow.shares=roundQty(v,shareFloor());
+  const n=$("#shNum");if(n)n.value=flow.shares;
+  const hint=$("#shHint");
+  if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${OFFER.minShares.toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
   document.querySelectorAll("#qpRow button").forEach(b=>{
-    const on=+b.dataset.q===v;b.classList.toggle("on",on);
-    b.textContent=(on?"✓ ":"")+b.dataset.q;});
+    const on=+b.dataset.q===flow.shares;b.classList.toggle("on",on);
+    b.textContent=(on?"✓ ":"")+(+b.dataset.q).toLocaleString();});
   updateMoney();};
+window.subInputShares=(raw)=>{
+  const v=parseInt(String(raw).replace(/\D/g,""),10);
+  subSetShares(isNaN(v)?shareFloor():v);
+};
 
 window.subPm=(k)=>{flow.pm=k;updateMoney();};
 
@@ -932,20 +920,14 @@ function updateMoney(){
 
 function validate(){
   const btn=$("#subGo");if(!btn)return;
-  let ok=flow.irr&&flow.shares>=OFFER.minShares;
+  let ok=flow.irr&&flow.shares>=shareFloor();
   if(flow.type==="sub"){
     ok=ok&&!!flow.cscs&&flow.divOk;
     if(flow.mode==="minor")ok=ok&&!!flow.child;
     if(flow.mode==="self")ok=ok&&!S.selfSub;
   }
   btn.disabled=!ok;
-  btn.onclick=ok?()=>{
-    if(flow.type==="sub"&&flow.mode==="self"){
-      const n=$("#nkN")?$("#nkN").value.trim():"",p=$("#nkP")?$("#nkP").value.trim():"",r=$("#nkR")?$("#nkR").value:"";
-      if(n&&p)S.nok={name:n,phone:p,rel:r||"—"};   /* optional — save only if provided */
-    }
-    go("processing");
-  }:null;
+  btn.onclick=ok?()=>go("processing"):null;
 }
 
 /* =================== SHARED ACTIONS =================== */
@@ -1001,19 +983,18 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});S.nok=null;reset("entry");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
   minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"live"});go("subscribe",{mode:"minor"});},
   subscribed(){
     S.registered=true;S.offerLive=true;
-    S.selfSub={shares:50,paid:50*OFFER.price,payments:2,cscs:"56854667865"};
-    S.minors=[{name:"Chidi Okafor",dob:"14 Mar 2017",shares:25,paid:25*OFFER.price,payments:1,cscs:genCSCS()}];
-    S.nok={name:"Ngozi Okafor",phone:"07085965321",rel:"Sibling"};
+    S.selfSub={shares:1000,paid:1000*OFFER.price,payments:2,cscs:"56854667865"};
+    S.minors=[{name:"Chidi Okafor",dob:"14 Mar 2017",shares:500,paid:500*OFFER.price,payments:1,cscs:genCSCS()}];
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});S.nok=null;hist.length=0;reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});hist.length=0;reset("entry");toast("Demo reset");},
 };
 
 /* boot */
