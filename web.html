@@ -30,14 +30,14 @@
   }
   /* ==========================================================
      FIXED SPLIT SHELL — the whole app lives in this structure.
-     Left 75vw: full-bleed marketing slider (never scrolls).
-     Right 25vw: the form panel — every screen renders here and
+     Left 70vw: full-bleed marketing slider (never scrolls).
+     Right 30vw: the form panel — every screen renders here and
      scrolls independently inside itself.
      Mobile: slider hidden, panel becomes the full screen.
      ========================================================== */
   .shell{display:flex;height:100vh;height:100dvh;width:100vw;overflow:hidden}
-  .heroSide{flex:0 0 75%;position:relative;overflow:hidden;background:#1E2013}
-  .panelSide{flex:0 0 25%;min-width:360px;display:flex;flex-direction:column;background:var(--cream);box-shadow:-14px 0 40px rgba(24,26,16,.18);z-index:5}
+  .heroSide{flex:0 0 70%;position:relative;overflow:hidden;background:#1E2013}
+  .panelSide{flex:0 0 30%;min-width:360px;display:flex;flex-direction:column;background:var(--cream);box-shadow:-14px 0 40px rgba(24,26,16,.18);z-index:5}
   .panelHead{flex:0 0 auto;padding:18px 24px 12px;font-weight:800;color:var(--olive-deep);font-size:1.1rem;letter-spacing:-.01em;border-bottom:1px solid var(--line);background:var(--cream)}
   .panelScroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
   .panelScroll::-webkit-scrollbar{width:8px}
@@ -290,7 +290,7 @@
   <div class="grp">Controls</div>
   <button onclick="demo.reset()">♻️ Reset demo</button>
   <div class="note">
-    <b>Web layout:</b> the whole viewport is a fixed split — left ¾ is a full-bleed marketing slider that never scrolls; right ¼ is the form panel where the entire flow happens, scrolling independently. On mobile the slider disappears and the form takes the whole screen. Presenter panel is a demo aid, not part of the product.
+    <b>Web layout:</b> the whole viewport is a fixed split — left 70% is a full-bleed marketing slider that never scrolls; right 30% is the form panel where the entire flow happens, scrolling independently. On mobile the slider disappears and the form takes the whole screen. Presenter panel is a demo aid, not part of the product.
   </div>
 </aside>
 
