@@ -309,7 +309,7 @@ const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
 
 const S={
   registered:false, acctType:"individual",
-  user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",bank:"Access Bank",acct:"5635665556"},
+  user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
   selfSub:null, minors:[], waitlisted:false, offerLive:true,
 };
 let flow={};
@@ -408,13 +408,21 @@ isYou(){
       <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
+        <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
         <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
-        <div class="sumrow"><span class="k">Email address</span><span class="v">${esc(u.email)}</span></div>
       </div>
-      <div class="hint">These details come directly from your BVN record and can't be edited here. We'll send a verification code to the email above.</div>
+      <div class="hint">Name, date of birth, and phone come directly from your BVN record and can't be edited here.</div>
+      <label class="fl" for="emIn">Email address</label>
+      <input id="emIn" class="in" type="email" value="${esc(u.email)}">
+      <div class="hint">Not pulled from BVN — update this if it's wrong. We'll send a verification code here.</div>
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
-      <div class="footbar"><button class="btn" onclick="go('verify')">Send verification code</button></div>
+      <div class="footbar"><button class="btn" id="isYouGo">Send verification code</button></div>
     </div>`;
+  $("#isYouGo").onclick=()=>{
+    const v=$("#emIn").value.trim();
+    if(v)S.user.email=v;
+    go("verify");
+  };
 },
 
 verify(){
