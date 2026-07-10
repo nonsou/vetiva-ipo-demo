@@ -26,41 +26,46 @@
   html,body{height:100%}
   body{
     font-family:'Instrument Sans',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
-    background:var(--cream);color:var(--ink);height:100%;overflow:hidden;
+    background:#FFFFFF;color:var(--ink);min-height:100%;
   }
   /* ==========================================================
-     FIXED SPLIT SHELL — the whole app lives in this structure.
-     Left 70vw: full-bleed marketing slider (never scrolls).
-     Right 30vw: the form panel — every screen renders here and
-     scrolls independently inside itself.
-     Mobile: slider hidden, panel becomes the full screen.
+     TWO SHELLS (matched to client.vetiva.com portal style):
+     AUTH — before login: inset rounded image-slider card on the
+       left (~1/3), form centered in the open space to its right.
+       Mobile: slider hidden, form fills the screen.
+     APP — after login: no slider at all. Regular full-width web
+       layout: slim top bar + centered content column, body scroll.
      ========================================================== */
-  .shell{display:flex;height:100vh;height:100dvh;width:100vw;overflow:hidden}
-  .heroSide{flex:0 0 70%;position:relative;overflow:hidden;background:#1E2013}
-  .panelSide{flex:0 0 30%;min-width:360px;display:flex;flex-direction:column;background:var(--cream);box-shadow:-14px 0 40px rgba(24,26,16,.18);z-index:5}
-  .panelHead{flex:0 0 auto;padding:18px 24px 12px;font-weight:800;color:var(--olive-deep);font-size:1.1rem;letter-spacing:-.01em;border-bottom:1px solid var(--line);background:var(--cream)}
-  .panelScroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
-  .panelScroll::-webkit-scrollbar{width:8px}
-  .panelScroll::-webkit-scrollbar-thumb{background:#D8D5C4;border-radius:8px}
+  /* ---------- AUTH shell ---------- */
+  .authshell{display:flex;height:100vh;height:100dvh;width:100vw;overflow:hidden;background:#FFFFFF}
+  .sliderCard{flex:0 0 32%;min-width:340px;margin:28px 0 28px 28px;border-radius:22px;overflow:hidden;position:relative;background:#1E2013;box-shadow:0 24px 60px -18px rgba(24,26,16,.35)}
+  .authArea{flex:1 1 auto;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:40px 24px}
+  .authBox{width:min(470px,100%)}
   @media (max-width:900px){
-    .heroSide{display:none}
-    .panelSide{flex:1 1 100%;min-width:0;box-shadow:none}
+    .sliderCard{display:none}
+    .authArea{padding:24px 16px}
   }
-  /* ---------- full-bleed marketing slider ---------- */
+  /* ---------- slider (inside the auth card) ---------- */
   .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;display:flex;align-items:flex-end}
   .slide.on{opacity:1;z-index:2}
   .slide .bg{position:absolute;inset:0;background-size:cover;background-position:center}
-  .slide .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(14,15,9,.78) 0%,rgba(14,15,9,.25) 45%,rgba(14,15,9,.05) 70%)}
-  .slide .copy{position:relative;z-index:2;padding:56px 64px;color:#F7F8EF;max-width:640px}
-  .slide .kick{font-size:.75rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:#D8DFB4;margin-bottom:12px}
-  .slide .stitle{font-size:clamp(1.6rem,3vw,2.6rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;margin-bottom:12px}
-  .slide .sdesc{font-size:clamp(.9rem,1.1vw,1.05rem);line-height:1.55;opacity:.92;max-width:480px}
-  .slide .scta{display:inline-block;margin-top:20px;background:rgba(247,248,239,.14);border:1px solid rgba(247,248,239,.4);color:#F7F8EF;font-weight:700;font-size:.85rem;border-radius:999px;padding:10px 20px;backdrop-filter:blur(6px)}
-  .heroBrand{position:absolute;top:28px;left:64px;z-index:3;color:#F7F8EF;font-weight:800;font-size:1.3rem;letter-spacing:-.01em}
-  .dots{position:absolute;bottom:28px;left:64px;display:flex;gap:8px;z-index:3}
-  .dots button{width:8px;height:8px;border-radius:50%;border:none;background:rgba(255,255,255,.35);cursor:pointer;padding:0;transition:all .25s}
-  .dots button.on{background:#fff;width:26px;border-radius:5px}
+  .slide .shade{position:absolute;inset:0;background:linear-gradient(to top,rgba(14,15,9,.55) 0%,rgba(14,15,9,.12) 45%,rgba(14,15,9,.08) 100%)}
+  .slide .copy{position:relative;z-index:2;margin:22px;padding:22px 24px 18px;color:#FFFFFF;background:rgba(30,32,19,.38);border-radius:16px;backdrop-filter:blur(10px) saturate(1.2);-webkit-backdrop-filter:blur(10px) saturate(1.2);width:100%}
+  .slide .stitle{font-size:clamp(1.15rem,1.6vw,1.6rem);font-weight:700;letter-spacing:-.02em;line-height:1.2;margin-bottom:8px}
+  .slide .sdesc{font-size:.85rem;line-height:1.5;opacity:.94}
+  .heroBrand{position:absolute;top:22px;left:24px;z-index:3;color:#FFFFFF;font-weight:800;font-size:1.05rem;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+  .dots{display:flex;gap:6px;margin-top:14px}
+  .dots button{width:7px;height:7px;border-radius:50%;border:none;background:rgba(255,255,255,.4);cursor:pointer;padding:0;transition:all .25s}
+  .dots button.on{background:#fff;width:22px;border-radius:5px}
   .dots button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+  /* ---------- APP shell (post-login: no slider, regular page) ---------- */
+  .appshell{min-height:100vh;background:var(--cream)}
+  .apptop{display:flex;justify-content:space-between;align-items:center;padding:14px 30px;position:sticky;top:0;z-index:20;
+    background:rgba(250,248,241,.85);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 1px 0 rgba(24,26,16,.06)}
+  .apptop .brand{font-weight:800;color:var(--olive-deep);font-size:1.1rem;letter-spacing:-.01em}
+  .apptop .userchip{display:flex;align-items:center;gap:9px;font-size:.85rem;color:var(--muted)}
+  .appmain{max-width:640px;margin:0 auto;padding:10px 20px 60px}
+  @media (max-width:640px){.apptop{padding:12px 18px}.appmain{padding:6px 12px 50px}}
   /* ---------- presenter (floating overlay, demo aid only) ---------- */
   .rail{width:290px;color:#E9E7D9;position:fixed;left:20px;bottom:74px;background:#1E2013;border-radius:16px;padding:18px 18px 14px;
     box-shadow:0 20px 50px rgba(0,0,0,.5);z-index:80;max-height:76vh;overflow:auto;
@@ -80,7 +85,8 @@
   @media (prefers-reduced-motion:reduce){.screen.scrIn{animation:none}}
   /* shared */
   .pad{padding:8px 24px 28px;display:flex;flex-direction:column;flex:1}
-  .topnav{display:flex;align-items:center;gap:14px;padding:12px 24px;background:rgba(244,242,232,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);position:sticky;top:0;z-index:5;box-shadow:0 1px 0 rgba(24,26,16,.06)}
+  .topnav{display:flex;align-items:center;gap:14px;padding:12px 24px;background:transparent;position:sticky;top:0;z-index:5}
+  .appshell .topnav{background:rgba(250,248,241,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 1px 0 rgba(24,26,16,.06);top:57px}
   .backbtn{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--ink);padding:2px 6px;line-height:1;font-family:inherit}
   .backbtn:focus-visible{outline:2px solid var(--olive);border-radius:6px}
   .topnav .t{font-weight:700;font-size:.95rem}
@@ -257,23 +263,12 @@
 <body>
 <noscript><div style="background:#F4EBEB;color:#C43D3D;padding:16px;text-align:center;font-family:sans-serif;font-size:.9rem">This demo needs JavaScript enabled, and must be opened in a browser (Safari/Chrome) — not a document preview.</div></noscript>
 
-<div class="shell">
-  <section class="heroSide" id="heroSlider" aria-label="Vetiva highlights">
-    <div class="heroBrand">Ⓥ vetiva</div>
-    <!-- slides injected by JS -->
-  </section>
-  <aside class="panelSide">
-    <div class="panelHead">Dangote Petroleum Refinery &amp; Petrochemicals IPO</div>
-    <div class="panelScroll" id="panelScroll">
-      <div id="screen" aria-live="polite">
-        <div style="padding:40px 24px;text-align:center;font-size:.85rem;color:#6E7261;line-height:1.6">
-          Loading demo…<br><br>
-          If this message doesn't disappear in a second, this file opened in a preview mode that doesn't run scripts.<br><br>
-          <b>Fix:</b> open this file directly in Safari/Chrome, not a Files/Messages/Mail preview.
-        </div>
-      </div>
-    </div>
-  </aside>
+<div id="appRoot">
+  <div style="padding:60px 24px;text-align:center;font-size:.85rem;color:#6E7261;line-height:1.6;font-family:sans-serif">
+    Loading demo…<br><br>
+    If this message doesn't disappear in a second, this file opened in a preview mode that doesn't run scripts.<br><br>
+    <b>Fix:</b> open this file directly in Safari/Chrome, not a Files/Messages/Mail preview.
+  </div>
 </div>
 
 <aside class="rail" id="rail">
@@ -290,7 +285,7 @@
   <div class="grp">Controls</div>
   <button onclick="demo.reset()">♻️ Reset demo</button>
   <div class="note">
-    <b>Web layout:</b> the whole viewport is a fixed split — left 70% is a full-bleed marketing slider that never scrolls; right 30% is the form panel where the entire flow happens, scrolling independently. On mobile the slider disappears and the form takes the whole screen. Presenter panel is a demo aid, not part of the product.
+    <b>Web layout:</b> before login, an inset image-slider card sits on the left with the form in the open space beside it (client.vetiva.com style). After login the slider is gone — regular full-width web layout for everything. Presenter panel is a demo aid, not part of the product.
   </div>
 </aside>
 
@@ -341,8 +336,7 @@ const hist=[];
 
 /* =================== HELPERS =================== */
 const $=s=>document.querySelector(s);
-const screenEl=document.getElementById("screen");
-const panelScroll=document.getElementById("panelScroll");
+let screenEl=null;
 const ngn=n=>"₦"+n.toLocaleString("en-NG",{minimumFractionDigits:2,maximumFractionDigits:2});
 const usd=n=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2600);}
@@ -350,51 +344,80 @@ function go(name,arg){hist.push({name,arg});render(name,arg);}
 function back(){hist.pop();const p=hist[hist.length-1];if(p)render(p.name,p.arg);else render("entry");}
 function reset(name,arg){hist.length=0;go(name,arg);}
 
-/* ---------- full-bleed marketing slider (left ¾) ----------
-   Initialized ONCE at boot. Screen navigation in the panel never
-   touches it — it just keeps rotating. The img URLs are placeholder
-   photography [DEMO] — swap for real Vetiva/Dangote campaign imagery.
-   The gradient renders as a fallback if the image can't load. */
+/* Which shell each screen uses:
+   AUTH (pre-login): inset slider card left + form centered beside it.
+   APP  (post-login): no slider — regular full-width layout. */
+const AUTH_SCREENS=new Set(["entry","bvn","isYou","verify","login"]);
+
+/* ---------- slider (auth shell only) ----------
+   The img URLs are placeholder photography [DEMO] — swap for real
+   Vetiva/Dangote campaign imagery. Gradient renders if image fails. */
 const SLIDES=[
-  {img:"https://picsum.photos/seed/dangote-refinery/1800/1200",
+  {img:"https://picsum.photos/seed/dangote-refinery/1200/1600",
    grad:"linear-gradient(135deg,#2C3018 0%,#78814B 60%,#A8B26B 100%)",
-   kick:"Now open · Public offer",title:"Own a piece of the Dangote Refinery",
-   desc:"Africa's largest single-train refinery is open for public investment. Subscribe from ₦100,000.",cta:"Offer closes 31 July [DEMO]"},
-  {img:"https://picsum.photos/seed/vetiva-fund/1800/1200",
+   title:"Own a piece of the Dangote Refinery.",
+   desc:"Africa's largest single-train refinery is open for public investment — subscribe from ₦100,000. [DEMO]"},
+  {img:"https://picsum.photos/seed/vetiva-fund/1200/1600",
    grad:"linear-gradient(150deg,#1E2013 0%,#5F673A 70%,#8D9760 100%)",
-   kick:"Vetiva Asset Management",title:"Money Market Fund — 18.2% p.a.",
-   desc:"Low-risk quarterly income while you wait for listing day. [DEMO]",cta:"Explore funds"},
-  {img:"https://picsum.photos/seed/griffin-etf/1800/1200",
-   grad:"linear-gradient(120deg,#23251B 0%,#4A5230 55%,#78814B 100%)",
-   kick:"Vetiva Griffin 30 ETF",title:"Track the NGX 30 — +24.6% YTD",
-   desc:"Broad Nigerian equity exposure in a single instrument. [DEMO]",cta:"Learn more"},
-  {img:"https://picsum.photos/seed/diaspora-usd/1800/1200",
+   title:"From savings to strategy — start investing today.",
+   desc:"Explore stocks, bonds, and funds — all curated for performance and ease. [DEMO]"},
+  {img:"https://picsum.photos/seed/diaspora-usd/1200/1600",
    grad:"linear-gradient(160deg,#191B10 0%,#3A3D2A 60%,#6E7643 100%)",
-   kick:"Diaspora investors",title:"Pay in USD from anywhere",
-   desc:"Fund your subscription with a dollar card via Flutterwave — FX rate shown before you confirm. [DEMO]",cta:"See how it works"},
+   title:"Invest from anywhere.",
+   desc:"Fund your subscription in USD via Flutterwave — the FX rate is shown before you confirm. [DEMO]"},
 ];
 let sliderTimer=null;
-function initSlider(){
-  const host=document.getElementById("heroSlider");if(!host)return;
-  host.insertAdjacentHTML("beforeend",
-    SLIDES.map((s,i)=>`<div class="slide ${i===0?"on":""}" data-i="${i}">
+function buildSliderCard(){
+  return `<section class="sliderCard" id="heroSlider" aria-label="Vetiva highlights">
+    <div class="heroBrand">Ⓥ VETIVA</div>
+    ${SLIDES.map((s,i)=>`<div class="slide ${i===0?"on":""}" data-i="${i}">
       <div class="bg" style="background-image:url('${s.img}'),${s.grad}"></div><div class="shade"></div>
-      <div class="copy"><div class="kick">${s.kick}</div><div class="stitle">${s.title}</div>
-      <div class="sdesc">${s.desc}</div><span class="scta">${s.cta}</span></div>
-    </div>`).join("")
-    +`<div class="dots">${SLIDES.map((_,i)=>`<button class="${i===0?"on":""}" data-i="${i}" aria-label="Slide ${i+1}"></button>`).join("")}</div>`);
+      <div class="copy"><div class="stitle">${s.title}</div><div class="sdesc">${s.desc}</div>
+      <div class="dots">${SLIDES.map((_,j)=>`<button class="${j===i?"on":""}" data-i="${j}" aria-label="Slide ${j+1}"></button>`).join("")}</div></div>
+    </div>`).join("")}
+  </section>`;
+}
+function initSlider(){
+  clearInterval(sliderTimer);
+  const host=document.getElementById("heroSlider");if(!host)return;
   let i=0;
   const show=n=>{i=n;
     host.querySelectorAll(".slide").forEach(el=>el.classList.toggle("on",+el.dataset.i===i));
     host.querySelectorAll(".dots button").forEach(el=>el.classList.toggle("on",+el.dataset.i===i));};
   const arm=()=>{clearInterval(sliderTimer);sliderTimer=setInterval(()=>show((i+1)%SLIDES.length),6000);};
-  host.querySelectorAll(".dots button").forEach(b=>b.onclick=()=>{show(+b.dataset.i);arm();});
+  host.querySelectorAll(".dots button").forEach(b=>b.onclick=(e)=>{e.stopPropagation();show(+b.dataset.i);arm();});
   arm();
 }
 
+let currentShell=null; // "auth" | "app"
+function ensureShell(mode){
+  const root=document.getElementById("appRoot");
+  if(currentShell===mode&&document.getElementById("screen"))return;
+  if(mode==="auth"){
+    root.innerHTML=`<div class="authshell">
+      ${buildSliderCard()}
+      <div class="authArea" id="authArea"><div class="authBox"><div id="screen" aria-live="polite"></div></div></div>
+    </div>`;
+    initSlider();
+  }else{
+    clearInterval(sliderTimer);
+    root.innerHTML=`<div class="appshell">
+      <div class="apptop">
+        <span class="brand">Ⓥ vetiva</span>
+        <span class="userchip"><span>${esc(S.user.name)}</span><span class="avat" style="width:32px;height:32px;font-size:.7rem">${initials(S.user.name)}</span></span>
+      </div>
+      <main class="appmain"><div id="screen" aria-live="polite"></div></main>
+    </div>`;
+  }
+  currentShell=mode;
+}
+
 function render(name,arg){
+  ensureShell(AUTH_SCREENS.has(name)?"auth":"app");
+  screenEl=document.getElementById("screen");
   SCREENS[name](arg);
-  panelScroll.scrollTop=0;
+  const aa=document.getElementById("authArea");
+  if(aa)aa.scrollTop=0; else window.scrollTo(0,0);
   screenEl.classList.remove("scrIn");
   void screenEl.offsetWidth;
   screenEl.classList.add("scrIn");
@@ -520,15 +543,17 @@ verify(){
 },
 
 login(){
-  screenEl.innerHTML=nav("Log in")+`
-    <div class="pad">
-      <h2 class="big">Welcome back</h2>
-      <p class="lead">Log in to continue.</p>
-      <label class="fl">Email</label><input class="in" value="${esc(S.user.email)}">
-      <label class="fl">Password</label>
-      <div class="pwwrap"><input class="in" id="lgPw" type="password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
-      <label class="checkline" style="margin-top:14px"><input type="checkbox" checked> Enable biometric unlock <span class="demoTag">NICE-TO-HAVE</span></label>
-      <div class="footbar"><button class="btn" onclick="S.registered=true;toast('Logged in');reset(S.offerLive?'live':'prelive')">Log in</button></div>
+  screenEl.innerHTML=`
+    <div class="pad" style="padding-top:0">
+      <h2 class="big" style="font-size:2rem">Welcome Back</h2>
+      <label class="fl">Email <span style="color:var(--bad)">*</span></label>
+      <input class="in" type="email" placeholder="Enter your email address" value="${esc(S.user.email)}">
+      <label class="fl">Password <span style="color:var(--bad)">*</span></label>
+      <div class="pwwrap"><input class="in" id="lgPw" type="password" placeholder="Enter your password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
+      <button class="linkbtn" style="margin-top:12px;font-weight:700" onclick="toast('Password reset flow — out of scope for this demo')">Forgot Password?</button>
+      <button class="btn" style="margin-top:22px" onclick="S.registered=true;toast('Logged in');reset(S.offerLive?'live':'prelive')">Login</button>
+      <p style="text-align:center;margin-top:22px;font-size:.9rem;color:var(--muted)">Don't have an account? <button class="linkbtn" style="display:inline;padding:0;font-weight:700" onclick="go('entry')">Create an account</button></p>
+      <p style="text-align:center;margin-top:26px;font-size:.75rem;color:var(--muted);line-height:1.5">© 2026 Vetiva Capital Management Limited<br>All Rights Reserved</p>
     </div>`;
   wirePwToggles();
 },
@@ -536,10 +561,6 @@ login(){
 /* ---------- landings ---------- */
 prelive(){
   screenEl.innerHTML=`
-    <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 24px 0">
-      <span class="hint" style="margin:0">${esc(S.user.name)}</span>
-      <div class="avat" style="width:32px;height:32px;font-size:.7rem">${initials(S.user.name)}</div>
-    </div>
     <div class="pad">
       <div class="card" style="background:linear-gradient(150deg,#FFFFFF,#F4F3E7)">
         <span class="chip soon">OPENS SOON</span>
@@ -566,10 +587,6 @@ prelive(){
 live(){
   const hasAny=S.selfSub||S.minors.length;
   screenEl.innerHTML=`
-    <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;padding:12px 24px 0">
-      <span class="hint" style="margin:0">${esc(S.user.name)}</span>
-      <div class="avat" style="width:32px;height:32px;font-size:.7rem">${initials(S.user.name)}</div>
-    </div>
     <div class="pad">
       ${hasAny?renderPosition():""}
       <div class="card" ${hasAny?'style="margin-top:12px"':''}>
@@ -1070,7 +1087,6 @@ const demo={
 
 /* boot */
 try{
-  initSlider();
   reset("entry");
 }catch(e){
   screenEl.innerHTML=`<div style="padding:40px 24px;text-align:center;font-size:.82rem;color:#C43D3D;line-height:1.6">
