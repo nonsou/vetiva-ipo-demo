@@ -58,14 +58,77 @@
   .dots button{width:7px;height:7px;border-radius:50%;border:none;background:rgba(255,255,255,.4);cursor:pointer;padding:0;transition:all .25s}
   .dots button.on{background:#fff;width:22px;border-radius:5px}
   .dots button:focus-visible{outline:2px solid #fff;outline-offset:2px}
-  /* ---------- APP shell (post-login: no slider, regular page) ---------- */
-  .appshell{min-height:100vh;background:var(--cream)}
-  .apptop{display:flex;justify-content:space-between;align-items:center;padding:14px 30px;position:sticky;top:0;z-index:20;
-    background:rgba(250,248,241,.85);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 1px 0 rgba(24,26,16,.06)}
-  .apptop .brand{font-weight:800;color:var(--olive-deep);font-size:1.1rem;letter-spacing:-.01em}
-  .apptop .userchip{display:flex;align-items:center;gap:9px;font-size:.85rem;color:var(--muted)}
-  .appmain{max-width:640px;margin:0 auto;padding:10px 20px 60px}
-  @media (max-width:640px){.apptop{padding:12px 18px}.appmain{padding:6px 12px 50px}}
+  /* ---------- APP shell (post-login): DASHBOARD ---------- */
+  .dash{display:flex;height:100vh;height:100dvh;overflow:hidden;background:#FFFFFF}
+  .dnav{width:232px;flex:0 0 232px;border-right:1px solid var(--line);display:flex;flex-direction:column;padding:22px 14px 16px;background:#FFFFFF}
+  .dbrand{font-weight:800;color:var(--olive-deep);font-size:1.15rem;letter-spacing:.02em;padding:0 10px 4px}
+  .dbrand small{display:block;font-size:.5rem;letter-spacing:.14em;color:var(--muted);font-weight:600}
+  .dgrp{font-size:.66rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin:22px 10px 8px}
+  .dlink{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;border-radius:12px;padding:11px 12px;font-size:.9rem;font-weight:600;color:var(--ink);cursor:pointer;font-family:inherit;margin-bottom:2px}
+  .dlink:hover{background:#F4F3EA}
+  .dlink.on{background:#EEEDDF;color:var(--olive-deep);box-shadow:inset 3px 0 0 var(--olive-deep)}
+  .dlink .ic{font-size:1.05rem}
+  .dlink:focus-visible{outline:2px solid var(--olive);outline-offset:2px}
+  .duser{margin-top:auto;display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:14px;padding:10px 12px;font-size:.78rem}
+  .duser b{display:block;font-size:.78rem;letter-spacing:.02em}
+  .duser span.sub{color:var(--muted)}
+  .dbody{flex:1 1 auto;display:flex;flex-direction:column;overflow:hidden;background:#FFFFFF}
+  .dhead{display:flex;justify-content:space-between;align-items:center;padding:20px 34px 16px;border-bottom:1px solid var(--line)}
+  .dhead h1{font-size:1.5rem;font-weight:700;letter-spacing:-.02em}
+  .dhead p{color:var(--muted);font-size:.92rem;margin-top:2px}
+  .dheadbtns{display:flex;gap:10px}
+  .dheadbtns button{width:42px;height:42px;border-radius:12px;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:1rem}
+  .dmain{flex:1 1 auto;overflow-y:auto;padding:24px 34px 60px}
+  .dwrap{max-width:1080px}
+  .dmain .pad{padding:0 0 30px;max-width:720px}
+  .dmain .topnav{position:static;background:transparent;box-shadow:none;padding:0 0 8px}
+  .dmain .footbar{margin:auto 0 0;border-radius:16px;border:1px solid var(--line)}
+  /* dashboard widgets */
+  .setupband{display:flex;align-items:center;gap:16px;background:#EFF2E2;border-radius:16px;padding:18px 22px;margin-bottom:20px}
+  .setupband .ring{width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--olive) 0 10%,#DDE0C8 10% 100%);display:flex;align-items:center;justify-content:center;font-size:.62rem;font-weight:800;color:var(--olive-deep)}
+  .setupband .ring>div{width:34px;height:34px;border-radius:50%;background:#EFF2E2;display:flex;align-items:center;justify-content:center}
+  .setupband h4{font-size:1rem;font-weight:700}
+  .setupband p{font-size:.82rem;color:var(--muted)}
+  .setupband .btn{width:auto;padding:12px 22px;margin-left:auto;flex:0 0 auto}
+  .balgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:4px}
+  .balcard{border:1px solid var(--line);border-radius:16px;padding:18px 20px;background:#fff;min-height:150px;display:flex;flex-direction:column}
+  .balcard .bk{display:flex;justify-content:space-between;align-items:center;font-size:.7rem;letter-spacing:.08em;color:var(--muted);font-weight:700}
+  .balcard .ngn{border:1px solid var(--line);border-radius:9px;padding:3px 9px;font-size:.68rem;font-weight:700;color:var(--ink)}
+  .balcard .bv{font-size:1.9rem;font-weight:800;margin-top:10px;font-variant-numeric:tabular-nums}
+  .balcard .bactions{display:flex;gap:8px;margin-top:12px}
+  .balcard .bactions .btn{width:auto;padding:9px 14px;font-size:.78rem;border-radius:10px}
+  .ipoband{position:relative;overflow:hidden;border-radius:18px;padding:26px 28px;color:#F7F8EF;background:linear-gradient(120deg,#3F4526 0%,#78814B 70%,#98A25E 100%);margin-bottom:20px}
+  .ipoband h3{font-size:1.35rem;font-weight:700;letter-spacing:-.02em;margin:6px 0 4px}
+  .ipoband p{font-size:.88rem;opacity:.92;max-width:520px}
+  .ipoband .btn{width:auto;padding:12px 22px;margin-top:14px}
+  .offersband{border-radius:18px;padding:44px 40px;color:#F7F8EF;background:linear-gradient(115deg,#4A5230 0%,#78814B 55%,#9AA45F 100%);font-size:clamp(1.6rem,3vw,2.4rem);font-weight:700;letter-spacing:-.02em;margin-bottom:26px}
+  .dtabs{display:flex;border-bottom:2px solid var(--line);margin-bottom:18px}
+  .dtabs button{flex:1;background:none;border:none;font-family:inherit;font-size:.98rem;font-weight:600;color:var(--muted);padding:12px 4px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px}
+  .dtabs button.on{color:var(--olive-deep);border-bottom-color:var(--olive-deep)}
+  .fchips{display:flex;gap:14px;margin-bottom:20px}
+  .fchips button{border:none;background:none;font-family:inherit;font-size:.9rem;font-weight:600;color:var(--ink);padding:9px 18px;border-radius:10px;cursor:pointer}
+  .fchips button.on{background:var(--olive);color:#fff}
+  .tilegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+  .tile{border:1px solid var(--line);border-radius:16px;padding:20px;background:#fff;cursor:pointer;text-align:left;font-family:inherit;transition:transform .12s,box-shadow .12s}
+  .tile:hover{transform:translateY(-2px);box-shadow:var(--shadow-card)}
+  .tile .ti{font-size:1.7rem}
+  .tile h4{font-size:.95rem;font-weight:700;margin-top:10px}
+  .tile p{font-size:.78rem;color:var(--muted);margin-top:2px}
+  .emptybox{text-align:center;color:var(--muted);padding:60px 20px;font-size:.9rem}
+  .emptybox .ei{font-size:2.2rem;margin-bottom:10px}
+  .distrow{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--line);font-size:.9rem}
+  .distrow:last-child{border-bottom:none}
+  .distrow .sw{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:9px}
+  @media (max-width:900px){
+    .dnav{position:fixed;left:0;right:0;bottom:0;top:auto;width:100%;flex:none;flex-direction:row;justify-content:space-around;padding:6px 4px calc(6px + env(safe-area-inset-bottom));border-right:none;border-top:1px solid var(--line);z-index:40;background:rgba(255,255,255,.95);backdrop-filter:blur(12px)}
+    .dbrand,.dgrp,.duser{display:none}
+    .dlink{flex-direction:column;gap:2px;font-size:.62rem;padding:6px 10px;margin:0;flex:1;align-items:center}
+    .dlink.on{box-shadow:none}
+    .dmain{padding:16px 16px 110px}
+    .dhead{padding:16px 16px 12px}
+    .dhead h1{font-size:1.2rem}
+    .setupband{flex-wrap:wrap}
+  }
   /* ---------- presenter (floating overlay, demo aid only) ---------- */
   .rail{width:290px;color:#E9E7D9;position:fixed;left:20px;bottom:74px;background:#1E2013;border-radius:16px;padding:18px 18px 14px;
     box-shadow:0 20px 50px rgba(0,0,0,.5);z-index:80;max-height:76vh;overflow:auto;
@@ -86,7 +149,6 @@
   /* shared */
   .pad{padding:8px 24px 28px;display:flex;flex-direction:column;flex:1}
   .topnav{display:flex;align-items:center;gap:14px;padding:12px 24px;background:transparent;position:sticky;top:0;z-index:5}
-  .appshell .topnav{background:rgba(250,248,241,.82);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);box-shadow:0 1px 0 rgba(24,26,16,.06);top:57px}
   .backbtn{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--ink);padding:2px 6px;line-height:1;font-family:inherit}
   .backbtn:focus-visible{outline:2px solid var(--olive);border-radius:6px}
   .topnav .t{font-weight:700;font-size:.95rem}
@@ -278,14 +340,14 @@
   <button onclick="demo.newUser()">🆕 New user — full journey</button>
   <button onclick="demo.oldUser()">🔁 Returning user — login</button>
   <div class="grp">Jump to state</div>
-  <button onclick="demo.prelive()">⏳ Pre-live landing (waitlist)</button>
-  <button onclick="demo.liveFresh()">🟢 Live — not subscribed</button>
+  <button onclick="demo.prelive()">⏳ Offers — pre-live (waitlist)</button>
+  <button onclick="demo.liveFresh()">🟢 Offers — live, not subscribed</button>
   <button onclick="demo.minor()">🧒 Subscribe for a minor</button>
-  <button onclick="demo.subscribed()">📈 Live — subscribed (top-up)</button>
+  <button onclick="demo.subscribed()">📈 Subscribed (top-up, history)</button>
   <div class="grp">Controls</div>
   <button onclick="demo.reset()">♻️ Reset demo</button>
   <div class="note">
-    <b>Web layout:</b> before login, an inset image-slider card sits on the left with the form in the open space beside it (client.vetiva.com style). After login the slider is gone — regular full-width web layout for everything. Presenter panel is a demo aid, not part of the product.
+    <b>Web layout:</b> before login, an inset image-slider card sits on the left with the form beside it (client.vetiva.com style). After login it's a dashboard — sidebar (Home / Wallet / Offers / Products / Portfolio), built to take more products after the IPO. The Dangote IPO is the launch focus; other products are placeholders. KYC prompt is skippable. Presenter panel is a demo aid, not part of the product.
   </div>
 </aside>
 
@@ -329,7 +391,7 @@ const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
-  selfSub:null, minors:[], waitlisted:false, offerLive:true,
+  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[], kycShown:false,
 };
 let flow={};
 const hist=[];
@@ -401,23 +463,44 @@ function ensureShell(mode){
     initSlider();
   }else{
     clearInterval(sliderTimer);
-    root.innerHTML=`<div class="appshell">
-      <div class="apptop">
-        <span class="brand">Ⓥ vetiva</span>
-        <span class="userchip"><span>${esc(S.user.name)}</span><span class="avat" style="width:32px;height:32px;font-size:.7rem">${initials(S.user.name)}</span></span>
+    const first=S.user.name.split(" ")[0].toUpperCase();
+    root.innerHTML=`<div class="dash">
+      <aside class="dnav" aria-label="Dashboard navigation">
+        <div class="dbrand">Ⓥ VETIVA<small>CAPITAL MANAGEMENT LIMITED</small></div>
+        <div class="dgrp">Home</div>
+        <button class="dlink" data-nav="dashHome" onclick="go('dashHome')"><span class="ic">🏠</span><span class="lb">Home</span></button>
+        <button class="dlink" data-nav="dashWallet" onclick="go('dashWallet')"><span class="ic">👛</span><span class="lb">Wallet</span></button>
+        <button class="dlink" data-nav="dashOffers" onclick="go('dashOffers')"><span class="ic">📈</span><span class="lb">Offers</span></button>
+        <div class="dgrp">Invest</div>
+        <button class="dlink" data-nav="dashInvest" onclick="go('dashInvest')"><span class="ic">▦</span><span class="lb">Products</span></button>
+        <button class="dlink" data-nav="dashPortfolio" onclick="go('dashPortfolio')"><span class="ic">📊</span><span class="lb">Portfolio</span></button>
+        <div class="duser"><span class="avat" style="width:34px;height:34px;font-size:.68rem;flex:0 0 auto">${initials(S.user.name)}</span><div><b>${esc(S.user.name.toUpperCase())}</b><span class="sub">My account</span></div></div>
+      </aside>
+      <div class="dbody">
+        <div class="dhead">
+          <div><h1>Welcome ${esc(first)}</h1><p>Let's grow your assets today</p></div>
+          <div class="dheadbtns">
+            <button aria-label="Favourites" onclick="toast('Favourites — [DEMO]')">☆</button>
+            <button aria-label="Profile" onclick="toast('Profile & settings — [DEMO]')">👤</button>
+          </div>
+        </div>
+        <main class="dmain"><div class="dwrap"><div id="screen" aria-live="polite"></div></div></main>
       </div>
-      <main class="appmain"><div id="screen" aria-live="polite"></div></main>
     </div>`;
   }
   currentShell=mode;
 }
 
+const NAV_FOR={dashHome:"dashHome",dashWallet:"dashWallet",dashOffers:"dashOffers",dashInvest:"dashInvest",dashPortfolio:"dashPortfolio",
+  subscribe:"dashOffers",topup:"dashOffers",processing:"dashOffers",success:"dashOffers"};
 function render(name,arg){
   ensureShell(AUTH_SCREENS.has(name)?"auth":"app");
   screenEl=document.getElementById("screen");
   SCREENS[name](arg);
-  const aa=document.getElementById("authArea");
-  if(aa)aa.scrollTop=0; else window.scrollTo(0,0);
+  document.querySelectorAll(".dlink").forEach(b=>b.classList.toggle("on",b.dataset.nav===NAV_FOR[name]));
+  const aa=document.getElementById("authArea"),dm=document.querySelector(".dmain");
+  if(aa)aa.scrollTop=0;
+  if(dm)dm.scrollTop=0;
   screenEl.classList.remove("scrIn");
   void screenEl.offsetWidth;
   screenEl.classList.add("scrIn");
@@ -539,7 +622,7 @@ verify(){
     err.style.display=(pw2.value&&!match)?"block":"none";
     btn.disabled=!(otpOk&&alnum&&match);}
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
-  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.offerLive?"live":"prelive");};
+  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset("dashHome");};
 },
 
 login(){
@@ -551,7 +634,7 @@ login(){
       <label class="fl">Password <span style="color:var(--bad)">*</span></label>
       <div class="pwwrap"><input class="in" id="lgPw" type="password" placeholder="Enter your password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
       <button class="linkbtn" style="margin-top:12px;font-weight:700" onclick="toast('Password reset flow — out of scope for this demo')">Forgot Password?</button>
-      <button class="btn" style="margin-top:22px" onclick="S.registered=true;toast('Logged in');reset(S.offerLive?'live':'prelive')">Login</button>
+      <button class="btn" style="margin-top:22px" onclick="S.registered=true;toast('Logged in');reset('dashHome')">Login</button>
       <p style="text-align:center;margin-top:22px;font-size:.9rem;color:var(--muted)">Don't have an account? <button class="linkbtn" style="display:inline;padding:0;font-weight:700" onclick="go('entry')">Create an account</button></p>
       <p style="text-align:center;margin-top:26px;font-size:.75rem;color:var(--muted);line-height:1.5">© 2026 Vetiva Capital Management Limited<br>All Rights Reserved</p>
     </div>`;
@@ -559,52 +642,156 @@ login(){
 },
 
 /* ---------- landings ---------- */
-prelive(){
+/* ---------- DASHBOARD PAGES ---------- */
+dashHome(){
+  const inv=totalInvested();
   screenEl.innerHTML=`
-    <div class="pad">
-      <div class="card" style="background:linear-gradient(150deg,#FFFFFF,#F4F3E7)">
-        <span class="chip soon">OPENS SOON</span>
-        <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
-        <div class="sumrow"><span class="k">Offer opens</span><span class="v">10 Jul 2026, 9:00 AM <span class="demoTag">DEMO</span></span></div>
-        <p class="hint" style="margin-top:8px">Offer opens in:</p>
-        ${countdownHTML("cdOpen")}
-        <div style="margin-top:16px">${S.waitlisted
-          ?`<div class="okband"><span class="tick">✓</span> You're on the waiting list — we'll notify you the moment it opens.</div>`
-          :`<button class="btn" onclick="openWaitlist()">Join the waiting list</button>`}</div>
-        <button class="linkbtn" style="margin-top:8px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
+    <div class="setupband">
+      <div class="ring"><div>${inv>0?"40%":"10%"}</div></div>
+      <div><h4>Get your money working</h4><p>Finish setting up your account</p></div>
+      <button class="btn" onclick="toast('Account setup checklist — [DEMO]')">Finish Setup</button>
+    </div>
+    <div class="ipoband">
+      <span class="chip ${S.offerLive?"":"soon"}" style="background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35)">${S.offerLive?'<span class="dot"></span>LIVE NOW':'OPENS SOON'}</span>
+      <h3>${OFFER.name} IPO</h3>
+      <p>${S.offerLive?`Africa's largest single-train refinery is open for public investment — from ${ngn(OFFER.minShares*OFFER.price)}. Offer closes 31 Jul 2026.`:`Join the waiting list and be first in when the offer opens.`} <span class="demoTag" style="background:rgba(255,255,255,.2);color:#fff">DEMO</span></p>
+      <button class="btn" style="background:#fff;color:var(--olive-deep)" onclick="go('dashOffers')">View offer →</button>
+    </div>
+    <div class="balgrid">
+      <div class="balcard">
+        <div class="bk"><span>TOTAL BALANCE 👁</span><span class="ngn">🇳🇬 NGN</span></div>
+        <div class="bv">${ngn(inv).replace(".00","")}</div>
       </div>
-      <h3 style="font-size:.95rem;margin:22px 0 10px">While you wait — other offerings</h3>
-      <div class="offrail">
-        <div class="offcard"><div class="on">Vetiva Money Market Fund</div><div class="od">Low-risk fund, quarterly income</div><div class="oy">18.2% p.a. <span class="demoTag">DEMO</span></div></div>
-        <div class="offcard"><div class="on">Vetiva Griffin 30 ETF</div><div class="od">Tracks the NGX 30 index</div><div class="oy">+24.6% YTD <span class="demoTag">DEMO</span></div></div>
-        <div class="offcard"><div class="on">Dollar Fund</div><div class="od">USD-denominated fixed income</div><div class="oy">6.1% p.a. <span class="demoTag">DEMO</span></div></div>
+      <div class="balcard">
+        <div class="bk"><span>PORTFOLIO BALANCE 👁</span><span class="ngn">🇳🇬 NGN</span></div>
+        <div class="bv">${ngn(inv).replace(".00","")}</div>
+        ${inv>0?`<button class="linkbtn" style="margin-top:8px;padding:0" onclick="go('dashPortfolio')">View portfolio →</button>`:""}
       </div>
-      <button class="btn ghost" style="margin-top:14px" onclick="demo.liveFresh();toast('Demo: offer switched to LIVE')">▶ Demo: simulate offer going live</button>
+      <div class="balcard">
+        <div class="bk"><span>WALLET BALANCE 👁</span><span class="ngn">🇳🇬 NGN</span></div>
+        <div class="bv">₦0</div>
+        <div class="bactions">
+          <button class="btn" onclick="toast('Add money — wallet funding is out of scope for this demo')">＋ Add Money</button>
+          <button class="btn ghost" onclick="toast('Withdraw — out of scope for this demo')">↗ Withdraw</button>
+        </div>
+      </div>
     </div>`;
-  tickCountdown("cdOpen",OFFER.opensAt.getTime());
+  maybeShowKyc();
 },
 
-live(){
+dashOffers(arg){
+  const tab=(arg&&arg.tab)||"avail";
+  const chip=(arg&&arg.chip)||"all";
   const hasAny=S.selfSub||S.minors.length;
-  screenEl.innerHTML=`
-    <div class="pad">
+  let body="";
+  if(tab==="history"){
+    body=hasAny?`<div style="max-width:720px">${renderPosition()}</div>`
+      :`<div class="emptybox"><div class="ei">🗂️</div>No purchases yet.<br>Your IPO subscriptions and receipts will appear here.</div>`;
+  }else if(chip==="rights"){
+    body=`<div class="emptybox"><div class="ei">📭</div>No rights issues available right now.</div>`;
+  }else{
+    body=`<div style="max-width:720px">
       ${hasAny?renderPosition():""}
-      <div class="card" ${hasAny?'style="margin-top:12px"':''}>
-        <span class="chip"><span class="dot"></span>LIVE</span>
+      <div class="card" ${hasAny?'style="margin-top:14px"':""}>
+        ${S.offerLive?`<span class="chip"><span class="dot"></span>LIVE</span>`:`<span class="chip soon">OPENS SOON</span>`}
         <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
-        <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
-        <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
-        <div class="sumrow"><span class="k">Offer closes</span><span class="v">31 Jul 2026, 5:00 PM <span class="demoTag">DEMO</span></span></div>
-        <p class="hint" style="margin-top:8px">Offer closes in:</p>
-        ${countdownHTML("cdClose")}
-        <button class="linkbtn" style="margin-top:10px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
-      </div>
-      <div style="margin-top:16px">
-        <button class="btn" onclick="startSubscribe(${S.selfSub?"'minor'":"'self'"})">Subscribe${hasAny?" for a child":" now"}</button>
-        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
+        ${S.offerLive?`
+          <div class="sumrow"><span class="k">Price per share</span><span class="v">${ngn(OFFER.price)} <span class="demoTag">DEMO</span></span></div>
+          <div class="sumrow"><span class="k">Minimum</span><span class="v">${OFFER.minShares.toLocaleString()} shares (${ngn(OFFER.minShares*OFFER.price)})</span></div>
+          <div class="sumrow"><span class="k">Offer closes</span><span class="v">31 Jul 2026, 5:00 PM <span class="demoTag">DEMO</span></span></div>
+          <p class="hint" style="margin-top:8px">Offer closes in:</p>${countdownHTML("cdClose")}
+          <button class="linkbtn" style="margin-top:10px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
+          <div style="margin-top:14px">
+            <button class="btn" onclick="startSubscribe(${S.selfSub?"'minor'":"'self'"})">Subscribe${hasAny?" for a child":" now"}</button>
+            ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
+          </div>`
+        :`
+          <div class="sumrow"><span class="k">Offer opens</span><span class="v">10 Jul 2026, 9:00 AM <span class="demoTag">DEMO</span></span></div>
+          <p class="hint" style="margin-top:8px">Offer opens in:</p>${countdownHTML("cdOpen")}
+          <div style="margin-top:16px">${S.waitlisted
+            ?`<div class="okband"><span class="tick">✓</span> You're on the waiting list — we'll notify you the moment it opens.</div>`
+            :`<button class="btn" onclick="openWaitlist()">Join the waiting list</button>`}</div>
+          <button class="linkbtn" style="margin-top:8px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
+          <button class="btn ghost" style="margin-top:14px" onclick="demo.liveFresh();toast('Demo: offer switched to LIVE')">▶ Demo: simulate offer going live</button>`}
       </div>
     </div>`;
-  tickCountdown("cdClose",OFFER.closesAt.getTime());
+  }
+  screenEl.innerHTML=`
+    <div class="offersband">Explore. Invest. Own.</div>
+    <div class="dtabs">
+      <button class="${tab==="avail"?"on":""}" onclick="go('dashOffers',{tab:'avail'})">Available Offers</button>
+      <button class="${tab==="history"?"on":""}" onclick="go('dashOffers',{tab:'history'})">Purchase History</button>
+    </div>
+    ${tab==="avail"?`<div class="fchips">
+      <button class="${chip==="all"?"on":""}" onclick="go('dashOffers',{tab:'avail',chip:'all'})">All</button>
+      <button class="${chip==="primary"?"on":""}" onclick="go('dashOffers',{tab:'avail',chip:'primary'})">Primary Offers</button>
+      <button class="${chip==="rights"?"on":""}" onclick="go('dashOffers',{tab:'avail',chip:'rights'})">Rights Issue</button>
+    </div>`:""}
+    ${body}`;
+  if(tab==="avail"&&chip!=="rights"){
+    if(S.offerLive)tickCountdown("cdClose",OFFER.closesAt.getTime());
+    else tickCountdown("cdOpen",OFFER.opensAt.getTime());
+  }
+},
+
+dashWallet(){
+  screenEl.innerHTML=`
+    <div class="balgrid" style="grid-template-columns:minmax(260px,420px)">
+      <div class="balcard">
+        <div class="bk"><span>WALLET BALANCE 👁</span><span class="ngn">🇳🇬 NGN</span></div>
+        <div class="bv">₦0.00</div>
+        <div class="bactions">
+          <button class="btn" onclick="toast('Add money — wallet funding is out of scope for this demo')">＋ Add Money</button>
+          <button class="btn ghost" onclick="toast('Withdraw — out of scope for this demo')">↗ Withdraw</button>
+        </div>
+      </div>
+    </div>
+    <h3 style="font-size:1rem;margin:26px 0 12px">Recent Transactions</h3>
+    ${S.txns.length?`<div class="card">${S.txns.map(t=>`
+      <div class="sumrow"><span class="k">${esc(t.label)}<br><span class="hint">${esc(t.when)}</span></span><span class="v">${ngn(t.amount)}</span></div>`).join("")}</div>`
+    :`<div class="emptybox"><div class="ei">🗓️</div>You do not have any transactions yet.<br>Subscribe to the ${OFFER.ticker} IPO to get started.</div>`}`;
+},
+
+dashPortfolio(){
+  const inv=totalInvested();
+  const holdings=[];
+  if(S.selfSub)holdings.push({who:"You",rec:S.selfSub});
+  S.minors.forEach(m=>holdings.push({who:m.name+" (minor)",rec:m}));
+  screenEl.innerHTML=`
+    <div class="balgrid" style="grid-template-columns:minmax(260px,420px)">
+      <div class="balcard">
+        <div class="bk"><span>TOTAL PORTFOLIO VALUE 👁</span><span class="ngn">🇳🇬 NGN</span></div>
+        <div class="bv">${ngn(inv).replace(".00","")}</div>
+      </div>
+    </div>
+    <h3 style="font-size:1rem;margin:26px 0 6px">Portfolio distribution</h3>
+    <div class="card" style="max-width:560px">
+      <div class="distrow"><span><span class="sw" style="background:#78814B"></span>Primary Offers (IPO)</span><b>${ngn(inv)}</b></div>
+      <div class="distrow"><span><span class="sw" style="background:#8E2F3C"></span>Equity (Stocks)</span><b>₦0.00</b></div>
+      <div class="distrow"><span><span class="sw" style="background:#2F4B8E"></span>Fixed Income</span><b>₦0.00</b></div>
+      <div class="distrow"><span><span class="sw" style="background:#D89B3D"></span>Mutual Funds</span><b>₦0.00</b></div>
+      <div class="distrow"><span><span class="sw" style="background:#4B8E58"></span>Trust</span><b>₦0.00</b></div>
+    </div>
+    <h3 style="font-size:1rem;margin:26px 0 12px">My holdings</h3>
+    ${holdings.length?`<div style="max-width:720px">${renderPosition()}</div>`
+      :`<div class="emptybox"><div class="ei">📊</div>No holdings yet — subscribe to the ${OFFER.ticker} IPO to start building your portfolio.</div>`}`;
+},
+
+dashInvest(){
+  const tiles=[
+    {i:"🛢️",t:"Offer",d:"IPO & Rights Issue",act:"go('dashOffers')"},
+    {i:"📈",t:"Securities",d:"Trade Securities",act:"toast('Securities — coming after the IPO [DEMO]')"},
+    {i:"💼",t:"Mutual Fund",d:"Naira and USD",act:"toast('Mutual Funds — coming after the IPO [DEMO]')"},
+    {i:"🏦",t:"Fixed Income",d:"Naira and USD",act:"toast('Fixed Income — coming after the IPO [DEMO]')"},
+    {i:"🛡️",t:"Trust",d:"Get a Trust Plan",act:"toast('Trust — coming after the IPO [DEMO]')"},
+    {i:"🎛️",t:"Managed Portfolio",d:"Naira and USD",act:"toast('Managed Portfolio — coming after the IPO [DEMO]')"},
+  ];
+  screenEl.innerHTML=`
+    <h3 style="font-size:1.1rem;margin:0 0 14px">Invest</h3>
+    <div class="tilegrid">
+      ${tiles.map(x=>`<button class="tile" onclick="${x.act}"><div class="ti">${x.i}</div><h4>${x.t}</h4><p>${x.d}</p></button>`).join("")}
+    </div>
+    <p class="hint" style="margin-top:18px">The Dangote IPO is the launch focus — the other products are placeholders for features that come after. <span class="demoTag">DEMO</span></p>`;
 },
 
 /* ---------- THE ONE-PAGER ---------- */
@@ -787,6 +974,8 @@ processing(){
       const t=flow.for==="self"?S.selfSub:S.minors[flow.minorIdx];
       t.shares+=flow.shares;t.paid+=amount;t.payments+=1;
     }
+    const twho=flow.type==="sub"?(flow.mode==="minor"?flow.child.name:"self"):(flow.for==="self"?"self":S.minors[flow.minorIdx].name);
+    S.txns.unshift({label:`${OFFER.ticker} IPO ${flow.type==="topup"?"top-up":"subscription"}${twho==="self"?"":" — "+twho}`,amount:flow.total,when:"10 Jul 2026 [DEMO]"});
     go("success");
   },1700);
 },
@@ -828,7 +1017,7 @@ success(){
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       <button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
-      <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('live')">Done</button>
+      <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashOffers')">Done</button>
     </div>`;
 },
 };
@@ -1041,6 +1230,27 @@ function renderPosition(){
     </div>`;
 }
 function startSubscribe(mode){go("subscribe",{mode});}
+function totalInvested(){return (S.selfSub?S.selfSub.paid:0)+S.minors.reduce((a,m)=>a+m.paid,0);}
+function maybeShowKyc(){
+  if(S.kycShown)return;S.kycShown=true;
+  const veil=document.createElement("div");veil.className="sheet-veil";
+  veil.innerHTML=`<div class="sheet" style="text-align:center;max-width:440px">
+    <div class="bighalo" style="margin:0 auto 14px"><div class="inner">🛡️</div></div>
+    <h3 style="font-size:1.25rem">Complete your KYC to start investing</h3>
+    <p class="hint" style="margin-top:8px">Verify your identity to unlock exclusive investment opportunities and start your journey with Vetiva.</p>
+    <div class="card" style="text-align:left;margin-top:16px">
+      <b style="font-size:.85rem">Benefits of KYC verification:</b>
+      <div class="hint" style="margin-top:8px">✓ Access to exclusive investment opportunities<br>✓ Higher investment limits<br>✓ Faster withdrawals and transactions<br>✓ Enhanced account security</div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px">
+      <button class="btn" onclick="this.closest('.sheet-veil').remove();toast('KYC journey — separate flow, can be completed later [DEMO]')">Start KYC →</button>
+      <button class="btn ghost" onclick="this.closest('.sheet-veil').remove()">Remind later</button>
+    </div>
+    <p class="hint" style="margin-top:12px">🔒 Your information is secure and encrypted</p>
+  </div>`;
+  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
+  document.body.appendChild(veil);
+}
 function startTopup(idx){go("topup",idx==="self"?{for:"self"}:{for:"minor",minorIdx:+idx});}
 function topupFromSuccess(){
   if(flow.type==="topup")startTopup(flow.for==="self"?"self":String(flow.minorIdx));
@@ -1066,23 +1276,26 @@ function openWaitlist(){
   veil.querySelector("#wlW").onclick=()=>{veil.querySelector("#wlW").classList.add("on");veil.querySelector("#wlE").classList.remove("on");};
   veil.querySelector("#wlX").onclick=()=>veil.remove();
   veil.querySelector("#wlGo").onclick=()=>{S.waitlisted=true;veil.remove();
-    toast("You're on the list — we'll deep-link you straight into the offer when it opens.");render("prelive");};
+    toast("You're on the list — we'll deep-link you straight into the offer when it opens.");render("dashOffers");};
 }
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});reset("entry");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],kycShown:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
-  prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
-  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
-  minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"live"});go("subscribe",{mode:"minor"});},
+  prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;S.kycShown=true;reset("dashOffers");},
+  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.txns=[];S.kycShown=true;reset("dashOffers");},
+  minor(){S.registered=true;S.offerLive=true;S.kycShown=true;hist.length=0;hist.push({name:"dashOffers"});go("subscribe",{mode:"minor"});},
   subscribed(){
-    S.registered=true;S.offerLive=true;
+    S.registered=true;S.offerLive=true;S.kycShown=true;
     S.selfSub={shares:1000,paid:1000*OFFER.price,payments:2,cscs:"56854667865"};
     S.minors=[{name:"Chidi Okafor",dob:"14 Mar 2017",shares:500,paid:500*OFFER.price,payments:1,cscs:genCSCS()}];
-    reset("live");
+    S.txns=[{label:OFFER.ticker+" IPO top-up",amount:500*OFFER.price,when:"9 Jul 2026 [DEMO]"},
+            {label:OFFER.ticker+" IPO subscription — Chidi Okafor",amount:500*OFFER.price,when:"8 Jul 2026 [DEMO]"},
+            {label:OFFER.ticker+" IPO subscription",amount:500*OFFER.price,when:"8 Jul 2026 [DEMO]"}];
+    reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true});hist.length=0;reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],kycShown:false});hist.length=0;reset("entry");toast("Demo reset");},
 };
 
 /* boot */
