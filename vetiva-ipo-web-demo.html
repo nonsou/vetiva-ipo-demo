@@ -391,7 +391,7 @@ const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
-  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[], kycShown:false,
+  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[],
 };
 let flow={};
 const hist=[];
@@ -622,7 +622,7 @@ verify(){
     err.style.display=(pw2.value&&!match)?"block":"none";
     btn.disabled=!(otpOk&&alnum&&match);}
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
-  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset("dashHome");};
+  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset("dashOffers");};
 },
 
 login(){
@@ -634,7 +634,7 @@ login(){
       <label class="fl">Password <span style="color:var(--bad)">*</span></label>
       <div class="pwwrap"><input class="in" id="lgPw" type="password" placeholder="Enter your password" value="Demo1234"><button type="button" class="pweye" data-target="lgPw" aria-label="Show password">Show</button></div>
       <button class="linkbtn" style="margin-top:12px;font-weight:700" onclick="toast('Password reset flow — out of scope for this demo')">Forgot Password?</button>
-      <button class="btn" style="margin-top:22px" onclick="S.registered=true;toast('Logged in');reset('dashHome')">Login</button>
+      <button class="btn" style="margin-top:22px" onclick="S.registered=true;toast('Logged in');reset((S.selfSub||S.minors.length)?'dashHome':'dashOffers')">Login</button>
       <p style="text-align:center;margin-top:22px;font-size:.9rem;color:var(--muted)">Don't have an account? <button class="linkbtn" style="display:inline;padding:0;font-weight:700" onclick="go('entry')">Create an account</button></p>
       <p style="text-align:center;margin-top:26px;font-size:.75rem;color:var(--muted);line-height:1.5">© 2026 Vetiva Capital Management Limited<br>All Rights Reserved</p>
     </div>`;
@@ -676,7 +676,6 @@ dashHome(){
         </div>
       </div>
     </div>`;
-  maybeShowKyc();
 },
 
 dashOffers(arg){
@@ -1017,7 +1016,7 @@ success(){
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       <button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
-      <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashOffers')">Done</button>
+      <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashHome')">Done</button>
     </div>`;
 },
 };
@@ -1231,26 +1230,6 @@ function renderPosition(){
 }
 function startSubscribe(mode){go("subscribe",{mode});}
 function totalInvested(){return (S.selfSub?S.selfSub.paid:0)+S.minors.reduce((a,m)=>a+m.paid,0);}
-function maybeShowKyc(){
-  if(S.kycShown)return;S.kycShown=true;
-  const veil=document.createElement("div");veil.className="sheet-veil";
-  veil.innerHTML=`<div class="sheet" style="text-align:center;max-width:440px">
-    <div class="bighalo" style="margin:0 auto 14px"><div class="inner">🛡️</div></div>
-    <h3 style="font-size:1.25rem">Complete your KYC to start investing</h3>
-    <p class="hint" style="margin-top:8px">Verify your identity to unlock exclusive investment opportunities and start your journey with Vetiva.</p>
-    <div class="card" style="text-align:left;margin-top:16px">
-      <b style="font-size:.85rem">Benefits of KYC verification:</b>
-      <div class="hint" style="margin-top:8px">✓ Access to exclusive investment opportunities<br>✓ Higher investment limits<br>✓ Faster withdrawals and transactions<br>✓ Enhanced account security</div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:18px">
-      <button class="btn" onclick="this.closest('.sheet-veil').remove();toast('KYC journey — separate flow, can be completed later [DEMO]')">Start KYC →</button>
-      <button class="btn ghost" onclick="this.closest('.sheet-veil').remove()">Remind later</button>
-    </div>
-    <p class="hint" style="margin-top:12px">🔒 Your information is secure and encrypted</p>
-  </div>`;
-  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
-  document.body.appendChild(veil);
-}
 function startTopup(idx){go("topup",idx==="self"?{for:"self"}:{for:"minor",minorIdx:+idx});}
 function topupFromSuccess(){
   if(flow.type==="topup")startTopup(flow.for==="self"?"self":String(flow.minorIdx));
@@ -1281,13 +1260,13 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],kycShown:false});reset("entry");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[]});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
-  prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;S.kycShown=true;reset("dashOffers");},
-  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.txns=[];S.kycShown=true;reset("dashOffers");},
-  minor(){S.registered=true;S.offerLive=true;S.kycShown=true;hist.length=0;hist.push({name:"dashOffers"});go("subscribe",{mode:"minor"});},
+  prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
+  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.txns=[];reset("dashOffers");},
+  minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"dashOffers"});go("subscribe",{mode:"minor"});},
   subscribed(){
-    S.registered=true;S.offerLive=true;S.kycShown=true;
+    S.registered=true;S.offerLive=true;
     S.selfSub={shares:1000,paid:1000*OFFER.price,payments:2,cscs:"56854667865"};
     S.minors=[{name:"Chidi Okafor",dob:"14 Mar 2017",shares:500,paid:500*OFFER.price,payments:1,cscs:genCSCS()}];
     S.txns=[{label:OFFER.ticker+" IPO top-up",amount:500*OFFER.price,when:"9 Jul 2026 [DEMO]"},
@@ -1295,7 +1274,7 @@ const demo={
             {label:OFFER.ticker+" IPO subscription",amount:500*OFFER.price,when:"8 Jul 2026 [DEMO]"}];
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],kycShown:false});hist.length=0;reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[]});hist.length=0;reset("entry");toast("Demo reset");},
 };
 
 /* boot */
