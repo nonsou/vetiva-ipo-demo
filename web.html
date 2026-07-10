@@ -347,7 +347,7 @@
   <div class="grp">Controls</div>
   <button onclick="demo.reset()">♻️ Reset demo</button>
   <div class="note">
-    <b>Web layout:</b> before login, an inset image-slider card sits on the left with the form beside it (client.vetiva.com style). After login it's a dashboard — sidebar (Home / Wallet / Offers / Products / Portfolio), built to take more products after the IPO. The Dangote IPO is the launch focus; other products are placeholders. KYC prompt is skippable. Presenter panel is a demo aid, not part of the product.
+    <b>Web layout:</b> before login, an inset image-slider card sits on the left with the form beside it (client.vetiva.com style). After login it's a dashboard — sidebar (Home / Wallet / Offers / Products / Portfolio), built to take more products after the IPO. The Dangote IPO is the launch focus; other products are placeholders. Login lands on the IPO offer first. Presenter panel is a demo aid, not part of the product.
   </div>
 </aside>
 
@@ -391,7 +391,7 @@ const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
-  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[],
+  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[], phoneVerified:false,
 };
 let flow={};
 const hist=[];
@@ -481,7 +481,7 @@ function ensureShell(mode){
           <div><h1>Welcome ${esc(first)}</h1><p>Let's grow your assets today</p></div>
           <div class="dheadbtns">
             <button aria-label="Favourites" onclick="toast('Favourites — [DEMO]')">☆</button>
-            <button aria-label="Profile" onclick="toast('Profile & settings — [DEMO]')">👤</button>
+            <button aria-label="Profile" onclick="go('profile')">👤</button>
           </div>
         </div>
         <main class="dmain"><div class="dwrap"><div id="screen" aria-live="polite"></div></div></main>
@@ -492,7 +492,7 @@ function ensureShell(mode){
 }
 
 const NAV_FOR={dashHome:"dashHome",dashWallet:"dashWallet",dashOffers:"dashOffers",dashInvest:"dashInvest",dashPortfolio:"dashPortfolio",
-  subscribe:"dashOffers",topup:"dashOffers",processing:"dashOffers",success:"dashOffers"};
+  subscribe:"dashOffers",topup:"dashOffers",processing:"dashOffers",success:"dashOffers",profile:"dashHome"};
 function render(name,arg){
   ensureShell(AUTH_SCREENS.has(name)?"auth":"app");
   screenEl=document.getElementById("screen");
@@ -581,7 +581,7 @@ isYou(){
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
         <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
       </div>
-      <div class="hint">Pulled from your BVN — can't be edited here.</div>
+      <div class="hint">Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile.</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div class="hint">Also from BVN, but editable — this creates your account, so update it if needed.</div>
@@ -602,6 +602,7 @@ verify(){
       <p class="lead">Enter the 6-digit code we sent to ${esc(S.user.email)}.</p>
       <div style="display:flex;gap:8px" id="otp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
       <button class="linkbtn" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button>
+      <div class="hint" style="margin-top:10px">📱 You'll be able to verify your phone number later from your profile — do it so you don't miss communications from us.</div>
       <label class="fl" for="pw1">Create a password</label>
       <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
       <div class="hint">Used to log in and approve transactions.</div>
@@ -655,6 +656,7 @@ dashHome(){
       <span class="chip ${S.offerLive?"":"soon"}" style="background:rgba(255,255,255,.16);color:#fff;border:1px solid rgba(255,255,255,.35)">${S.offerLive?'<span class="dot"></span>LIVE NOW':'OPENS SOON'}</span>
       <h3>${OFFER.name} IPO</h3>
       <p>${S.offerLive?`Africa's largest single-train refinery is open for public investment — from ${ngn(OFFER.minShares*OFFER.price)}. Offer closes 31 Jul 2026.`:`Join the waiting list and be first in when the offer opens.`} <span class="demoTag" style="background:rgba(255,255,255,.2);color:#fff">DEMO</span></p>
+      <button class="linkbtn" style="display:block;color:#F7F8EF;text-decoration:underline;padding:8px 0 0;font-weight:700" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">📄 Download the offer prospectus</button>
       <button class="btn" style="background:#fff;color:var(--olive-deep)" onclick="go('dashOffers')">View offer →</button>
     </div>
     <div class="balgrid">
@@ -675,7 +677,12 @@ dashHome(){
           <button class="btn ghost" onclick="toast('Withdraw — out of scope for this demo')">↗ Withdraw</button>
         </div>
       </div>
-    </div>`;
+    </div>
+    ${S.phoneVerified?"":`<div class="setupband" style="margin-top:20px;background:#FBF6E9">
+      <div style="font-size:1.5rem">📱</div>
+      <div><h4>Verify your phone number</h4><p>So you don't miss communications from us — allotment updates, payment confirmations, offer news. You can update your number at any time.</p></div>
+      <button class="btn" onclick="go('profile')">Verify now</button>
+    </div>`}`;
 },
 
 dashOffers(arg){
@@ -791,6 +798,47 @@ dashInvest(){
       ${tiles.map(x=>`<button class="tile" onclick="${x.act}"><div class="ti">${x.i}</div><h4>${x.t}</h4><p>${x.d}</p></button>`).join("")}
     </div>
     <p class="hint" style="margin-top:18px">The Dangote IPO is the launch focus — the other products are placeholders for features that come after. <span class="demoTag">DEMO</span></p>`;
+},
+
+/* ---------- PROFILE: contact details + phone verification ---------- */
+profile(){
+  screenEl.innerHTML=nav("Profile")+`
+    <div class="pad">
+      <h2 class="big">Profile &amp; contact details</h2>
+      <div class="card">
+        <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(S.user.name)}</span></div>
+        <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(S.user.dob)}</span></div>
+        <div class="sumrow"><span class="k">Email</span><span class="v">${esc(S.user.email)} <span class="chip" style="margin-left:6px">✓ VERIFIED</span></span></div>
+      </div>
+      <div class="sec">
+        <div class="sh">📱 Phone number ${S.phoneVerified?'<span class="chip">✓ VERIFIED</span>':'<span class="chip soon">UNVERIFIED</span>'}</div>
+        <div class="sd">Keep your phone number verified so you don't miss communications from us — allotment updates, payment confirmations, and offer news. You can update your phone number here at any time.</div>
+        <label class="fl" for="pvNum">Phone number</label>
+        <input class="in" id="pvNum" inputmode="numeric" maxlength="11" value="${esc(S.user.phone)}">
+        <div id="pvArea">
+          <button class="btn" style="margin-top:14px" id="pvSend">${S.phoneVerified?"Update &amp; re-verify number":"Send verification code"}</button>
+        </div>
+      </div>
+    </div>`;
+  $("#pvNum").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,11);});
+  $("#pvSend").onclick=()=>{
+    const num=$("#pvNum").value.trim();
+    if(num.length!==11){toast("Phone number must be 11 digits");return;}
+    $("#pvArea").innerHTML=`
+      <p class="hint" style="margin-top:12px">Enter the 6-digit code we sent to ${esc(num)} by SMS. <span class="demoTag">DEMO</span></p>
+      <div style="display:flex;gap:8px" id="pvOtp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
+      <button class="linkbtn" id="pvFill">Autofill code <span class="demoTag">DEMO</span></button>
+      <button class="btn" style="margin-top:12px" id="pvGo" disabled>Verify phone number</button>`;
+    const boxes=[...document.querySelectorAll("#pvOtp input")];
+    const check=()=>{$("#pvGo").disabled=!boxes.every(b=>b.value.length===1);};
+    boxes.forEach((b,i)=>b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"");if(b.value&&i<5)boxes[i+1].focus();check();}));
+    $("#pvFill").onclick=()=>{boxes.forEach((b,i)=>b.value=String((i+1)%10));check();};
+    $("#pvGo").onclick=()=>{
+      S.user.phone=num;S.phoneVerified=true;
+      toast("Phone number verified ✓");
+      render("profile");
+    };
+  };
 },
 
 /* ---------- THE ONE-PAGER ---------- */
@@ -1016,6 +1064,7 @@ success(){
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       <button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
+      ${S.phoneVerified?"":`<div class="hint" style="margin-top:14px;text-align:center">📱 Tip: verify your phone number so you don't miss updates about your allotment. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button></div>`}
       <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashHome')">Done</button>
     </div>`;
 },
@@ -1260,7 +1309,7 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[]});reset("entry");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],phoneVerified:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.txns=[];reset("dashOffers");},
@@ -1274,7 +1323,7 @@ const demo={
             {label:OFFER.ticker+" IPO subscription",amount:500*OFFER.price,when:"8 Jul 2026 [DEMO]"}];
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[]});hist.length=0;reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],phoneVerified:false});hist.length=0;reset("entry");toast("Demo reset");},
 };
 
 /* boot */
