@@ -314,7 +314,7 @@ function corpMinShares(){const raw=Math.ceil(CORP_MIN_NGN/OFFER.price);const st=
 
 const S={
   registered:false, acctType:"individual",
-  user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
+  user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",address:"14 Adeola Odeku Street, Victoria Island, Lagos",nationality:"Nigerian",state:"Lagos",lga:"Eti-Osa",bank:"Access Bank",acct:"5635665556"}, // BVN lookup returns firstName/lastName/address/nationality/state/lga/phone/email
   selfSub:null, minors:[], corp:null, corpSub:null, intentAmount:null, waitlisted:false, offerLive:true, phoneVerified:false,
 };
 let flow={};
@@ -382,7 +382,6 @@ entry(){
         <button class="btn ghost" style="margin-top:10px" onclick="go('login')">I already have an account</button>
       </div>
     </div>`;
-  if(S.acctType==="corporate")wireIntent();
 },
 
 /* ---------- CORPORATE: RC lookup (C1) ---------- */
@@ -395,7 +394,6 @@ rc(){
       <input id="rcIn" class="in" inputmode="numeric" maxlength="7" placeholder="7-digit RC number" autocomplete="off">
       <div id="rcFb"></div>
       <button class="linkbtn" onclick="document.getElementById('rcIn').value='4567891';document.getElementById('rcIn').dispatchEvent(new Event('input'))">Use demo RC <span class="demoTag">DEMO</span></button>
-      <div class="hint">Demo: any 7 digits = ACTIVE · ending in 0 = INACTIVE · 0000000 = not found.</div>
       <div class="footbar"><button class="btn" id="rcGo" disabled>Look up company</button></div>
     </div>`;
   const i=$("#rcIn"),fb=$("#rcFb"),btn=$("#rcGo");let tries=0;
@@ -406,7 +404,7 @@ rc(){
     setTimeout(()=>{
       btn.disabled=false;
       const v=i.value;
-      const indivExit=`<br><button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');go('bvn');toast('Continuing as Individual — your amount carries over')">Continue as an Individual instead →</button>`;
+      const indivExit=`<br><button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');go('bvn');toast('Continuing as Individual')">Continue as an Individual instead →</button>`;
       if(v==="0000000"){tries++;
         fb.innerHTML=`<div class="errline">No company found for RC ${v}. Check the number on your CAC certificate.</div>${tries>=2?`<div class="warnband" style="margin-top:8px">Still not finding it? <button class="linkbtn" style="display:inline;padding:0" onclick="toast('Support: corporate@vetiva.com · 0700-VETIVA [DEMO]')">Contact support</button> — or you can still subscribe personally today.${indivExit}</div>`:""}`;
         return;}
@@ -444,24 +442,45 @@ corpDetails(){
       </div>
       <label class="fl">TIN</label>
       <input class="in" id="cdTin" value="${CORP_DEMO.tin}">
-      <div class="hint">Fetched from FIRS using your RC number — edit if it's wrong. <span class="demoTag">DEMO</span></div>
       <label class="fl">Nationality</label>
-      <select class="in" id="cdNat"><option>Nigerian</option><option>Other</option></select>
+      <select class="in" id="cdNat"><option ${S.user.nationality==="Nigerian"?"selected":""}>Nigerian</option><option>Other</option></select>
       <label class="fl">State</label>
-      <select class="in" id="cdState"><option value="">Select state</option>${Object.keys(STATES).map(s=>`<option>${s}</option>`).join("")}</select>
+      <select class="in" id="cdState"><option value="">Select state</option>${Object.keys(STATES).map(s=>`<option ${s===S.user.state?"selected":""}>${s}</option>`).join("")}</select>
       <div id="cdLgaWrap"></div>
       <label class="fl">Registered address</label>
-      <input class="in" id="cdAddr" placeholder="e.g. 14 Adeola Odeku Street, Victoria Island">
-      <label class="fl">Website <span class="opt">(Optional)</span></label>
+      <div style="position:relative">
+        <input class="in" id="cdAddr" placeholder="Start typing to search…" value="${esc(S.user.address)}" autocomplete="off">
+        <div id="addrSug"></div>
+      </div>
+      <div class="hint">Address search powered by Google Maps <span class="demoTag">DEMO</span> — nationality, state, LGA and address pre-filled from your BVN.</div>
+      <label class="fl">Website</label>
       <input class="in" id="cdWeb" placeholder="https://">
       <button class="linkbtn" style="margin-top:10px" id="cdNinT">＋ Add representative NIN (optional)</button>
       <div id="cdNinWrap"></div>
       <div class="footbar"><button class="btn" id="cdGo" disabled>Continue</button></div>
     </div>`;
-  const st=$("#cdState"),wrap=$("#cdLgaWrap"),addr=$("#cdAddr"),btn=$("#cdGo");
-  const check=()=>{btn.disabled=!(st.value&&addr.value.trim().length>5);};
-  st.addEventListener("change",()=>{wrap.innerHTML=st.value?`<label class="fl">LGA</label><select class="in" id="cdLga">${STATES[st.value].map(l=>`<option>${l}</option>`).join("")}</select>`:"";check();});
-  addr.addEventListener("input",check);
+  const st=$("#cdState"),wrap=$("#cdLgaWrap"),addr=$("#cdAddr"),web=$("#cdWeb"),btn=$("#cdGo"),sug=$("#addrSug");
+  const check=()=>{btn.disabled=!(st.value&&addr.value.trim().length>5&&web.value.trim().length>3&&web.value.includes("."));};
+  const renderLga=(sel)=>{wrap.innerHTML=st.value?`<label class="fl">LGA</label><select class="in" id="cdLga">${STATES[st.value].map(l=>`<option ${l===sel?"selected":""}>${l}</option>`).join("")}</select>`:"";};
+  st.addEventListener("change",()=>{renderLga();check();});
+  renderLga(S.user.lga);check();
+  web.addEventListener("input",check);
+  const PLACES=[ // [DEMO] — Google Places autocomplete stand-in
+    {a:"14 Adeola Odeku Street, Victoria Island, Lagos",state:"Lagos",lga:"Eti-Osa"},
+    {a:"14 Adeola Close, Ikeja GRA, Lagos",state:"Lagos",lga:"Ikeja"},
+    {a:"14 Aminu Kano Crescent, Wuse II, Abuja",state:"FCT Abuja",lga:"AMAC"}];
+  addr.addEventListener("input",()=>{
+    const q=addr.value.trim();
+    if(q.length<3){sug.innerHTML="";check();return;}
+    sug.innerHTML=`<div class="card" style="position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:8;padding:6px">
+      ${PLACES.map((pl,i)=>`<button class="linkbtn" style="display:block;width:100%;text-align:left;padding:8px" data-i="${i}">📍 ${pl.a}</button>`).join("")}
+      <div class="hint" style="padding:4px 8px 2px">Powered by Google <span class="demoTag">DEMO</span></div></div>`;
+    sug.querySelectorAll("button").forEach(b=>b.onclick=()=>{
+      const pl=PLACES[+b.dataset.i];
+      addr.value=pl.a;st.value=pl.state;renderLga(pl.lga);sug.innerHTML="";check();
+    });
+    check();
+  });
   $("#cdNinT").onclick=()=>{$("#cdNinWrap").innerHTML=`<label class="fl">Representative NIN</label><input class="in" id="cdNin" inputmode="numeric" maxlength="11" placeholder="11-digit NIN">`;$("#cdNinT").style.display="none";};
   btn.onclick=()=>{
     Object.assign(S.corp,{tin:$("#cdTin").value.trim(),nationality:$("#cdNat").value,state:st.value,lga:$("#cdLga")?$("#cdLga").value:"",address:addr.value.trim(),website:$("#cdWeb").value.trim(),nin:$("#cdNin")?$("#cdNin").value.trim():""});
@@ -537,16 +556,27 @@ isYou(){
       <div class="hint">${corp?"Phone and email are editable for corporate accounts — use the company's contact details if you prefer.":"Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile."}</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
-      <div class="hint">Also from BVN, but editable — this creates ${corp?"the company account":"your account"}, so update it if needed.</div>
+      <div id="emFb"></div>
+      <div class="hint">${corp?"Must be a <b>company domain</b> email — personal domains (gmail, yahoo…) aren't accepted for corporate accounts.":"Also from BVN, but editable — this creates your account, so update it if needed."}</div>
+      ${corp?`<button class="linkbtn" onclick="document.getElementById('emIn').value='finance@okaforagro-allied.com'">Use demo company email <span class="demoTag">DEMO</span></button>`:""}
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
       <div class="footbar"><button class="btn" id="isYouGo">${corp?"Continue — company details":"Send verification code"}</button></div>
     </div>`;
   if(corp){const p=$("#phIn");p.addEventListener("input",()=>{p.value=p.value.replace(/\D/g,"").slice(0,11);});}
   $("#isYouGo").onclick=()=>{
     const v=$("#emIn").value.trim();
-    if(v)S.user.email=v;
-    if(corp){const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;go("corpDetails");}
-    else go("verify");
+    if(corp){
+      const FREE=["gmail.com","yahoo.com","hotmail.com","outlook.com","icloud.com","aol.com","live.com","ymail.com"];
+      const dom=(v.split("@")[1]||"").toLowerCase();
+      if(!v||!dom||FREE.includes(dom)){
+        $("#emFb").innerHTML=`<div class="errline">Use a company email address (e.g. finance@okaforagro-allied.com) — personal domains aren't accepted for corporate accounts.</div>`;
+        return;
+      }
+      $("#emFb").innerHTML="";
+      S.user.email=v;
+      const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;
+      go("corpDetails");
+    } else { if(v)S.user.email=v; go("verify"); }
   };
 },
 
@@ -701,9 +731,7 @@ profile(){
 /* ---------- THE ONE-PAGER ---------- */
 subscribe(arg){
   const corp=(arg&&arg.mode)==="corp";
-  const initShares=corp
-    ? roundQty(Math.ceil((S.intentAmount||CORP_MIN_NGN)/OFFER.price),corpMinShares())
-    : (S.intentAmount&&S.acctType==="individual"?roundQty(Math.ceil(S.intentAmount/OFFER.price)):OFFER.minShares);
+  const initShares=corp?corpMinShares():OFFER.minShares;
   flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:initShares,pm:"transfer",
         cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:""};
   screenEl.innerHTML=nav("Subscribe")+`
@@ -731,7 +759,7 @@ subscribe(arg){
       <!-- shares -->
       <div class="sec">
         <div class="sh">🧮 Number of shares</div>
-        <div class="sd" id="shHint">Minimum ${(corp?corpMinShares():OFFER.minShares).toLocaleString()} shares${corp?` (${ngn(CORP_MIN_NGN).replace(".00","")} corporate minimum)`:""}. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
+        <div class="sd" id="shHint">Minimum ${(corp?corpMinShares():OFFER.minShares).toLocaleString()} shares. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
         <div class="stepper">
           <button aria-label="Fewer shares" onclick="subShares(-1)">−</button>
           <input class="num" id="shNum" inputmode="numeric" value="${flow.shares}" onchange="subInputShares(this.value)" onblur="subInputShares(this.value)">
@@ -947,41 +975,9 @@ success(){
 window.setAcctType=(t)=>{S.acctType=t;
   $("#atInd").classList.toggle("on",t==="individual");
   $("#atCor").classList.toggle("on",t==="corporate");
-  $("#atNote").innerHTML=t==="corporate"?corpNote():"";if(t==="corporate")wireIntent();};
-function corpNote(){
-  const amt=S.intentAmount;
-  return `<div class="card" style="margin-top:10px">
-    <div class="sh" style="margin-bottom:2px">💼 How much does the company intend to invest?</div>
-    <div class="sd">Corporate subscriptions start from ${ngn(CORP_MIN_NGN).replace(".00","")}.</div>
-    <div class="qp" id="intentQp" style="margin-top:8px">
-      ${[20,50,100,250].map(m=>`<button data-m="${m}" class="${amt===m*1e6?"on":""}" onclick="setIntent(${m}*1e6)">₦${m}m${m===250?"+":""}</button>`).join("")}
-    </div>
-    <label class="fl">Or enter amount (₦)</label>
-    <input class="in" id="intentIn" inputmode="numeric" placeholder="e.g. 35,000,000" value="${amt&&![2e7,5e7,1e8,2.5e8].includes(amt)?amt.toLocaleString():""}">
-    <div id="intentFb"></div>
-  </div>`;
-}
-window.setIntent=(v)=>{S.intentAmount=v;$("#atNote").innerHTML=corpNote();wireIntent();};
-function wireIntent(){
-  const i=$("#intentIn");if(!i)return;
-  i.addEventListener("input",()=>{
-    const v=parseInt(i.value.replace(/\D/g,""),10)||0;
-    i.value=v?v.toLocaleString():"";
-    S.intentAmount=v||null;
-    document.querySelectorAll("#intentQp button").forEach(b=>b.classList.toggle("on",+b.dataset.m*1e6===v));
-    const fb=$("#intentFb");
-    if(v&&v<CORP_MIN_NGN){
-      fb.innerHTML=`<div class="warnband" style="margin-top:8px">Corporate subscriptions start at ${ngn(CORP_MIN_NGN).replace(".00","")}. Investing personally instead? The individual route starts from ${ngn(OFFER.minAmount).replace(".00","")} — same BVN, under a minute.<br>
-      <button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');toast('Switched to Individual — your amount carries over')">Switch to Individual →</button></div>`;
-    } else fb.innerHTML="";
-  });
-}
-window.startCreate=()=>{
-  if(S.acctType==="corporate"){
-    if(!S.intentAmount||S.intentAmount<CORP_MIN_NGN){toast("Enter an intended amount of at least ₦20,000,000 to continue as Corporate");return;}
-    go("rc");
-  } else go("bvn");
-};
+  $("#atNote").innerHTML="";};
+function corpNote(){return "";}
+window.startCreate=()=>{ go(S.acctType==="corporate"?"rc":"bvn"); };
 
 window.subMode=(m)=>{
   flow.mode=m;flow.child=null;flow.cscs=null;flow.cscsChoice=null;
@@ -1139,7 +1135,7 @@ window.subSetShares=(v)=>{
   flow.shares=roundQty(v,shareFloor());
   const n=$("#shNum");if(n)n.value=flow.shares;
   const hint=$("#shHint");
-  if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${OFFER.minShares.toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
+  if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${(flow.mode==="corp"?corpMinShares():OFFER.minShares).toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
   document.querySelectorAll("#qpRow button").forEach(b=>{
     const on=+b.dataset.q===flow.shares;b.classList.toggle("on",on);
     b.textContent=(on?"✓ ":"")+(b.dataset.label||(+b.dataset.q).toLocaleString());});
@@ -1270,7 +1266,7 @@ const demo={
     reset("live");
   },
   corp(){
-    S.registered=true;S.offerLive=true;S.acctType="corporate";S.corpSub=null;S.intentAmount=5e7;
+    S.registered=true;S.offerLive=true;S.acctType="corporate";S.corpSub=null;
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
