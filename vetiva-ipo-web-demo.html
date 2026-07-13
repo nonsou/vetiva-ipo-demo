@@ -343,6 +343,7 @@
   <button onclick="demo.prelive()">⏳ Offers — pre-live (waitlist)</button>
   <button onclick="demo.liveFresh()">🟢 Offers — live, not subscribed</button>
   <button onclick="demo.minor()">🧒 Subscribe for a minor</button>
+  <button onclick="demo.corp()">🏢 Corporate — registered (₦50m intent)</button>
   <button onclick="demo.subscribed()">📈 Subscribed (top-up, history)</button>
   <div class="grp">Controls</div>
   <button onclick="demo.reset()">♻️ Reset demo</button>
@@ -387,11 +388,15 @@ const FEES={ // [DEMO]
 };
 const FX=1470; // [DEMO] ₦ per $
 const DEMO_KIDS=["Chidi Okafor","Amara Okafor","Emeka Okafor"];
+const CORP_DEMO={name:"OKAFOR AGRO-ALLIED LIMITED",type:"Private Limited Company (LTD)",rcDate:"15 Mar 2012",tin:"1023456-0001"}; // [DEMO]
+const CORP_MIN_NGN=20000000; // corporate minimum investment
+const STATES={"Lagos":["Ikeja","Eti-Osa","Surulere"],"FCT Abuja":["AMAC","Bwari"],"Rivers":["Port Harcourt","Obio-Akpor"],"Kano":["Kano Municipal","Nassarawa"]}; // [DEMO]
+function corpMinShares(){const raw=Math.ceil(CORP_MIN_NGN/OFFER.price);const st=qtyStep(raw);return Math.ceil(raw/st)*st;}
 
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",bank:"Access Bank",acct:"5635665556"},
-  selfSub:null, minors:[], waitlisted:false, offerLive:true, txns:[], phoneVerified:false,
+  selfSub:null, minors:[], corp:null, corpSub:null, intentAmount:null, waitlisted:false, offerLive:true, txns:[], phoneVerified:false,
 };
 let flow={};
 const hist=[];
@@ -409,7 +414,7 @@ function reset(name,arg){hist.length=0;go(name,arg);}
 /* Which shell each screen uses:
    AUTH (pre-login): inset slider card left + form centered beside it.
    APP  (post-login): no slider — regular full-width layout. */
-const AUTH_SCREENS=new Set(["entry","bvn","isYou","verify","login"]);
+const AUTH_SCREENS=new Set(["entry","bvn","isYou","verify","login","rc","corpDetails","corpBank"]);
 
 /* ---------- slider (auth shell only) ----------
    The img URLs are placeholder photography [DEMO] — swap for real
@@ -543,14 +548,129 @@ entry(){
         <div id="atNote">${S.acctType==="corporate"?corpNote():""}</div>
       </div>
       <div class="footbar" style="border-top:none;background:transparent;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none">
-        <button class="btn" onclick="go('bvn')">Create new account</button>
+        <button class="btn" onclick="startCreate()">Create new account</button>
         <button class="btn ghost" style="margin-top:10px" onclick="go('login')">I already have an account</button>
       </div>
     </div>`;
+  if(S.acctType==="corporate")wireIntent();
+},
+
+/* ---------- CORPORATE: RC lookup (C1) ---------- */
+rc(){
+  screenEl.innerHTML=nav("Corporate account")+`
+    <div class="pad">
+      <h2 class="big">Find your company</h2>
+      <p class="lead">Enter the company's RC number from your CAC certificate.</p>
+      <label class="fl" for="rcIn">RC number</label>
+      <input id="rcIn" class="in" inputmode="numeric" maxlength="7" placeholder="7-digit RC number" autocomplete="off">
+      <div id="rcFb"></div>
+      <button class="linkbtn" onclick="document.getElementById('rcIn').value='4567891';document.getElementById('rcIn').dispatchEvent(new Event('input'))">Use demo RC <span class="demoTag">DEMO</span></button>
+      <div class="hint">Demo: any 7 digits = ACTIVE · ending in 0 = INACTIVE · 0000000 = not found.</div>
+      <div class="footbar"><button class="btn" id="rcGo" disabled>Look up company</button></div>
+    </div>`;
+  const i=$("#rcIn"),fb=$("#rcFb"),btn=$("#rcGo");let tries=0;
+  i.addEventListener("input",()=>{i.value=i.value.replace(/\D/g,"").slice(0,7);btn.disabled=i.value.length!==7;});
+  btn.onclick=()=>{
+    fb.innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Looking up RC ${i.value} with CAC…</div>`;
+    btn.disabled=true;
+    setTimeout(()=>{
+      btn.disabled=false;
+      const v=i.value;
+      const indivExit=`<br><button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');go('bvn');toast('Continuing as Individual — your amount carries over')">Continue as an Individual instead →</button>`;
+      if(v==="0000000"){tries++;
+        fb.innerHTML=`<div class="errline">No company found for RC ${v}. Check the number on your CAC certificate.</div>${tries>=2?`<div class="warnband" style="margin-top:8px">Still not finding it? <button class="linkbtn" style="display:inline;padding:0" onclick="toast('Support: corporate@vetiva.com · 0700-VETIVA [DEMO]')">Contact support</button> — or you can still subscribe personally today.${indivExit}</div>`:""}`;
+        return;}
+      if(v.endsWith("0")){
+        fb.innerHTML=`<div class="card" style="margin-top:10px">
+          <div class="sumrow"><span class="k">Company</span><span class="v">${CORP_DEMO.name} <span class="demoTag">DEMO</span></span></div>
+          <div class="sumrow"><span class="k">Type</span><span class="v">${CORP_DEMO.type}</span></div>
+          <div class="sumrow"><span class="k">Status</span><span class="v" style="color:var(--bad);font-weight:700">INACTIVE</span></div>
+        </div>
+        <div class="warnband" style="margin-top:8px">This company's CAC status is INACTIVE, so it can't subscribe as a corporate right now. <button class="linkbtn" style="display:inline;padding:0" onclick="toast('Support: corporate@vetiva.com · 0700-VETIVA [DEMO]')">Contact support</button> to resolve it — or subscribe personally while it's sorted out.${indivExit}</div>`;
+        return;}
+      S.corp={rc:v,name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate};
+      fb.innerHTML=`<div class="card" style="margin-top:10px">
+        <div class="sumrow"><span class="k">Company</span><span class="v">${CORP_DEMO.name} <span class="demoTag">DEMO</span></span></div>
+        <div class="sumrow"><span class="k">Type</span><span class="v">${CORP_DEMO.type}</span></div>
+        <div class="sumrow"><span class="k">Registered</span><span class="v">${CORP_DEMO.rcDate}</span></div>
+        <div class="sumrow"><span class="k">Status</span><span class="v"><span class="chip">✓ ACTIVE</span></span></div>
+      </div>
+      <button class="linkbtn" style="margin-top:6px" onclick="S.corp=null;document.getElementById('rcIn').value='';document.getElementById('rcIn').dispatchEvent(new Event('input'));document.getElementById('rcFb').innerHTML=''">Not your company? Re-enter RC number</button>
+      <div style="margin-top:12px"><button class="btn" onclick="go('bvn')">Continue — verify authorized representative</button></div>`;
+    },900);
+  };
+},
+
+/* ---------- CORPORATE: company details (C3) ---------- */
+corpDetails(){
+  const c=S.corp;
+  screenEl.innerHTML=nav("Corporate account")+`
+    <div class="pad">
+      <h2 class="big">Company details</h2>
+      <p class="lead">Almost done — most of this is already filled for you.</p>
+      <div class="card">
+        <div class="sumrow"><span class="k">Company</span><span class="v">${esc(c.name)}</span></div>
+        <div class="sumrow"><span class="k">RC · Registered</span><span class="v">${esc(c.rc)} · ${esc(c.rcDate)}</span></div>
+      </div>
+      <label class="fl">TIN</label>
+      <input class="in" id="cdTin" value="${CORP_DEMO.tin}">
+      <div class="hint">Fetched from FIRS using your RC number — edit if it's wrong. <span class="demoTag">DEMO</span></div>
+      <label class="fl">Nationality</label>
+      <select class="in" id="cdNat"><option>Nigerian</option><option>Other</option></select>
+      <label class="fl">State</label>
+      <select class="in" id="cdState"><option value="">Select state</option>${Object.keys(STATES).map(s=>`<option>${s}</option>`).join("")}</select>
+      <div id="cdLgaWrap"></div>
+      <label class="fl">Registered address</label>
+      <input class="in" id="cdAddr" placeholder="e.g. 14 Adeola Odeku Street, Victoria Island">
+      <label class="fl">Website <span class="opt">(Optional)</span></label>
+      <input class="in" id="cdWeb" placeholder="https://">
+      <button class="linkbtn" style="margin-top:10px" id="cdNinT">＋ Add representative NIN (optional)</button>
+      <div id="cdNinWrap"></div>
+      <div class="footbar"><button class="btn" id="cdGo" disabled>Continue</button></div>
+    </div>`;
+  const st=$("#cdState"),wrap=$("#cdLgaWrap"),addr=$("#cdAddr"),btn=$("#cdGo");
+  const check=()=>{btn.disabled=!(st.value&&addr.value.trim().length>5);};
+  st.addEventListener("change",()=>{wrap.innerHTML=st.value?`<label class="fl">LGA</label><select class="in" id="cdLga">${STATES[st.value].map(l=>`<option>${l}</option>`).join("")}</select>`:"";check();});
+  addr.addEventListener("input",check);
+  $("#cdNinT").onclick=()=>{$("#cdNinWrap").innerHTML=`<label class="fl">Representative NIN</label><input class="in" id="cdNin" inputmode="numeric" maxlength="11" placeholder="11-digit NIN">`;$("#cdNinT").style.display="none";};
+  btn.onclick=()=>{
+    Object.assign(S.corp,{tin:$("#cdTin").value.trim(),nationality:$("#cdNat").value,state:st.value,lga:$("#cdLga")?$("#cdLga").value:"",address:addr.value.trim(),website:$("#cdWeb").value.trim(),nin:$("#cdNin")?$("#cdNin").value.trim():""});
+    go("corpBank");
+  };
+},
+
+/* ---------- CORPORATE: company bank account (C4) ---------- */
+corpBank(){
+  screenEl.innerHTML=nav("Corporate account")+`
+    <div class="pad">
+      <h2 class="big">Company bank account</h2>
+      <p class="lead">Dividends and any refunds go here — it should be in the company's name.</p>
+      <label class="fl">Bank</label>
+      <select class="in" id="cbB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
+      <div id="cbWrap"></div>
+      <div class="footbar"><button class="btn" id="cbGo" disabled>Continue — verify email</button></div>
+    </div>`;
+  const bSel=$("#cbB"),wrap=$("#cbWrap"),btn=$("#cbGo");
+  bSel.addEventListener("change",()=>{
+    if(!bSel.value){wrap.innerHTML="";btn.disabled=true;return;}
+    wrap.innerHTML=`<label class="fl">Account number</label>
+      <input class="in" id="cbA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
+      <div id="cbFb"></div>`;
+    btn.disabled=true;
+    const a=$("#cbA"),fb=$("#cbFb");
+    a.addEventListener("input",()=>{
+      a.value=a.value.replace(/\D/g,"").slice(0,10);
+      if(a.value.length===10){
+        fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.corp.name)} <span class="demoTag">DEMO</span></div><div class="hint">Account name matches your RC record ✓</div>`;
+        S.corp.bank=bSel.value;S.corp.acct=a.value;btn.disabled=false;
+      }else{fb.innerHTML="";btn.disabled=true;}
+    });
+  });
+  btn.onclick=()=>go("verify");
 },
 
 bvn(){
-  screenEl.innerHTML=nav("Create account")+`
+  screenEl.innerHTML=nav(S.acctType==="corporate"?"Corporate account":"Create account")+`
     <div class="pad">
       <h2 class="big">Verify your identity</h2>
       <p class="lead">Enter your BVN to get started.</p>
@@ -570,28 +690,33 @@ bvn(){
 },
 
 isYou(){
-  const u=S.user;
-  screenEl.innerHTML=nav("Create account")+`
+  const u=S.user;const corp=S.acctType==="corporate";
+  screenEl.innerHTML=nav(corp?"Corporate account":"Create account")+`
     <div class="pad">
+      ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> ${esc(S.corp.name)} · RC ${esc(S.corp.rc)}</div>`:""}
       <h2 class="big">Is this you?</h2>
-      <p class="lead">We pulled these details from your BVN.</p>
+      <p class="lead">${corp?"Authorized representative — details pulled from BVN.":"We pulled these details from your BVN."}</p>
       <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
-        <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
+        ${corp?"":`<div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>`}
       </div>
-      <div class="hint">Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile.</div>
+      ${corp?`<label class="fl" for="phIn">Phone number</label>
+      <input id="phIn" class="in" inputmode="numeric" maxlength="11" value="${esc(u.phone)}">`:""}
+      <div class="hint">${corp?"Phone and email are editable for corporate accounts — use the company's contact details if you prefer.":"Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile."}</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
-      <div class="hint">Also from BVN, but editable — this creates your account, so update it if needed.</div>
+      <div class="hint">Also from BVN, but editable — this creates ${corp?"the company account":"your account"}, so update it if needed.</div>
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
-      <div class="footbar"><button class="btn" id="isYouGo">Send verification code</button></div>
+      <div class="footbar"><button class="btn" id="isYouGo">${corp?"Continue — company details":"Send verification code"}</button></div>
     </div>`;
+  if(corp){const p=$("#phIn");p.addEventListener("input",()=>{p.value=p.value.replace(/\D/g,"").slice(0,11);});}
   $("#isYouGo").onclick=()=>{
     const v=$("#emIn").value.trim();
     if(v)S.user.email=v;
-    go("verify");
+    if(corp){const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;go("corpDetails");}
+    else go("verify");
   };
 },
 
@@ -708,7 +833,7 @@ dashOffers(arg){
           <p class="hint" style="margin-top:8px">Offer closes in:</p>${countdownHTML("cdClose")}
           <button class="linkbtn" style="margin-top:10px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
           <div style="margin-top:14px">
-            <button class="btn" onclick="startSubscribe(${S.selfSub?"'minor'":"'self'"})">Subscribe${hasAny?" for a child":" now"}</button>
+            <button class="btn" onclick="startSubscribeAuto()">Subscribe${S.acctType==='corporate'?" as "+esc(S.corp?S.corp.name.split(' ')[0]:'Corporate'):(hasAny?" for a child":" now")}</button>
             ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
           </div>`
         :`
@@ -843,7 +968,11 @@ profile(){
 
 /* ---------- THE ONE-PAGER ---------- */
 subscribe(arg){
-  flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:OFFER.minShares,pm:"transfer",
+  const corp=(arg&&arg.mode)==="corp";
+  const initShares=corp
+    ? roundQty(Math.ceil((S.intentAmount||CORP_MIN_NGN)/OFFER.price),corpMinShares())
+    : (S.intentAmount&&S.acctType==="individual"?roundQty(Math.ceil(S.intentAmount/OFFER.price)):OFFER.minShares);
+  flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:initShares,pm:"transfer",
         cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:""};
   screenEl.innerHTML=nav("Subscribe")+`
     <div class="pad">
@@ -856,26 +985,30 @@ subscribe(arg){
       </div>
 
       <!-- who for -->
-      <div class="sec">
+      ${corp?`<div class="sec">
+        <div class="okband"><span class="tick">✓</span> 🏢 ${esc(S.corp.name)} · RC ${esc(S.corp.rc)}</div>
+      </div>`:`<div class="sec">
         <div class="sh">👤 Who is this subscription for?</div>
         <div class="seg">
           <button id="whoSelf" onclick="subMode('self')">🙋 Myself</button>
           <button id="whoMinor" onclick="subMode('minor')">🧒 A minor</button>
         </div>
         <div id="whoBody"></div>
-      </div>
+      </div>`}
 
       <!-- shares -->
       <div class="sec">
         <div class="sh">🧮 Number of shares</div>
-        <div class="sd" id="shHint">Minimum ${OFFER.minShares.toLocaleString()} shares. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
+        <div class="sd" id="shHint">Minimum ${(corp?corpMinShares():OFFER.minShares).toLocaleString()} shares${corp?` (${ngn(CORP_MIN_NGN).replace(".00","")} corporate minimum)`:""}. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
         <div class="stepper">
           <button aria-label="Fewer shares" onclick="subShares(-1)">−</button>
           <input class="num" id="shNum" inputmode="numeric" value="${flow.shares}" onchange="subInputShares(this.value)" onblur="subInputShares(this.value)">
           <button aria-label="More shares" onclick="subShares(1)">＋</button>
         </div>
         <div class="qp" id="qpRow">
-          ${QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}
+          ${corp
+            ?[2e7,5e7,1e8,5e8].map(v=>{const q=roundQty(Math.ceil(v/OFFER.price),corpMinShares());return `<button data-q="${q}" data-label="₦${(v/1e6)}m" onclick="subSetShares(${q})">₦${(v/1e6)}m</button>`;}).join("")
+            :QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}
         </div>
         <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
       </div>
@@ -909,6 +1042,7 @@ subscribe(arg){
       <!-- payment -->
       <div class="sec">
         <div class="sh">💳 How would you like to pay?</div>
+        ${corp?`<div class="warnband" style="margin:6px 0 4px">⚠ Card limits may apply at this amount — bank transfer (no fee) is recommended for corporate subscriptions.</div>`:""}
         <div class="sd">Fees are added on top of your subscription. The amount shown is the final total you'll pay.</div>
         <div id="pmRows"></div>
         <div id="fxNote"></div>
@@ -953,15 +1087,21 @@ subscribe(arg){
   $("#irrCk").addEventListener("change",e=>{flow.irr=e.target.checked;validate();});
   $("#invIn").addEventListener("input",e=>flow.inv=e.target.value);
 
-  subMode(flow.mode);
+  if(corp){
+    $("#cscsQ").innerHTML=`🏛️ Does ${esc(S.corp.name)} have a CSCS account with Vetiva?`;
+    $("#cscsHelp").innerHTML=`If the company's CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for the company at no cost.`;
+    $("#cscsIn").placeholder="Enter the company's 11-digit CSCS number";
+    renderDividend();
+    validate();
+  } else subMode(flow.mode);
   updateMoney();
 },
 
 /* ---------- top-up one-pager ---------- */
 topup(arg){
   flow={type:"topup",for:arg.for,minorIdx:arg.minorIdx,shares:100,pm:"transfer",irr:false};
-  const rec=arg.for==="self"?S.selfSub:S.minors[arg.minorIdx];
-  const who=arg.for==="self"?"You":rec.name;
+  const rec=arg.for==="self"?S.selfSub:(arg.for==="corp"?S.corpSub:S.minors[arg.minorIdx]);
+  const who=arg.for==="self"?"You":(arg.for==="corp"?S.corp.name:rec.name);
   screenEl.innerHTML=nav("Top up")+`
     <div class="pad">
       <div class="card">
@@ -1017,11 +1157,13 @@ processing(){
       S.selfSub={shares:flow.shares,paid:amount,payments:1,cscs:flow.cscs};
     }else if(flow.type==="sub"&&flow.mode==="minor"){
       S.minors.push({name:flow.child.name,dob:flow.child.dob,shares:flow.shares,paid:amount,payments:1,cscs:flow.cscs});
+    }else if(flow.type==="sub"&&flow.mode==="corp"){
+      S.corpSub={shares:flow.shares,paid:amount,payments:1,cscs:flow.cscs};
     }else if(flow.type==="topup"){
-      const t=flow.for==="self"?S.selfSub:S.minors[flow.minorIdx];
+      const t=flow.for==="self"?S.selfSub:(flow.for==="corp"?S.corpSub:S.minors[flow.minorIdx]);
       t.shares+=flow.shares;t.paid+=amount;t.payments+=1;
     }
-    const twho=flow.type==="sub"?(flow.mode==="minor"?flow.child.name:"self"):(flow.for==="self"?"self":S.minors[flow.minorIdx].name);
+    const twho=flow.type==="sub"?(flow.mode==="minor"?flow.child.name:(flow.mode==="corp"?S.corp.name:"self")):(flow.for==="self"?"self":(flow.for==="corp"?S.corp.name:S.minors[flow.minorIdx].name));
     S.txns.unshift({label:`${OFFER.ticker} IPO ${flow.type==="topup"?"top-up":"subscription"}${twho==="self"?"":" — "+twho}`,amount:flow.total,when:"10 Jul 2026 [DEMO]"});
     go("success");
   },1700);
@@ -1030,9 +1172,10 @@ processing(){
 /* ---------- success: the page after payment ---------- */
 success(){
   const isTopup=flow.type==="topup",isMinor=flow.type==="sub"&&flow.mode==="minor";
-  const rec=isTopup?(flow.for==="self"?S.selfSub:S.minors[flow.minorIdx])
-        :isMinor?S.minors[S.minors.length-1]:S.selfSub;
-  const who=isMinor?flow.child.name:(isTopup&&flow.for==="minor"?rec.name:null);
+  const rec=isTopup?(flow.for==="self"?S.selfSub:(flow.for==="corp"?S.corpSub:S.minors[flow.minorIdx]))
+        :isMinor?S.minors[S.minors.length-1]:(flow.mode==="corp"?S.corpSub:S.selfSub);
+  const isCorp=flow.mode==="corp"||flow.for==="corp";
+  const who=isCorp?S.corp.name:(isMinor?flow.child.name:(isTopup&&flow.for==="minor"?rec.name:null));
   screenEl.innerHTML=`
     <div class="pad" style="padding-top:0">
       <div class="bighalo"><div class="inner">✓</div></div>
@@ -1048,7 +1191,7 @@ success(){
         </div>
         <div class="sumrow"><span class="k">${isTopup?"Total shares":"Shares"}</span><span class="v">${rec.shares}${isTopup?` (${rec.payments} payments · ${ngn(rec.paid)})`:""}</span></div>
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${rec.cscs}</span></div>
-        ${who?`<div class="sumrow"><span class="k">Account holder</span><span class="v">${esc(who)} (guardian: you)</span></div>`:""}
+        ${who?`<div class="sumrow"><span class="k">Account holder</span><span class="v">${esc(who)}${isCorp?` · RC ${esc(S.corp.rc)}`:" (guardian: you)"}</span></div>`:""}
       </div>
       <h3 style="font-size:.95rem;margin:20px 0 12px">What happens next</h3>
       <div class="tl">
@@ -1062,7 +1205,7 @@ success(){
       <div class="divider"></div>
       <button class="btn" onclick="shareOffer()">📤 Share this IPO</button>
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
-      <button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>
+      ${isCorp?"":`<button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>`}
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
       ${S.phoneVerified?"":`<div class="hint" style="margin-top:14px;text-align:center">📱 Tip: verify your phone number so you don't miss updates about your allotment. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button></div>`}
       <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashHome')">Done</button>
@@ -1074,8 +1217,41 @@ success(){
 window.setAcctType=(t)=>{S.acctType=t;
   $("#atInd").classList.toggle("on",t==="individual");
   $("#atCor").classList.toggle("on",t==="corporate");
-  $("#atNote").innerHTML=t==="corporate"?corpNote():"";};
-function corpNote(){return `<div class="warnband">🏢 Corporate onboarding uses CAC/RC verification instead of BVN. <span class="demoTag">FLOW TO BE SPECIFIED — proceeds as Individual in this demo</span></div>`;}
+  $("#atNote").innerHTML=t==="corporate"?corpNote():"";if(t==="corporate")wireIntent();};
+function corpNote(){
+  const amt=S.intentAmount;
+  return `<div class="card" style="margin-top:10px">
+    <div class="sh" style="margin-bottom:2px">💼 How much does the company intend to invest?</div>
+    <div class="sd">Corporate subscriptions start from ${ngn(CORP_MIN_NGN).replace(".00","")}.</div>
+    <div class="qp" id="intentQp" style="margin-top:8px">
+      ${[20,50,100,250].map(m=>`<button data-m="${m}" class="${amt===m*1e6?"on":""}" onclick="setIntent(${m}*1e6)">₦${m}m${m===250?"+":""}</button>`).join("")}
+    </div>
+    <label class="fl">Or enter amount (₦)</label>
+    <input class="in" id="intentIn" inputmode="numeric" placeholder="e.g. 35,000,000" value="${amt&&![2e7,5e7,1e8,2.5e8].includes(amt)?amt.toLocaleString():""}">
+    <div id="intentFb"></div>
+  </div>`;
+}
+window.setIntent=(v)=>{S.intentAmount=v;$("#atNote").innerHTML=corpNote();wireIntent();};
+function wireIntent(){
+  const i=$("#intentIn");if(!i)return;
+  i.addEventListener("input",()=>{
+    const v=parseInt(i.value.replace(/\D/g,""),10)||0;
+    i.value=v?v.toLocaleString():"";
+    S.intentAmount=v||null;
+    document.querySelectorAll("#intentQp button").forEach(b=>b.classList.toggle("on",+b.dataset.m*1e6===v));
+    const fb=$("#intentFb");
+    if(v&&v<CORP_MIN_NGN){
+      fb.innerHTML=`<div class="warnband" style="margin-top:8px">Corporate subscriptions start at ${ngn(CORP_MIN_NGN).replace(".00","")}. Investing personally instead? The individual route starts from ${ngn(OFFER.minAmount).replace(".00","")} — same BVN, under a minute.<br>
+      <button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');toast('Switched to Individual — your amount carries over')">Switch to Individual →</button></div>`;
+    } else fb.innerHTML="";
+  });
+}
+window.startCreate=()=>{
+  if(S.acctType==="corporate"){
+    if(!S.intentAmount||S.intentAmount<CORP_MIN_NGN){toast("Enter an intended amount of at least ₦20,000,000 to continue as Corporate");return;}
+    go("rc");
+  } else go("bvn");
+};
 
 window.subMode=(m)=>{
   flow.mode=m;flow.child=null;flow.cscs=null;flow.cscsChoice=null;
@@ -1145,7 +1321,41 @@ window.subCscsUndo=()=>{
 function renderDividend(){
   const body=$("#divBody"),sd=$("#divSd");
   if(!body)return;
-  if(flow.mode==="minor"){
+  if(flow.mode==="corp"||flow.for==="corp"){
+    sd.textContent="Dividends are paid to the company's account, captured at registration.";
+    body.innerHTML=`<div class="card" style="margin-top:10px"><div class="row"><span style="font-size:1.3rem">🏦</span>
+      <div class="grow"><b style="font-size:.9rem">${esc(S.corp.bank)}</b>
+      <div class="hint" style="margin-top:1px">${esc(S.corp.name)} · ${esc(S.corp.acct)}</div></div>
+      <span class="chip">COMPANY</span></div>
+      <button class="linkbtn" style="padding:6px 0 0" id="dvChange">Change account</button></div>`;
+    flow.divOk=true;
+    $("#dvChange").onclick=()=>{
+      sd.textContent="Where should we pay the company's dividends?";
+      flow.divOk=false;
+      body.innerHTML=`
+        <label class="fl">Bank</label>
+        <select class="in" id="dvB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option ${b===S.corp.bank?"selected":""}>${b}</option>`).join("")}</select>
+        <div id="dvAcctWrap"></div>`;
+      const bSel=$("#dvB"),wrap=$("#dvAcctWrap");
+      const renderAcct=()=>{
+        wrap.innerHTML=`<label class="fl">Account number</label>
+          <input class="in" id="dvA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
+          <div id="dvFb"></div>`;
+        const a=$("#dvA"),fb=$("#dvFb");
+        a.addEventListener("input",()=>{
+          a.value=a.value.replace(/\D/g,"").slice(0,10);
+          if(a.value.length===10){
+            fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.corp.name)} <span class="demoTag">DEMO</span></div>`;
+            S.corp.bank=bSel.value;S.corp.acct=a.value;flow.divOk=true;
+          }else flow.divOk=false;
+          validate();
+        });
+      };
+      bSel.addEventListener("change",()=>{if(bSel.value)renderAcct();else{wrap.innerHTML="";flow.divOk=false;validate();}});
+      validate();
+    };
+    validate();
+  }else if(flow.mode==="minor"){
     sd.textContent="Dividends are paid to your account as guardian.";
     body.innerHTML=`<div class="card" style="margin-top:10px"><div class="row"><span style="font-size:1.3rem">🏦</span>
       <div class="grow"><b style="font-size:.9rem">${esc(S.user.bank)}</b>
@@ -1190,7 +1400,7 @@ function wirePwToggles(){
   });
 }
 
-function shareFloor(){ return flow.type==="topup"?100:OFFER.minShares; }
+function shareFloor(){ if(flow.mode==="corp")return corpMinShares(); if(flow.type==="topup")return flow.for==="corp"?1000:100; return OFFER.minShares; }
 window.subShares=(dir)=>{
   const step=qtyStep(flow.shares);
   subSetShares(roundQty(flow.shares+dir*step,shareFloor()));
@@ -1202,7 +1412,7 @@ window.subSetShares=(v)=>{
   if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${OFFER.minShares.toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
   document.querySelectorAll("#qpRow button").forEach(b=>{
     const on=+b.dataset.q===flow.shares;b.classList.toggle("on",on);
-    b.textContent=(on?"✓ ":"")+(+b.dataset.q).toLocaleString();});
+    b.textContent=(on?"✓ ":"")+(b.dataset.label||(+b.dataset.q).toLocaleString());});
   updateMoney();};
 window.subInputShares=(raw)=>{
   const v=parseInt(String(raw).replace(/\D/g,""),10);
@@ -1250,6 +1460,7 @@ function validate(){
     ok=ok&&!!flow.cscs&&flow.divOk;
     if(flow.mode==="minor")ok=ok&&!!flow.child;
     if(flow.mode==="self")ok=ok&&!S.selfSub;
+    if(flow.mode==="corp")ok=ok&&!S.corpSub;
   }
   btn.disabled=!ok;
   btn.onclick=ok?()=>go("processing"):null;
@@ -1258,6 +1469,7 @@ function validate(){
 /* =================== SHARED ACTIONS =================== */
 function renderPosition(){
   const rows=[];
+  if(S.corpSub)rows.push({label:"🏢 "+S.corp.name,sub:S.corpSub,idx:"corp"});
   if(S.selfSub)rows.push({label:"You",sub:S.selfSub,idx:"self"});
   S.minors.forEach((m,i)=>rows.push({label:m.name,sub:m,idx:i}));
   const totalShares=rows.reduce((a,r)=>a+r.sub.shares,0);
@@ -1271,16 +1483,24 @@ function renderPosition(){
     <div class="card sublist" style="margin-top:12px">
       <b style="font-size:.85rem">Your subscriptions</b>
       ${rows.map(r=>`<div class="subrow">
-        <div class="avat">${initials(r.label==="You"?S.user.name:r.label)}</div>
+        <div class="avat">${initials(r.label==="You"?S.user.name:r.label.replace("\ud83c\udfe2 ",""))}</div>
         <div class="grow"><div class="sn">${esc(r.label)}</div><div class="sv">${r.sub.shares} shares · ${ngn(r.sub.paid)}${r.sub.payments>1?` · ${r.sub.payments} payments`:""}</div></div>
         <button class="topupbtn" onclick="startTopup('${r.idx}')">Top up</button>
       </div>`).join("")}
     </div>`;
 }
 function startSubscribe(mode){go("subscribe",{mode});}
-function totalInvested(){return (S.selfSub?S.selfSub.paid:0)+S.minors.reduce((a,m)=>a+m.paid,0);}
-function startTopup(idx){go("topup",idx==="self"?{for:"self"}:{for:"minor",minorIdx:+idx});}
+window.startSubscribeAuto=()=>{
+  if(S.acctType==="corporate"){
+    if(S.corpSub)return go("topup",{for:"corp"});
+    return startSubscribe("corp");
+  }
+  startSubscribe(S.selfSub?"minor":"self");
+};
+function totalInvested(){return (S.selfSub?S.selfSub.paid:0)+(S.corpSub?S.corpSub.paid:0)+S.minors.reduce((a,m)=>a+m.paid,0);}
+function startTopup(idx){go("topup",idx==="self"?{for:"self"}:(idx==="corp"?{for:"corp"}:{for:"minor",minorIdx:+idx}));}
 function topupFromSuccess(){
+  if(flow.mode==="corp"||flow.for==="corp")return go("topup",{for:"corp"});
   if(flow.type==="topup")startTopup(flow.for==="self"?"self":String(flow.minorIdx));
   else if(flow.mode==="minor")startTopup(String(S.minors.length-1));
   else startTopup("self");
@@ -1309,10 +1529,10 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],phoneVerified:false});reset("entry");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,txns:[],phoneVerified:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
-  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.txns=[];reset("dashOffers");},
+  liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.corpSub=null;S.txns=[];reset("dashOffers");},
   minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"dashOffers"});go("subscribe",{mode:"minor"});},
   subscribed(){
     S.registered=true;S.offerLive=true;
@@ -1323,7 +1543,12 @@ const demo={
             {label:OFFER.ticker+" IPO subscription",amount:500*OFFER.price,when:"8 Jul 2026 [DEMO]"}];
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],waitlisted:false,offerLive:true,txns:[],phoneVerified:false});hist.length=0;reset("entry");toast("Demo reset");},
+  corp(){
+    S.registered=true;S.offerLive=true;S.acctType="corporate";S.corpSub=null;S.intentAmount=5e7;
+    S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
+    reset("dashOffers");
+  },
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,txns:[],phoneVerified:false});hist.length=0;reset("entry");toast("Demo reset");},
 };
 
 /* boot */
