@@ -716,7 +716,7 @@ subscribe(arg){
 
       <!-- CSCS -->
       <div class="sec">
-        <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with Vetiva?</div>
+        <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with Vetiva Securities?</div>
         <div class="sd" id="cscsHelp">If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.</div>
         <input id="cscsIn" class="in" style="margin-top:12px" inputmode="numeric" maxlength="11" placeholder="Enter your 11-digit Vetiva CSCS number">
         <div id="cscsFb"></div>
@@ -935,7 +935,7 @@ window.subMode=(m)=>{
     body.innerHTML=S.selfSub
       ?`<div class="warnband">You've already subscribed for yourself (${S.selfSub.shares} shares). Use <b>Top up</b> to add more, or switch to "A minor". <button class="linkbtn" style="padding:0 0 0 4px" onclick="go('topup',{for:'self'})">Top up instead →</button></div>`
       :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)}</div>`;
-    $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with Vetiva?`;
+    $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with Vetiva Securities?`;
     $("#cscsHelp").innerHTML=`If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.`;
     $("#cscsIn").placeholder="Enter your 11-digit Vetiva CSCS number";
   }else{
@@ -945,7 +945,7 @@ window.subMode=(m)=>{
       <div class="hint">Used only to verify the child's identity and open their CSCS account. You (${esc(S.user.name)}) are recorded as guardian.</div>
       <div id="ninFb"></div>
       <button class="linkbtn" onclick="document.getElementById('ninIn').value='98765432101';document.getElementById('ninIn').dispatchEvent(new Event('input'))">Use demo NIN <span class="demoTag">DEMO</span></button>`;
-    $("#cscsQ").innerHTML=`🏛️ Does your child have CSCS with Vetiva?`;
+    $("#cscsQ").innerHTML=`🏛️ Does your child have CSCS with Vetiva Securities?`;
     $("#cscsHelp").innerHTML=`If yes, enter the child's Vetiva CSCS account number. If not, select "I don't know / I don't have one" — we'll create one in the child's name, with you as guardian.`;
     $("#cscsIn").placeholder="Enter the child's 11-digit CSCS number";
     const nin=$("#ninIn"),fb=$("#ninFb");
