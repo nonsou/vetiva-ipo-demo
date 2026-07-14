@@ -1063,8 +1063,8 @@ subscribe(arg){
   $("#invIn").addEventListener("input",e=>flow.inv=e.target.value);
 
   if(corp){
-    $("#cscsQ").innerHTML=`🏛️ Does ${esc(S.corp.name)} have a CSCS account with Vetiva?`;
-    $("#cscsHelp").innerHTML=`If the company's CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for the company at no cost.`;
+    $("#cscsQ").innerHTML=`🏛️ Do you have a corporate CSCS account with Vetiva Securities?`;
+    $("#cscsHelp").innerHTML=`Your CSCS account must be with Vetiva Securities for this subscription. If the company's account is with another stockbroker — or you're not sure — select "I don't know / I don't have one" and we'll create one for the company at no cost.`;
     $("#cscsIn").placeholder="Enter the company's 11-digit CSCS number";
     renderDividend();
     validate();
