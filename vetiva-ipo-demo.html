@@ -431,41 +431,27 @@ rc(){
 
 /* ---------- CORPORATE: company details (C3) ---------- */
 corpDetails(){
-  const c=S.corp;
   screenEl.innerHTML=nav("Corporate account")+`
     <div class="pad">
       <h2 class="big">Company details</h2>
-      <p class="lead">Almost done — most of this is already filled for you.</p>
-      <div class="card">
-        <div class="sumrow"><span class="k">Company</span><span class="v">${esc(c.name)}</span></div>
-        <div class="sumrow"><span class="k">RC · Registered</span><span class="v">${esc(c.rc)} · ${esc(c.rcDate)}</span></div>
-      </div>
+      <p class="lead">Just three things — the rest is already on file.</p>
       <label class="fl">TIN</label>
       <input class="in" id="cdTin" value="${CORP_DEMO.tin}">
-      <label class="fl">Nationality</label>
-      <select class="in" id="cdNat"><option ${S.user.nationality==="Nigerian"?"selected":""}>Nigerian</option><option>Other</option></select>
-      <label class="fl">State</label>
-      <select class="in" id="cdState"><option value="">Select state</option>${Object.keys(STATES).map(s=>`<option ${s===S.user.state?"selected":""}>${s}</option>`).join("")}</select>
-      <div id="cdLgaWrap"></div>
       <label class="fl">Registered address</label>
       <div style="position:relative">
         <input class="in" id="cdAddr" placeholder="Start typing to search…" value="${esc(S.user.address)}" autocomplete="off">
         <div id="addrSug"></div>
       </div>
-      <div class="hint">Address search powered by Google Maps <span class="demoTag">DEMO</span> — nationality, state, LGA and address pre-filled from your BVN.</div>
+      <div class="hint">Address search powered by Google Maps <span class="demoTag">DEMO</span></div>
       <label class="fl">Website</label>
       <input class="in" id="cdWeb" placeholder="https://">
-      <button class="linkbtn" style="margin-top:10px" id="cdNinT">＋ Add representative NIN (optional)</button>
-      <div id="cdNinWrap"></div>
-      <div class="footbar"><button class="btn" id="cdGo" disabled>Continue</button></div>
+      <div class="footbar"><button class="btn" id="cdGo" disabled>Continue — verify email</button></div>
     </div>`;
-  const st=$("#cdState"),wrap=$("#cdLgaWrap"),addr=$("#cdAddr"),web=$("#cdWeb"),btn=$("#cdGo"),sug=$("#addrSug");
-  const check=()=>{btn.disabled=!(st.value&&addr.value.trim().length>5&&web.value.trim().length>3&&web.value.includes("."));};
-  const renderLga=(sel)=>{wrap.innerHTML=st.value?`<label class="fl">LGA</label><select class="in" id="cdLga">${STATES[st.value].map(l=>`<option ${l===sel?"selected":""}>${l}</option>`).join("")}</select>`:"";};
-  st.addEventListener("change",()=>{renderLga();check();});
-  renderLga(S.user.lga);check();
-  web.addEventListener("input",check);
-  const PLACES=[ // [DEMO] — Google Places autocomplete stand-in
+  const addr=$("#cdAddr"),web=$("#cdWeb"),btn=$("#cdGo"),sug=$("#addrSug"),tin=$("#cdTin");
+  S.corp.state=S.user.state;S.corp.lga=S.user.lga; // from BVN; Maps pick overrides silently
+  const check=()=>{btn.disabled=!(tin.value.trim().length>3&&addr.value.trim().length>5&&web.value.trim().length>3&&web.value.includes("."));};
+  tin.addEventListener("input",check);web.addEventListener("input",check);check();
+  const PLACES=[ // [DEMO] Google Places stand-in — selection silently sets state + LGA
     {a:"14 Adeola Odeku Street, Victoria Island, Lagos",state:"Lagos",lga:"Eti-Osa"},
     {a:"14 Adeola Close, Ikeja GRA, Lagos",state:"Lagos",lga:"Ikeja"},
     {a:"14 Aminu Kano Crescent, Wuse II, Abuja",state:"FCT Abuja",lga:"AMAC"}];
@@ -477,45 +463,14 @@ corpDetails(){
       <div class="hint" style="padding:4px 8px 2px">Powered by Google <span class="demoTag">DEMO</span></div></div>`;
     sug.querySelectorAll("button").forEach(b=>b.onclick=()=>{
       const pl=PLACES[+b.dataset.i];
-      addr.value=pl.a;st.value=pl.state;renderLga(pl.lga);sug.innerHTML="";check();
+      addr.value=pl.a;S.corp.state=pl.state;S.corp.lga=pl.lga;sug.innerHTML="";check();
     });
     check();
   });
-  $("#cdNinT").onclick=()=>{$("#cdNinWrap").innerHTML=`<label class="fl">Representative NIN</label><input class="in" id="cdNin" inputmode="numeric" maxlength="11" placeholder="11-digit NIN">`;$("#cdNinT").style.display="none";};
   btn.onclick=()=>{
-    Object.assign(S.corp,{tin:$("#cdTin").value.trim(),nationality:$("#cdNat").value,state:st.value,lga:$("#cdLga")?$("#cdLga").value:"",address:addr.value.trim(),website:$("#cdWeb").value.trim(),nin:$("#cdNin")?$("#cdNin").value.trim():""});
-    go("corpBank");
+    Object.assign(S.corp,{tin:tin.value.trim(),nationality:S.user.nationality,address:addr.value.trim(),website:web.value.trim()});
+    go("verify");
   };
-},
-
-/* ---------- CORPORATE: company bank account (C4) ---------- */
-corpBank(){
-  screenEl.innerHTML=nav("Corporate account")+`
-    <div class="pad">
-      <h2 class="big">Company bank account</h2>
-      <p class="lead">Dividends and any refunds go here — it should be in the company's name.</p>
-      <label class="fl">Bank</label>
-      <select class="in" id="cbB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
-      <div id="cbWrap"></div>
-      <div class="footbar"><button class="btn" id="cbGo" disabled>Continue — verify email</button></div>
-    </div>`;
-  const bSel=$("#cbB"),wrap=$("#cbWrap"),btn=$("#cbGo");
-  bSel.addEventListener("change",()=>{
-    if(!bSel.value){wrap.innerHTML="";btn.disabled=true;return;}
-    wrap.innerHTML=`<label class="fl">Account number</label>
-      <input class="in" id="cbA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
-      <div id="cbFb"></div>`;
-    btn.disabled=true;
-    const a=$("#cbA"),fb=$("#cbFb");
-    a.addEventListener("input",()=>{
-      a.value=a.value.replace(/\D/g,"").slice(0,10);
-      if(a.value.length===10){
-        fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.corp.name)} <span class="demoTag">DEMO</span></div><div class="hint">Account name matches your RC record ✓</div>`;
-        S.corp.bank=bSel.value;S.corp.acct=a.value;btn.disabled=false;
-      }else{fb.innerHTML="";btn.disabled=true;}
-    });
-  });
-  btn.onclick=()=>go("verify");
 },
 
 bvn(){
@@ -544,7 +499,8 @@ isYou(){
     <div class="pad">
       ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> ${esc(S.corp.name)} · RC ${esc(S.corp.rc)}</div>`:""}
       <h2 class="big">Is this you?</h2>
-      <p class="lead">${corp?"Authorized representative — details pulled from BVN.":"We pulled these details from your BVN."}</p>
+      <p class="lead">${corp?"Director verification — details pulled from BVN.":"We pulled these details from your BVN."}</p>
+      ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> Director match — ${esc(u.name)} is listed as a director of ${esc(S.corp.name)} (CAC record) <span class="demoTag">DEMO</span></div>`:""}
       <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
@@ -557,26 +513,16 @@ isYou(){
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div id="emFb"></div>
-      <div class="hint">${corp?"Must be a <b>company domain</b> email — personal domains (gmail, yahoo…) aren't accepted for corporate accounts.":"Also from BVN, but editable — this creates your account, so update it if needed."}</div>
-      ${corp?`<button class="linkbtn" onclick="document.getElementById('emIn').value='finance@okaforagro-allied.com'">Use demo company email <span class="demoTag">DEMO</span></button>`:""}
+      <div class="hint">Also from BVN, but editable — this creates ${corp?"the company account":"your account"}, so update it if needed.</div>
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
       <div class="footbar"><button class="btn" id="isYouGo">${corp?"Continue — company details":"Send verification code"}</button></div>
     </div>`;
   if(corp){const p=$("#phIn");p.addEventListener("input",()=>{p.value=p.value.replace(/\D/g,"").slice(0,11);});}
   $("#isYouGo").onclick=()=>{
     const v=$("#emIn").value.trim();
-    if(corp){
-      const FREE=["gmail.com","yahoo.com","hotmail.com","outlook.com","icloud.com","aol.com","live.com","ymail.com"];
-      const dom=(v.split("@")[1]||"").toLowerCase();
-      if(!v||!dom||FREE.includes(dom)){
-        $("#emFb").innerHTML=`<div class="errline">Use a company email address (e.g. finance@okaforagro-allied.com) — personal domains aren't accepted for corporate accounts.</div>`;
-        return;
-      }
-      $("#emFb").innerHTML="";
-      S.user.email=v;
-      const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;
-      go("corpDetails");
-    } else { if(v)S.user.email=v; go("verify"); }
+    if(v)S.user.email=v;
+    if(corp){const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;go("corpDetails");}
+    else go("verify");
   };
 },
 
@@ -731,7 +677,7 @@ profile(){
 /* ---------- THE ONE-PAGER ---------- */
 subscribe(arg){
   const corp=(arg&&arg.mode)==="corp";
-  const initShares=corp?corpMinShares():OFFER.minShares;
+  const initShares=OFFER.minShares;
   flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:initShares,pm:"transfer",
         cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:""};
   screenEl.innerHTML=nav("Subscribe")+`
@@ -759,16 +705,14 @@ subscribe(arg){
       <!-- shares -->
       <div class="sec">
         <div class="sh">🧮 Number of shares</div>
-        <div class="sd" id="shHint">Minimum ${(corp?corpMinShares():OFFER.minShares).toLocaleString()} shares. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
+        <div class="sd" id="shHint">Minimum ${OFFER.minShares.toLocaleString()} shares. Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.</div>
         <div class="stepper">
           <button aria-label="Fewer shares" onclick="subShares(-1)">−</button>
           <input class="num" id="shNum" inputmode="numeric" value="${flow.shares}" onchange="subInputShares(this.value)" onblur="subInputShares(this.value)">
           <button aria-label="More shares" onclick="subShares(1)">＋</button>
         </div>
         <div class="qp" id="qpRow">
-          ${corp
-            ?[2e7,5e7,1e8,5e8].map(v=>{const q=roundQty(Math.ceil(v/OFFER.price),corpMinShares());return `<button data-q="${q}" data-label="₦${(v/1e6)}m" onclick="subSetShares(${q})">₦${(v/1e6)}m</button>`;}).join("")
-            :QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}
+          ${QUICK_PICKS.map(q=>`<button data-q="${q}" onclick="subSetShares(${q})">${q.toLocaleString()}</button>`).join("")}
         </div>
         <div class="mathline"><span id="mathL"></span><b id="mathV"></b></div>
       </div>
@@ -802,7 +746,7 @@ subscribe(arg){
       <!-- payment -->
       <div class="sec">
         <div class="sh">💳 How would you like to pay?</div>
-        ${corp?`<div class="warnband" style="margin:6px 0 4px">⚠ Card limits may apply at this amount — bank transfer (no fee) is recommended for corporate subscriptions.</div>`:""}
+        <div class="warnband" id="cardWarn" style="margin:6px 0 4px;display:none">⚠ Card limits may apply at this amount — bank transfer (no fee) is recommended.</div>
         <div class="sd">Fees are added on top of your subscription. The amount shown is the final total you'll pay.</div>
         <div id="pmRows"></div>
         <div id="fxNote"></div>
@@ -836,9 +780,15 @@ subscribe(arg){
     flow.cscsChoice="have";
     cscsIn.value=cscsIn.value.replace(/\D/g,"").slice(0,11);
     if(cscsIn.value.length===11){
-      const nm=flow.mode==="minor"&&flow.child?flow.child.name:S.user.name;
-      cscsFb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(nm.toUpperCase())} — account verified <span class="demoTag" style="margin-left:6px">OPEN ITEM: real-time check</span></div>`;
-      cscsIn.classList.remove("err");flow.cscs=cscsIn.value;
+      const nm=flow.mode==="corp"?S.corp.name:(flow.mode==="minor"&&flow.child?flow.child.name:S.user.name);
+      const last4=cscsIn.value.slice(-4);
+      cscsFb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Looking up CSCS account…</div>`;
+      flow.cscs=null;validate();
+      clearTimeout(cscsIn._lk);
+      cscsIn._lk=setTimeout(()=>{
+        cscsFb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(nm.toUpperCase())} · CSCS ••••${last4} <span class="demoTag" style="margin-left:6px">DEMO</span></div>`;
+        cscsIn.classList.remove("err");flow.cscs=cscsIn.value;validate();
+      },700);
     }else if(cscsIn.value.length>0){
       cscsFb.innerHTML=`<div class="errline">We couldn't find this account — check the number, or choose "I don't have one" below.</div>`;
       cscsIn.classList.add("err");flow.cscs=null;
@@ -1048,38 +998,28 @@ function renderDividend(){
   const body=$("#divBody"),sd=$("#divSd");
   if(!body)return;
   if(flow.mode==="corp"||flow.for==="corp"){
-    sd.textContent="Dividends are paid to the company's account, captured at registration.";
-    body.innerHTML=`<div class="card" style="margin-top:10px"><div class="row"><span style="font-size:1.3rem">🏦</span>
-      <div class="grow"><b style="font-size:.9rem">${esc(S.corp.bank)}</b>
-      <div class="hint" style="margin-top:1px">${esc(S.corp.name)} · ${esc(S.corp.acct)}</div></div>
-      <span class="chip">COMPANY</span></div>
-      <button class="linkbtn" style="padding:6px 0 0" id="dvChange">Change account</button></div>`;
-    flow.divOk=true;
-    $("#dvChange").onclick=()=>{
-      sd.textContent="Where should we pay the company's dividends?";
-      flow.divOk=false;
-      body.innerHTML=`
-        <label class="fl">Bank</label>
-        <select class="in" id="dvB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option ${b===S.corp.bank?"selected":""}>${b}</option>`).join("")}</select>
-        <div id="dvAcctWrap"></div>`;
-      const bSel=$("#dvB"),wrap=$("#dvAcctWrap");
-      const renderAcct=()=>{
-        wrap.innerHTML=`<label class="fl">Account number</label>
-          <input class="in" id="dvA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
-          <div id="dvFb"></div>`;
-        const a=$("#dvA"),fb=$("#dvFb");
-        a.addEventListener("input",()=>{
-          a.value=a.value.replace(/\D/g,"").slice(0,10);
-          if(a.value.length===10){
-            fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.corp.name)} <span class="demoTag">DEMO</span></div>`;
-            S.corp.bank=bSel.value;S.corp.acct=a.value;flow.divOk=true;
-          }else flow.divOk=false;
-          validate();
-        });
-      };
-      bSel.addEventListener("change",()=>{if(bSel.value)renderAcct();else{wrap.innerHTML="";flow.divOk=false;validate();}});
-      validate();
-    };
+    sd.textContent="Where should we pay the company's dividends when they are declared?";
+    body.innerHTML=`
+      <label class="fl">Bank</label>
+      <select class="in" id="dvB"><option value="">Select bank</option>${["Access Bank","GTBank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
+      <div id="dvAcctWrap"></div>`;
+    const bSel=$("#dvB"),wrapC=$("#dvAcctWrap");
+    bSel.addEventListener("change",()=>{
+      if(!bSel.value){wrapC.innerHTML="";flow.divOk=false;validate();return;}
+      wrapC.innerHTML=`<label class="fl">Account number</label>
+        <input class="in" id="dvA" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
+        <div id="dvFb"></div>`;
+      const a=$("#dvA"),fb=$("#dvFb");
+      a.addEventListener("input",()=>{
+        a.value=a.value.replace(/\D/g,"").slice(0,10);
+        if(a.value.length===10){
+          fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.corp.name)} <span class="demoTag">DEMO</span></div>`;
+          S.corp.bank=bSel.value;S.corp.acct=a.value;flow.divOk=true;
+        }else{fb.innerHTML="";flow.divOk=false;}
+        validate();
+      });
+      flow.divOk=false;validate();
+    });
     validate();
   }else if(flow.mode==="minor"){
     sd.textContent="Dividends are paid to your account as guardian.";
@@ -1126,7 +1066,7 @@ function wirePwToggles(){
   });
 }
 
-function shareFloor(){ if(flow.mode==="corp")return corpMinShares(); if(flow.type==="topup")return flow.for==="corp"?1000:100; return OFFER.minShares; }
+function shareFloor(){ return flow.type==="topup"?100:OFFER.minShares; }
 window.subShares=(dir)=>{
   const step=qtyStep(flow.shares);
   subSetShares(roundQty(flow.shares+dir*step,shareFloor()));
@@ -1135,7 +1075,7 @@ window.subSetShares=(v)=>{
   flow.shares=roundQty(v,shareFloor());
   const n=$("#shNum");if(n)n.value=flow.shares;
   const hint=$("#shHint");
-  if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${(flow.mode==="corp"?corpMinShares():OFFER.minShares).toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
+  if(hint)hint.textContent=(flow.type==="topup"?"":`Minimum ${OFFER.minShares.toLocaleString()} shares. `)+`Enter any quantity — it rounds to the nearest ${qtyStep(flow.shares).toLocaleString()} shares.`;
   document.querySelectorAll("#qpRow button").forEach(b=>{
     const on=+b.dataset.q===flow.shares;b.classList.toggle("on",on);
     b.textContent=(on?"✓ ":"")+(b.dataset.label||(+b.dataset.q).toLocaleString());});
@@ -1149,6 +1089,7 @@ window.subPm=(k)=>{flow.pm=k;updateMoney();};
 
 function updateMoney(){
   const amount=flow.shares*OFFER.price;
+  const cw=$("#cardWarn");if(cw)cw.style.display=amount>=5e6?"":"none";
   const mL=$("#mathL"),mV=$("#mathV");
   if(mL){mL.textContent=`${flow.shares} shares × ${ngn(OFFER.price)}`;mV.textContent=ngn(amount);}
   /* payment rows */
