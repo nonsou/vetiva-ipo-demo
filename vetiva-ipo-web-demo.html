@@ -606,10 +606,10 @@ corpDetails(){
       <h2 class="big">Company details</h2>
       <p class="lead">Just three things — the rest is already on file.</p>
       <label class="fl">TIN</label>
-      <input class="in" id="cdTin" value="${CORP_DEMO.tin}">
+      <input class="in" id="cdTin" inputmode="numeric" placeholder="Enter company TIN">
       <label class="fl">Registered address</label>
       <div style="position:relative">
-        <input class="in" id="cdAddr" placeholder="Start typing to search…" value="${esc(S.user.address)}" autocomplete="off">
+        <input class="in" id="cdAddr" placeholder="Start typing to search…" autocomplete="off">
         <div id="addrSug"></div>
       </div>
       <div class="hint">Address search powered by Google Maps <span class="demoTag">DEMO</span></div>
@@ -675,11 +675,9 @@ isYou(){
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
-        ${corp?"":`<div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>`}
+        <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
       </div>
-      ${corp?`<label class="fl" for="phIn">Phone number</label>
-      <input id="phIn" class="in" inputmode="numeric" maxlength="11" value="${esc(u.phone)}">`:""}
-      <div class="hint">${corp?"Phone and email are editable for corporate accounts — use the company's contact details if you prefer.":"Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile."}</div>
+      <div class="hint">Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile.</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div id="emFb"></div>
@@ -687,11 +685,10 @@ isYou(){
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
       <div class="footbar"><button class="btn" id="isYouGo">${corp?"Continue — company details":"Send verification code"}</button></div>
     </div>`;
-  if(corp){const p=$("#phIn");p.addEventListener("input",()=>{p.value=p.value.replace(/\D/g,"").slice(0,11);});}
   $("#isYouGo").onclick=()=>{
     const v=$("#emIn").value.trim();
     if(v)S.user.email=v;
-    if(corp){const pv=$("#phIn").value.trim();if(pv)S.user.phone=pv;go("corpDetails");}
+    if(corp){go("corpDetails");}
     else go("verify");
   };
 },
