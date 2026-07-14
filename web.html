@@ -148,7 +148,7 @@
   @media (prefers-reduced-motion:reduce){.screen.scrIn{animation:none}}
   /* shared */
   .pad{padding:8px 24px 28px;display:flex;flex-direction:column;flex:1}
-  .topnav{display:flex;align-items:center;gap:14px;padding:12px 24px;background:transparent;position:sticky;top:0;z-index:5}
+  .topnav{display:flex;align-items:center;gap:14px;padding:12px 24px;background:#fff;position:sticky;top:0;z-index:5;box-shadow:0 1px 0 rgba(24,26,16,.05)}
   .backbtn{background:none;border:none;font-size:1.35rem;cursor:pointer;color:var(--ink);padding:2px 6px;line-height:1;font-family:inherit}
   .backbtn:focus-visible{outline:2px solid var(--olive);border-radius:6px}
   .topnav .t{font-weight:700;font-size:.95rem}
@@ -563,16 +563,16 @@ rc(){
       <label class="fl" for="rcIn">RC number</label>
       <input id="rcIn" class="in" inputmode="numeric" maxlength="7" placeholder="7-digit RC number" autocomplete="off">
       <div id="rcFb"></div>
-      <button class="linkbtn" onclick="document.getElementById('rcIn').value='4567891';document.getElementById('rcIn').dispatchEvent(new Event('input'))">Use demo RC <span class="demoTag">DEMO</span></button>
+      <button class="linkbtn" id="rcDemoL" onclick="document.getElementById('rcIn').value='4567891';document.getElementById('rcIn').dispatchEvent(new Event('input'))">Use demo RC <span class="demoTag">DEMO</span></button>
       <div class="footbar"><button class="btn" id="rcGo" disabled>Look up company</button></div>
     </div>`;
   const i=$("#rcIn"),fb=$("#rcFb"),btn=$("#rcGo");let tries=0;
-  i.addEventListener("input",()=>{i.value=i.value.replace(/\D/g,"").slice(0,7);btn.disabled=i.value.length!==7;});
+  i.addEventListener("input",()=>{i.value=i.value.replace(/\D/g,"").slice(0,7);btn.disabled=i.value.length!==7;$("#rcDemoL").style.display="";});
   btn.onclick=()=>{
     fb.innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Looking up RC ${i.value} with CAC…</div>`;
     btn.disabled=true;
     setTimeout(()=>{
-      btn.disabled=false;
+      btn.disabled=false;$("#rcDemoL").style.display="none";
       const v=i.value;
       const indivExit=`<br><button class="linkbtn" style="padding:4px 0 0;font-weight:700" onclick="setAcctType('individual');go('bvn');toast('Continuing as Individual')">Continue as an Individual instead →</button>`;
       if(v==="0000000"){tries++;
@@ -606,7 +606,7 @@ corpDetails(){
       <h2 class="big">Company details</h2>
       <p class="lead">Just three things — the rest is already on file.</p>
       <label class="fl">TIN</label>
-      <input class="in" id="cdTin" inputmode="numeric" placeholder="Enter company TIN">
+      <input class="in" id="cdTin" inputmode="numeric" maxlength="13" placeholder="Enter company TIN (max 13 digits)">
       <label class="fl">Registered address</label>
       <div style="position:relative">
         <input class="in" id="cdAddr" placeholder="Start typing to search…" autocomplete="off">
@@ -620,7 +620,7 @@ corpDetails(){
   const addr=$("#cdAddr"),web=$("#cdWeb"),btn=$("#cdGo"),sug=$("#addrSug"),tin=$("#cdTin");
   S.corp.state=S.user.state;S.corp.lga=S.user.lga; // from BVN; Maps pick overrides silently
   const check=()=>{btn.disabled=!(tin.value.trim().length>3&&addr.value.trim().length>5&&web.value.trim().length>3&&web.value.includes("."));};
-  tin.addEventListener("input",check);web.addEventListener("input",check);check();
+  tin.addEventListener("input",()=>{tin.value=tin.value.replace(/\D/g,"").slice(0,13);check();});web.addEventListener("input",check);check();
   const PLACES=[ // [DEMO] Google Places stand-in — selection silently sets state + LGA
     {a:"14 Adeola Odeku Street, Victoria Island, Lagos",state:"Lagos",lga:"Eti-Osa"},
     {a:"14 Adeola Close, Ikeja GRA, Lagos",state:"Lagos",lga:"Ikeja"},
