@@ -511,7 +511,7 @@ isYou(){
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
         <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
       </div>
-      <div class="hint">Pulled from your BVN — can't be edited here. You can update and verify your phone number later from your profile.</div>
+      <div class="hint">Pulled from your BVN — can't be edited here. You can verify your phone number later from your profile.</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div id="emFb"></div>
@@ -641,18 +641,17 @@ profile(){
       </div>
       <div class="sec">
         <div class="sh">📱 Phone number ${S.phoneVerified?'<span class="chip">✓ VERIFIED</span>':'<span class="chip soon">UNVERIFIED</span>'}</div>
-        <div class="sd">Keep your phone number verified so you don't miss communications from us — allotment updates, payment confirmations, and offer news. You can update your phone number here at any time.</div>
-        <label class="fl" for="pvNum">Phone number</label>
-        <input class="in" id="pvNum" inputmode="numeric" maxlength="11" value="${esc(S.user.phone)}">
+        <div class="sd">Keep your phone number verified so you don't miss communications from us — allotment updates, payment confirmations, and offer news. Your number comes from your BVN and can't be changed here.</div>
+        <label class="fl">Phone number</label>
+        <input class="in" value="${esc(S.user.phone)}" disabled>
+        <div class="hint">Pulled from your BVN — view only.</div>
         <div id="pvArea">
-          <button class="btn" style="margin-top:14px" id="pvSend">${S.phoneVerified?"Update &amp; re-verify number":"Send verification code"}</button>
+          ${S.phoneVerified?"":`<button class="btn" style="margin-top:14px" id="pvSend">Send verification code</button>`}
         </div>
       </div>
     </div>`;
-  $("#pvNum").addEventListener("input",e=>{e.target.value=e.target.value.replace(/\D/g,"").slice(0,11);});
-  $("#pvSend").onclick=()=>{
-    const num=$("#pvNum").value.trim();
-    if(num.length!==11){toast("Phone number must be 11 digits");return;}
+  if($("#pvSend"))$("#pvSend").onclick=()=>{
+    const num=S.user.phone;
     $("#pvArea").innerHTML=`
       <p class="hint" style="margin-top:12px">Enter the 6-digit code we sent to ${esc(num)} by SMS. <span class="demoTag">DEMO</span></p>
       <div style="display:flex;gap:8px" id="pvOtp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
@@ -663,7 +662,7 @@ profile(){
     boxes.forEach((b,i)=>b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"");if(b.value&&i<5)boxes[i+1].focus();check();}));
     $("#pvFill").onclick=()=>{boxes.forEach((b,i)=>b.value=String((i+1)%10));check();};
     $("#pvGo").onclick=()=>{
-      S.user.phone=num;S.phoneVerified=true;
+      S.phoneVerified=true;
       toast("Phone number verified ✓");
       render("profile");
     };
