@@ -169,6 +169,12 @@
   .tl .st .tag{font-weight:600;font-size:.72rem;margin-left:8px}
   .tl .st .tag.done{color:var(--good)}
   .tl .st .tag.up{color:#A09D8B}
+  .tl .st .tag.todo{color:#fff;background:#B3261E;border-radius:20px;padding:2px 9px;font-weight:700}
+  .tl .step.urgent .st{color:#B3261E;font-weight:800}
+  .tl .step.urgent .dot{border-color:#B3261E}
+  .tl .step.urgent .sd{color:#8C3A34}
+  .tl .step.next .st{font-weight:800}
+  .tl .step.next .dot{border-color:var(--olive-deep)}
   .tl .sd{color:var(--muted);font-size:.77rem;margin-top:3px;line-height:1.4}
   .bighalo{width:130px;height:130px;border-radius:50%;background:#DFF0E5;display:flex;align-items:center;justify-content:center;margin:26px auto 6px;animation:haloPop .5s cubic-bezier(.34,1.56,.64,1) both}
   .bighalo .inner{width:86px;height:86px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#33B56C,var(--good));box-shadow:0 10px 24px -6px rgba(30,158,82,.5);display:flex;align-items:center;justify-content:center;color:#fff;font-size:2.2rem}
@@ -355,8 +361,8 @@ function tickCountdown(id,target){
   upd();const h=setInterval(upd,1000);
 }
 setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});},1000);
-function tlStep(done,title,sub,tag){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
-  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":(tag||"Upcoming")}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
+function tlStep(done,title,sub,tag,next){const urgent=!done&&!!tag;return `<div class="step${urgent?" urgent":(next&&!done?" next":"")}"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
+  <div><div class="st">${title}<span class="tag ${done?"done":(urgent?"todo":"up")}">${done?"Done":(tag||"Upcoming")}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
 
 /* =================== SCREENS =================== */
 const SCREENS={
@@ -434,23 +440,22 @@ corpDetails(){
   screenEl.innerHTML=nav("Corporate account")+`
     <div class="pad">
       <h2 class="big">Company details</h2>
-      <p class="lead">Just three things — the rest is already on file.</p>
-      <label class="fl">TIN</label>
-      <input class="in" id="cdTin" inputmode="numeric" maxlength="13" placeholder="Enter company TIN (max 13 digits)">
+      <p class="lead">Just two things — the rest is already on file.</p>
+      <label class="fl">Tax ID</label>
+      <input class="in" id="cdTin" maxlength="13" placeholder="Company Tax ID — old or new format">
+      <div class="hint">Accepts the old FIRS format (e.g. 01234567-0001) and the new 10-digit JTB TIN.</div>
       <label class="fl">Registered address</label>
       <div style="position:relative">
         <input class="in" id="cdAddr" placeholder="Start typing to search…" autocomplete="off">
         <div id="addrSug"></div>
       </div>
       <div class="hint">Address search powered by Google Maps <span class="demoTag">DEMO</span></div>
-      <label class="fl">Website</label>
-      <input class="in" id="cdWeb" placeholder="https://">
       <div class="footbar"><button class="btn" id="cdGo" disabled>Continue — verify email</button></div>
     </div>`;
-  const addr=$("#cdAddr"),web=$("#cdWeb"),btn=$("#cdGo"),sug=$("#addrSug"),tin=$("#cdTin");
+  const addr=$("#cdAddr"),btn=$("#cdGo"),sug=$("#addrSug"),tin=$("#cdTin");
   S.corp.state=S.user.state;S.corp.lga=S.user.lga; // from BVN; Maps pick overrides silently
-  const check=()=>{btn.disabled=!(tin.value.trim().length>3&&addr.value.trim().length>5&&web.value.trim().length>3&&web.value.includes("."));};
-  tin.addEventListener("input",()=>{tin.value=tin.value.replace(/\D/g,"").slice(0,13);check();});web.addEventListener("input",check);check();
+  const tinOk=v=>/^\d{8}-\d{4}$/.test(v)||/^\d{10,13}$/.test(v);const check=()=>{btn.disabled=!(tinOk(tin.value.trim())&&addr.value.trim().length>5);};
+  tin.addEventListener("input",()=>{tin.value=tin.value.replace(/[^\d-]/g,"").slice(0,13);check();});check();
   const PLACES=[ // [DEMO] Google Places stand-in — selection silently sets state + LGA
     {a:"14 Adeola Odeku Street, Victoria Island, Lagos",state:"Lagos",lga:"Eti-Osa"},
     {a:"14 Adeola Close, Ikeja GRA, Lagos",state:"Lagos",lga:"Ikeja"},
@@ -468,7 +473,7 @@ corpDetails(){
     check();
   });
   btn.onclick=()=>{
-    Object.assign(S.corp,{tin:tin.value.trim(),nationality:S.user.nationality,address:addr.value.trim(),website:web.value.trim()});
+    Object.assign(S.corp,{tin:tin.value.trim(),nationality:S.user.nationality,address:addr.value.trim()});
     go("verify");
   };
 },
@@ -477,7 +482,7 @@ bvn(){
   screenEl.innerHTML=nav(S.acctType==="corporate"?"Corporate account":"Create account")+`
     <div class="pad">
       <h2 class="big">Verify your identity</h2>
-      <p class="lead">Enter your BVN to get started.</p>
+      <p class="lead">${S.acctType==="corporate"?"Enter the BVN of one of the company's directors.":"Enter your BVN to get started."}</p>
       <label class="fl" for="bvnIn">BVN</label>
       <input id="bvnIn" class="in" inputmode="numeric" maxlength="11" placeholder="11-digit BVN" autocomplete="off">
       <div class="errline" id="bvnErr" style="display:none">BVN must be 11 digits</div>
@@ -499,8 +504,7 @@ isYou(){
     <div class="pad">
       ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> ${esc(S.corp.name)} · RC ${esc(S.corp.rc)}</div>`:""}
       <h2 class="big">Is this you?</h2>
-      <p class="lead">${corp?"Director verification — details pulled from BVN.":"We pulled these details from your BVN."}</p>
-      ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> Director match — ${esc(u.name)} is listed as a director of ${esc(S.corp.name)} (CAC record) <span class="demoTag">DEMO</span></div>`:""}
+      <p class="lead">${corp?"We pulled these details from the director's BVN — confirm they're correct.":"We pulled these details from your BVN."}</p>
       <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
@@ -899,7 +903,7 @@ success(){
         ${tlStep(true,"Funds received")}
         ${tlStep(true,"CSCS account linked")}
         ${tlStep(S.phoneVerified,"Verify your phone number",S.phoneVerified?"":`So you don't miss allotment communications from us. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button>`,"To do")}
-        ${tlStep(false,"Allotment","Expected by 8 Aug 2026 [DEMO]. If the offer is oversubscribed, your allotment may be scaled back.")}
+        ${tlStep(false,"Allotment","Expected by 8 Aug 2026 [DEMO]. If the offer is oversubscribed, your allotment may be scaled back.",null,S.phoneVerified)}
         ${tlStep(false,"Shares credited to CSCS account")}
         ${tlStep(false,"Listing day","You can trade your shares from this date")}
       </div>
@@ -963,8 +967,21 @@ window.subMode=(m)=>{
   validate();
 };
 
-window.subCscsNone=()=>{
+function cscsConfirmCorp(){
+  const veil=document.createElement("div");veil.className="sheet-veil";
+  veil.innerHTML=`<div class="sheet">
+    <h3>Create a new corporate CSCS account?</h3>
+    <p class="hint" style="margin-top:6px">You're asking us to create a new corporate CSCS account for <b>${esc(S.corp?S.corp.name:"the company")}</b>. If the company already has one with Vetiva Securities, go back and enter it instead — a duplicate request can delay processing.</p>
+    <button class="btn" style="margin-top:16px" id="ccGo">Yes — create the account</button>
+    <button class="linkbtn" style="margin-top:8px;width:100%;text-align:center" id="ccX">Go back</button></div>`;
+  $(".phone").appendChild(veil);
+  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
+  veil.querySelector("#ccX").onclick=()=>veil.remove();
+  veil.querySelector("#ccGo").onclick=()=>{veil.remove();subCscsNone(true);};
+}
+window.subCscsNone=(confirmed)=>{
   if(flow.cscsChoice==="none")return;
+  if(flow.mode==="corp"&&!confirmed){cscsConfirmCorp();return;}
   flow.cscsChoice="none";flow.cscs=null;
   $("#cscsNone").classList.add("on");
   const inp=$("#cscsIn");inp.value="";inp.disabled=true;inp.classList.remove("err");$("#cscsFb").innerHTML="";
