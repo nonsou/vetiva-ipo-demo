@@ -355,8 +355,8 @@ function tickCountdown(id,target){
   upd();const h=setInterval(upd,1000);
 }
 setInterval(()=>{$("#clock").textContent=new Date().toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"});},1000);
-function tlStep(done,title,sub){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
-  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":"Upcoming"}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
+function tlStep(done,title,sub,tag){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
+  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":(tag||"Upcoming")}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
 
 /* =================== SCREENS =================== */
 const SCREENS={
@@ -621,11 +621,6 @@ live(){
         <button class="btn" onclick="startSubscribeAuto()">Subscribe${S.acctType==='corporate'?" as "+esc(S.corp?S.corp.name.split(' ')[0]:'Corporate'):(hasAny?" for a child":" now")}</button>
         ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
       </div>
-      ${S.phoneVerified?"":`<div class="card" style="margin-top:14px;background:#FBF6E9;display:flex;gap:10px;align-items:center">
-        <span style="font-size:1.3rem">📱</span>
-        <div style="flex:1"><b style="font-size:.85rem">Verify your phone number</b><div class="hint" style="margin:2px 0 0">So you don't miss communications from us. Update it anytime.</div></div>
-        <button class="linkbtn" style="padding:0;font-weight:700" onclick="go('profile')">Verify →</button>
-      </div>`}
     </div>`;
   tickCountdown("cdClose",OFFER.closesAt.getTime());
 },
@@ -903,6 +898,7 @@ success(){
         ${tlStep(true,"Application created")}
         ${tlStep(true,"Funds received")}
         ${tlStep(true,"CSCS account linked")}
+        ${tlStep(S.phoneVerified,"Verify your phone number",S.phoneVerified?"":`So you don't miss allotment communications from us. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button>`,"To do")}
         ${tlStep(false,"Allotment","Expected by 8 Aug 2026 [DEMO]. If the offer is oversubscribed, your allotment may be scaled back.")}
         ${tlStep(false,"Shares credited to CSCS account")}
         ${tlStep(false,"Listing day","You can trade your shares from this date")}
@@ -912,7 +908,6 @@ success(){
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       ${isCorp?"":`<button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>`}
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
-      ${S.phoneVerified?"":`<div class="hint" style="margin-top:14px;text-align:center">📱 Tip: verify your phone number so you don't miss updates about your allotment. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button></div>`}
       <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('live')">Done</button>
     </div>`;
 },

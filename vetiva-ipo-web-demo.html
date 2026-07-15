@@ -527,8 +527,8 @@ function tickCountdown(id,target){
     node.querySelector('[data-u=s]').textContent=String(s).padStart(2,"0");};
   upd();const h=setInterval(upd,1000);
 }
-function tlStep(done,title,sub){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
-  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":"Upcoming"}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
+function tlStep(done,title,sub,tag){return `<div class="step"><div class="dot ${done?"done":""}">${done?"✓":""}</div>
+  <div><div class="st">${title}<span class="tag ${done?"done":"up"}">${done?"Done":(tag||"Upcoming")}</span></div>${sub?`<div class="sd">${sub}</div>`:""}</div></div>`;}
 
 /* =================== SCREENS =================== */
 const SCREENS={
@@ -776,11 +776,7 @@ dashHome(){
         </div>
       </div>
     </div>
-    ${S.phoneVerified?"":`<div class="setupband" style="margin-top:20px;background:#FBF6E9">
-      <div style="font-size:1.5rem">📱</div>
-      <div><h4>Verify your phone number</h4><p>So you don't miss communications from us — allotment updates, payment confirmations, offer news. You can update your number at any time.</p></div>
-      <button class="btn" onclick="go('profile')">Verify now</button>
-    </div>`}`;
+`;
 },
 
 dashOffers(arg){
@@ -1173,6 +1169,7 @@ success(){
         ${tlStep(true,"Application created")}
         ${tlStep(true,"Funds received")}
         ${tlStep(true,"CSCS account linked")}
+        ${tlStep(S.phoneVerified,"Verify your phone number",S.phoneVerified?"":`So you don't miss allotment communications from us. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button>`,"To do")}
         ${tlStep(false,"Allotment","Expected by 8 Aug 2026 [DEMO]. If the offer is oversubscribed, your allotment may be scaled back.")}
         ${tlStep(false,"Shares credited to CSCS account")}
         ${tlStep(false,"Listing day","You can trade your shares from this date")}
@@ -1182,7 +1179,6 @@ success(){
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       ${isCorp?"":`<button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>`}
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
-      ${S.phoneVerified?"":`<div class="hint" style="margin-top:14px;text-align:center">📱 Tip: verify your phone number so you don't miss updates about your allotment. <button class="linkbtn" style="display:inline;padding:0" onclick="go('profile')">Verify in profile →</button></div>`}
       <button class="linkbtn" style="margin-top:12px;align-self:center" onclick="reset('dashHome')">Done</button>
     </div>`;
 },
