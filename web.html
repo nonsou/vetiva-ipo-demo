@@ -1248,11 +1248,14 @@ window.subMode=(m)=>{
   validate();
 };
 
-function cscsConfirmCorp(){
+function cscsConfirmCreate(){
+  const corp=flow.mode==="corp",minor=flow.mode==="minor";
+  const who=corp?(S.corp?S.corp.name:"the company"):(minor&&flow.child?flow.child.name:null);
+  const veilTitle=corp?"Create a new corporate CSCS account?":"Create a new CSCS account?";
   const veil=document.createElement("div");veil.className="sheet-veil";
   veil.innerHTML=`<div class="sheet">
-    <h3>Create a new corporate CSCS account?</h3>
-    <p class="hint" style="margin-top:6px">You're asking us to create a new corporate CSCS account for <b>${esc(S.corp?S.corp.name:"the company")}</b>. If the company already has one with Vetiva Securities, go back and enter it instead — a duplicate request can delay processing.</p>
+    <h3>${veilTitle}</h3>
+    <p class="hint" style="margin-top:6px">You're asking us to create a new CSCS account for <b>${who?esc(who):"you"}</b>. If ${corp?"the company":(minor?"the child":"you")} already ${corp||minor?"has":"have"} one with Vetiva Securities, go back and enter it instead — a duplicate request can delay processing.</p>
     <button class="btn" style="margin-top:16px" id="ccGo">Yes — create the account</button>
     <button class="linkbtn" style="margin-top:8px;width:100%;text-align:center" id="ccX">Go back</button></div>`;
   document.body.appendChild(veil);
@@ -1262,7 +1265,7 @@ function cscsConfirmCorp(){
 }
 window.subCscsNone=(confirmed)=>{
   if(flow.cscsChoice==="none")return;
-  if(flow.mode==="corp"&&!confirmed){cscsConfirmCorp();return;}
+  if(!confirmed){cscsConfirmCreate();return;}
   flow.cscsChoice="none";flow.cscs=null;
   $("#cscsNone").classList.add("on");
   const inp=$("#cscsIn");inp.value="";inp.disabled=true;inp.classList.remove("err");$("#cscsFb").innerHTML="";
