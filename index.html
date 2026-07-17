@@ -335,8 +335,14 @@ function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");cl
 function go(name,arg){hist.push({name,arg});render(name,arg);}
 function back(){hist.pop();const p=hist[hist.length-1];if(p)render(p.name,p.arg);else render("entry");}
 function reset(name,arg){hist.length=0;go(name,arg);}
+const PERSIST_KEY="vetivaIpoDemo.mobile.v1";
+function persist(name,arg){
+  if(name==="processing")return;
+  try{localStorage.setItem(PERSIST_KEY,JSON.stringify({v:1,S,flow,screen:name,arg:arg===undefined?null:arg,ts:Date.now()}));}catch(e){}
+}
 function render(name,arg){
   SCREENS[name](arg);
+  persist(name,arg);
   screenEl.scrollTop=0;
   if(innerWidth<=820)document.getElementById('rail').classList.remove('open');
   screenEl.classList.remove("scrIn");
@@ -623,7 +629,7 @@ live(){
       </div>
       <div style="margin-top:16px">
         <button class="btn" onclick="startSubscribeAuto()">Subscribe${S.acctType==='corporate'?" as "+esc(S.corp?S.corp.name.split(' ')[0]:'Corporate'):(hasAny?" for a child":" now")}</button>
-        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="shareOffer()">📤 Share this IPO</button>`:""}
+        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="openShareCard('sub')">📤 Share your card</button>`:`<div class="card" style="margin-top:12px;display:flex;gap:10px;align-items:center"><span style="font-size:1.3rem">🎉</span><div style="flex:1"><b style="font-size:.85rem">You're in — spread the word</b><div class="hint" style="margin:2px 0 0">Share your personal card. Every referred subscription is tracked to you.</div></div><button class="linkbtn" style="padding:0;font-weight:700" onclick="openShareCard('reg')">Share →</button></div>`}
       </div>
     </div>`;
   tickCountdown("cdClose",OFFER.closesAt.getTime());
@@ -664,7 +670,8 @@ profile(){
     $("#pvGo").onclick=()=>{
       S.phoneVerified=true;
       toast("Phone number verified ✓");
-      render("profile");
+      if(flow&&(flow.type==="sub"||flow.type==="topup")&&(S.selfSub||S.corpSub||S.minors.length))render("success");
+      else render("profile");
     };
   };
 },
@@ -674,7 +681,9 @@ subscribe(arg){
   const corp=(arg&&arg.mode)==="corp";
   const initShares=OFFER.minShares;
   flow={type:"sub",mode:(arg&&arg.mode)||"self",shares:initShares,pm:"transfer",
-        cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:""};
+        cscsChoice:null,cscs:null,child:null,divOk:false,irr:false,inv:S.pendingRef||""};
+  {const __rf=window.__resumedFlow;window.__resumedFlow=null;
+   if(__rf&&__rf.type==="sub"&&__rf.mode===flow.mode){flow.shares=__rf.shares||flow.shares;flow.pm=__rf.pm||flow.pm;flow.inv=__rf.inv||flow.inv;}}
   screenEl.innerHTML=nav("Subscribe")+`
     <div class="pad">
 
@@ -735,7 +744,7 @@ subscribe(arg){
       <!-- invitation code -->
       <div class="sec" id="invSec">
         <div class="sh">🎟️ Invitation code <span class="opt">(Optional)</span></div>
-        <input class="in" style="margin-top:10px" id="invIn" placeholder="e.g. DPRP-AOK24">
+        <input class="in" style="margin-top:10px" id="invIn" placeholder="e.g. DPRP-AOK24" value="${esc(flow.inv||"")}">${S.pendingRef?`<div class="hint">✓ Invitation code from your friend's link applied.</div>`:""}
       </div>
 
       <!-- payment -->
@@ -806,6 +815,8 @@ subscribe(arg){
 /* ---------- top-up one-pager ---------- */
 topup(arg){
   flow={type:"topup",for:arg.for,minorIdx:arg.minorIdx,shares:100,pm:"transfer",irr:false};
+  {const __rf=window.__resumedFlow;window.__resumedFlow=null;
+   if(__rf&&__rf.type==="topup"&&__rf.for===flow.for){flow.shares=__rf.shares||flow.shares;flow.pm=__rf.pm||flow.pm;}}
   const rec=arg.for==="self"?S.selfSub:(arg.for==="corp"?S.corpSub:S.minors[arg.minorIdx]);
   const who=arg.for==="self"?"You":(arg.for==="corp"?S.corp.name:rec.name);
   screenEl.innerHTML=nav("Top up")+`
@@ -907,7 +918,7 @@ success(){
         ${tlStep(false,"Listing day","You can trade your shares from this date")}
       </div>
       <div class="divider"></div>
-      <button class="btn" onclick="shareOffer()">📤 Share this IPO</button>
+      <button class="btn" onclick="openShareCard('sub')">📤 Share your Founding Owner card</button>
       <button class="btn ghost" style="margin-top:10px" onclick="topupFromSuccess()">＋ Top up this subscription</button>
       ${isCorp?"":`<button class="btn ghost" style="margin-top:10px" onclick="startSubscribe('minor')">🧒 Subscribe for ${isMinor?"another":"a"} child</button>`}
       <button class="btn ghost" style="margin-top:10px" onclick="toast('Receipt PDF downloaded — [DEMO]')">🧾 Download receipt</button>
@@ -1179,10 +1190,100 @@ function topupFromSuccess(){
   else if(flow.mode==="minor")startTopup(String(S.minors.length-1));
   else startTopup("self");
 }
-function shareOffer(){
-  const msg=`I just subscribed to the ${OFFER.name} IPO on Vetiva 🚀 Offer closes 31 Jul — get in: https://vetiva.demo/dprp`;
-  if(navigator.share){navigator.share({title:"Dangote IPO on Vetiva",text:msg}).catch(()=>{});}
-  else{navigator.clipboard&&navigator.clipboard.writeText(msg);toast("Share link copied — WhatsApp-ready with rich preview [DEMO]");}
+function refCode(){
+  if(S.refCode)return S.refCode;
+  const fn=(S.user.name||"VET").split(" ")[0].toUpperCase().replace(/[^A-Z]/g,"").slice(0,3)||"VET";
+  const r=Array.from({length:4},()=>"ABCDEFGHJKMNPQRSTUVWXYZ23456789"[Math.floor(Math.random()*31)]).join("");
+  S.refCode=fn+"-"+r;return S.refCode;
+}
+function ownerNo(){if(!S.ownerNo)S.ownerNo=4000+Math.floor(Math.random()*900);return S.ownerNo;}
+function shareLink(){return location.origin+location.pathname+"?ref="+encodeURIComponent(refCode());}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function drawShareCard(type){
+  const GOLD="#C9A34C",GOLD_SOFT="rgba(201,163,76,.55)",IVORY="#EDE6D4";
+  const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const x=c.getContext("2d");
+  const g=x.createLinearGradient(0,0,0,H);g.addColorStop(0,"#20201D");g.addColorStop(.6,"#161614");g.addColorStop(1,"#0E0E0D");
+  x.fillStyle=g;x.fillRect(0,0,W,H);
+  x.save();x.globalAlpha=.04;x.strokeStyle=GOLD;x.lineWidth=1;
+  for(let i=-H;i<W+H;i+=40){x.beginPath();x.moveTo(i,0);x.lineTo(i+H,H);x.stroke();}
+  x.restore();
+  x.strokeStyle=GOLD;x.lineWidth=3;x.strokeRect(44,44,W-88,H-88);
+  x.strokeStyle=GOLD_SOFT;x.lineWidth=1;x.strokeRect(60,60,W-120,H-120);
+  x.fillStyle=GOLD;
+  [[44,44],[W-44,44],[44,H-44],[W-44,H-44]].forEach(([a,b])=>{x.beginPath();x.arc(a,b,5,0,7);x.fill();});
+  // engraved Vetiva seal
+  x.textAlign="center";
+  const sy=190;
+  x.strokeStyle=GOLD;x.lineWidth=3;x.beginPath();x.arc(W/2,sy,74,0,7);x.stroke();
+  x.strokeStyle=GOLD_SOFT;x.lineWidth=1.2;x.beginPath();x.arc(W/2,sy,62,0,7);x.stroke();
+  x.fillStyle=GOLD;x.font="700 76px Georgia, serif";x.fillText("V",W/2,sy+27);
+  x.fillStyle=GOLD_SOFT;x.font="600 15px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText("EST. 1998 · LAGOS",W/2,sy+96);
+  x.fillStyle=IVORY;x.font="700 46px Georgia, serif";
+  x.fillText("V E T I V A",W/2,sy+164);
+  x.fillStyle=GOLD_SOFT;x.font="600 22px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText("DANGOTE PETROLEUM REFINERY & PETROCHEMICALS IPO",W/2,sy+206);
+  x.fillStyle=GOLD;x.fillRect(W/2-44,sy+232,88,2);
+  // headline
+  let who=(flow&&(flow.mode==="corp"||flow.for==="corp")&&S.corp)?S.corp.name:S.user.name;
+  if(who.length>28)who=who.slice(0,27)+"…";
+  x.fillStyle="#F4EEDC";x.font="italic 700 88px Georgia, serif";
+  if(type==="reg"){
+    x.fillText("“My seat at the table",W/2,568);
+    x.fillText("is taken.”",W/2,672);
+  }else{
+    x.fillText("“Some inherit a legacy.",W/2,568);
+    x.fillText("Some begin one.”",W/2,672);
+  }
+  // name + status line
+  x.fillStyle=IVORY;x.font="700 40px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText(who,W/2,772);
+  x.fillStyle=GOLD;x.font="600 30px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText(type==="reg"?"Verified & Ready":"Founding Owner No. "+ownerNo().toLocaleString("en-NG")+" · Bought & Paid",W/2,822);
+  x.fillStyle="rgba(237,230,212,.65)";x.font="400 26px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText(type==="reg"?"VETIVA · …Passionately Professional · #VetivaReady":"VETIVA · Subscribed · Paid · Registered · #FoundingOwner",W/2,872);
+  // tracking / invitation panel
+  rr(x,170,930,W-340,240,20);x.fillStyle="rgba(201,163,76,.07)";x.fill();
+  x.strokeStyle=GOLD_SOFT;x.lineWidth=1.5;rr(x,170,930,W-340,240,20);x.stroke();
+  x.fillStyle=GOLD_SOFT;x.font="700 24px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText("MY INVITATION CODE — TRACKED TO THIS CARD",W/2,988);
+  x.fillStyle="#EFDFAF";x.font="800 74px 'Courier New', monospace";
+  x.fillText(refCode(),W/2,1082);
+  x.fillStyle="rgba(237,230,212,.55)";x.font="400 24px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText("Tap my link — the code applies automatically",W/2,1130);
+  // compliance footer (no amounts, ever)
+  x.fillStyle="rgba(237,230,212,.5)";x.font="400 22px 'Helvetica Neue', Arial, sans-serif";
+  x.fillText("Retail distribution by Vetiva Capital Management · DEMO",W/2,H-118);
+  x.fillText("Capital at risk. Read the prospectus before subscribing.",W/2,H-84);
+  return c;
+}
+function openShareCard(type){
+  const veil=document.createElement("div");veil.className="sheet-veil";
+  const cv=drawShareCard(type);
+  const msg=(type==="reg"
+    ?"My seat at the table is taken — I'm verified & ready for the "+OFFER.name+" IPO on Vetiva. #VetivaReady Join me, my invitation code is "+refCode()+": "
+    :"Some inherit a legacy. Some begin one. I'm a Founding Owner of the "+OFFER.name+" IPO on Vetiva. #FoundingOwner Join me, my invitation code is "+refCode()+": ")+shareLink();
+  veil.innerHTML=`<div class="sheet" style="max-width:400px">
+    <h3 style="text-align:center">${type==="reg"?"Your Ready card":"Your Founding Owner card"}</h3>
+    <div id="scWrap" style="margin-top:12px;border-radius:14px;overflow:hidden;box-shadow:0 14px 44px rgba(0,0,0,.4)"></div>
+    <button class="btn" style="margin-top:14px" id="scWa">💬 Share on WhatsApp</button>
+    <button class="btn ghost" style="margin-top:8px" id="scImg">🖼️ Save / share the card</button>
+    <button class="linkbtn" style="margin-top:8px;width:100%;text-align:center" id="scCopy">Copy my invite link</button>
+    <button class="linkbtn" style="margin-top:4px;width:100%;text-align:center" id="scX">Close</button></div>`;
+  $(".phone").appendChild(veil);
+  const img=new Image();img.src=cv.toDataURL("image/png");img.style.width="100%";img.style.display="block";
+  veil.querySelector("#scWrap").appendChild(img);
+  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
+  veil.querySelector("#scX").onclick=()=>veil.remove();
+  veil.querySelector("#scWa").onclick=()=>{window.open("https://wa.me/?text="+encodeURIComponent(msg),"_blank");};
+  veil.querySelector("#scCopy").onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(shareLink());toast("Invite link copied ✓");};
+  veil.querySelector("#scImg").onclick=()=>{
+    cv.toBlob(async b=>{
+      const file=new File([b],"vetiva-ipo-card.png",{type:"image/png"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){try{await navigator.share({files:[file],text:msg});return;}catch(e){}}
+      const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="vetiva-ipo-card.png";a.click();toast("Card saved ✓");
+    },"image/png");
+  };
 }
 function openWaitlist(){
   const veil=document.createElement("div");veil.className="sheet-veil";
@@ -1219,12 +1320,27 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false});hist.length=0;reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
 try{
-  reset("entry");
+  const __ref=new URLSearchParams(location.search).get("ref");
+  if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
+  let __resumed=false;
+  try{
+    const __raw=localStorage.getItem(PERSIST_KEY);
+    if(__raw){const sv=JSON.parse(__raw);
+      if(sv&&sv.v===1&&sv.screen&&sv.screen!=="entry"&&SCREENS[sv.screen]){
+        Object.assign(S,sv.S||{});flow=sv.flow||{};window.__resumedFlow=sv.flow||null;
+        if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
+        reset(sv.screen,sv.arg==null?undefined:sv.arg);
+        toast("Welcome back — we saved your progress ✓");__resumed=true;}}
+  }catch(e){}
+  if(!__resumed){
+    reset("entry");
+    if(S.pendingRef)toast("Invitation code "+S.pendingRef+" will apply at checkout ✓");
+  }
 }catch(e){
   screenEl.innerHTML=`<div style="padding:40px 24px;text-align:center;font-size:.82rem;color:#C43D3D;line-height:1.6">
     Something went wrong loading the demo.<br><br>${(e&&e.message)?e.message.replace(/[<>]/g,""):"Unknown error"}<br><br>
