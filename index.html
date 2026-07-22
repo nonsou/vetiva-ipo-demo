@@ -546,7 +546,7 @@ verify(){
       <button class="linkbtn" id="otpFill" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button>
       <div class="hint" style="margin-top:10px">📱 You'll be able to verify your phone number later from your profile — do it so you don't miss communications from us.</div>
       <div id="emailOk"></div>
-      <div id="pwSec" style="display:none">
+      <div id="pwSec">
       <div class="hint" style="margin-top:14px"><b>Last step:</b> create your password.</div>
       <label class="fl" for="pw1">Create a password</label>
       <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
@@ -563,27 +563,13 @@ verify(){
     b.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!b.value&&i>0)boxes[i-1].focus();});});
   const pw1=$("#pw1"),pw2=$("#pw2"),err=$("#pwErr"),btn=$("#finBtn");
   window.fillOtp=()=>{["4","8","2","9","1","7"].forEach((d,i)=>boxes[i].value=d);check();};
-  let emailOk=false;
   function check(){
-    if(!emailOk){
-      if(boxes.every(b=>b.value.length===1)){
-        boxes.forEach(b=>b.disabled=true);
-        const fb=$("#otpFill");if(fb)fb.style.display="none";
-        $("#emailOk").innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Verifying code…</div>`;
-        setTimeout(()=>{
-          emailOk=true;
-          $("#emailOk").innerHTML=`<div class="okband"><span class="tick">✓</span> Email verified</div>`;
-          $("#pwSec").style.display="";
-          pw1.focus();
-          check();
-        },900);
-      }
-      btn.disabled=true;return;
-    }
+    const otpOk=boxes.every(b=>b.value.length===1);
+    $("#emailOk").innerHTML=otpOk?`<div class="okband"><span class="tick">✓</span> Email verified</div>`:"";
     const alnum=/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pw1.value);
     const match=pw1.value===pw2.value&&pw2.value.length>0;
     err.style.display=(pw2.value&&!match)?"block":"none";
-    btn.disabled=!(alnum&&match);
+    btn.disabled=!(otpOk&&alnum&&match);
   }
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
   btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.pocMode&&S.acctType!=="corporate"?"pocReady":(S.offerLive?"live":"prelive"));};
