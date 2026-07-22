@@ -157,6 +157,8 @@
   .optrow .radio{width:20px;height:20px;border-radius:50%;border:2px solid #C9C6AE;flex:0 0 20px;position:relative}
   .optrow.on .radio{border-color:var(--olive)}
   .optrow.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
+  .optrow.on .radio{border-color:var(--olive)}
+  .optrow.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
   /* timeline */
   .tl{margin-top:6px}
   .tl .step{display:flex;gap:14px;position:relative;padding-bottom:22px}
@@ -257,6 +259,8 @@
     <button onclick="demo.liveFresh()">🟢 Live — not subscribed</button>
     <button onclick="demo.minor()">🧒 Subscribe for a minor</button>
     <button onclick="demo.corp()">🏢 Corporate — registered (₦50m intent)</button>
+    <button onclick="demo.pocHas()">🎯 POC — existing Vetiva CSCS</button>
+    <button onclick="demo.pocNone()">🎯 POC — no CSCS (create + educate)</button>
   <button onclick="demo.subscribed()">📈 Live — subscribed (top-up)</button>
     <div class="grp">Controls</div>
     <button onclick="demo.reset()">♻️ Reset demo</button>
@@ -561,7 +565,86 @@ verify(){
     err.style.display=(pw2.value&&!match)?"block":"none";
     btn.disabled=!(otpOk&&alnum&&match);}
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
-  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.offerLive?"live":"prelive");};
+  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.pocMode&&S.acctType!=="corporate"?"pocCheck":(S.offerLive?"live":"prelive"));};
+},
+
+pocCheck(){
+  screenEl.innerHTML=nav("Get ready")+`
+    <div class="pad">
+      <h2 class="big">Checking your Vetiva profile</h2>
+      <p class="lead">One moment — we're matching your BVN against our records.</p>
+      <div id="pocBody"><div class="hint" style="margin-top:20px;text-align:center"><span class="minispin"></span>&nbsp; Checking for a Vetiva CSCS account…</div></div>
+    </div>`;
+  setTimeout(()=>{
+    const body=$("#pocBody");if(!body)return;
+    const has=S.pocForce?S.pocForce==="has":(parseInt((S.user.bvn||"0").slice(-1),10)%2===0);
+    if(has){
+      S.cscsNo=S.cscsNo||("5"+(S.user.bvn||"01234567890").slice(-10));
+      body.innerHTML=`
+        <div class="okband" style="margin-top:16px"><span class="tick">✓</span> We found your Vetiva CSCS account <span class="demoTag">DEMO</span></div>
+        <div class="card" style="margin-top:12px">
+          <div class="hint">CSCS account number</div>
+          <b style="font-size:1.05rem;letter-spacing:.06em">${esc(S.cscsNo)}</b>
+          <div class="hint" style="margin-top:6px">We'll link this account to your subscriptions automatically — nothing else to do here.</div>
+        </div>
+        <button class="btn" style="margin-top:16px" onclick="go('pocBank')">Continue — add your bank account</button>`;
+    }else{
+      S.pocCscsPending=true;
+      body.innerHTML=`
+        <div class="card" style="margin-top:16px;background:#FBF6E9">
+          <b style="font-size:.9rem">No Vetiva CSCS account yet — we'll create one for you</b>
+          <div class="hint" style="margin:6px 0 0">So you're ready the moment the offer opens, we'll set up your Vetiva CSCS account now at no cost. It will be provided in your profile once available.</div>
+        </div>
+        <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:12px">
+          <span class="radio"></span><span class="grow">📚 Yes — enrol me in free investor education from Ask Vetiva</span>
+        </button>
+        <button class="btn" style="margin-top:16px" onclick="go('pocBank')">Continue — add your bank account</button>`;
+      $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocCheck");};
+    }
+  },1400);
+},
+
+pocBank(){
+  screenEl.innerHTML=nav("Bank account")+`
+    <div class="pad">
+      <h2 class="big">Your bank account</h2>
+      <p class="lead">Where we'll pay dividends and refunds. We prefilled the account linked to your BVN — confirm or change it.</p>
+      <label class="fl">Bank</label>
+      <select class="in" id="pbB">${["GTBank","Access Bank","Zenith Bank","UBA","First Bank"].map(b=>`<option${(S.bank&&S.bank.name===b)?" selected":""}>${b}</option>`).join("")}</select>
+      <label class="fl">Account number</label>
+      <input class="in" id="pbN" inputmode="numeric" maxlength="10" value="${esc((S.bank&&S.bank.number)||("0"+(S.user.bvn||"1234567890").slice(-9)))}">
+      <div id="pbFb"></div>
+      <button class="btn" style="margin-top:16px" id="pbGo">Verify &amp; continue</button>
+    </div>`;
+  const n=$("#pbN"),fb=$("#pbFb");
+  n.addEventListener("input",()=>{n.value=n.value.replace(/\D/g,"").slice(0,10);});
+  $("#pbGo").onclick=()=>{
+    if(n.value.length!==10){fb.innerHTML=`<div class="errline">Account number must be 10 digits.</div>`;return;}
+    fb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Verifying account name…</div>`;
+    setTimeout(()=>{
+      S.bank={name:$("#pbB").value,number:n.value};
+      S.user.bank=S.bank.name;S.user.acct=S.bank.number;
+      fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name.toUpperCase())} · ${esc(S.bank.name)} ••••${S.bank.number.slice(-4)} <span class="demoTag">DEMO</span></div>`;
+      setTimeout(()=>go("pocDone"),700);
+    },1100);
+  };
+},
+
+pocDone(){
+  S.registered=true;
+  screenEl.innerHTML=nav("You're ready")+`
+    <div class="pad">
+      <div class="bighalo">✓</div>
+      <h2 class="big" style="text-align:center">You're ready, ${esc(S.user.name.split(" ")[0])}.</h2>
+      <p class="lead" style="text-align:center">Onboarding complete — your seat at the table is prepared.</p>
+      <div class="card" style="margin-top:14px">
+        <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
+        <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+S.bank.number.slice(-4):"—"}</span></div>
+        ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
+      </div>
+      <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
+      <button class="btn ghost" style="margin-top:8px" onclick="reset(S.offerLive?'live':'prelive')">${S.offerLive?"See the offer":"Join the waitlist"}</button>
+    </div>`;
 },
 
 login(){
@@ -809,6 +892,14 @@ subscribe(arg){
     renderDividend();
     validate();
   } else subMode(flow.mode);
+  if(!corp&&S.cscsNo){
+    flow.cscsChoice="have";flow.cscs=S.cscsNo;
+    const ci=$("#cscsIn");ci.value=S.cscsNo;ci.disabled=true;
+    $("#cscsFb").innerHTML=`<div class="okband"><span class="tick">✓</span> CSCS ${esc(S.cscsNo)} — linked from your Vetiva profile</div>`;
+    const dl=$("#cscsFb").nextElementSibling;if(dl&&dl.classList.contains("linkbtn"))dl.style.display="none";
+    $("#cscsNone").style.display="none";
+    validate();
+  } else if(!corp&&S.pocCscsPending){subCscsNone(true);}
   updateMoney();
 },
 
@@ -1307,7 +1398,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
@@ -1323,12 +1416,13 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
 try{
   const __ref=new URLSearchParams(location.search).get("ref");
+  if(new URLSearchParams(location.search).get("poc"))S.pocMode=true;
   if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
   let __resumed=false;
   try{
