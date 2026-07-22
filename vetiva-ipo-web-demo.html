@@ -429,7 +429,7 @@ function persist(name,arg){
 /* Which shell each screen uses:
    AUTH (pre-login): inset slider card left + form centered beside it.
    APP  (post-login): no slider — regular full-width layout. */
-const AUTH_SCREENS=new Set(["entry","bvn","isYou","verify","login","rc","corpDetails","pocReady","pocPass","pocDone"]);
+const AUTH_SCREENS=new Set(["entry","bvn","isYou","verify","login","rc","corpDetails","pocReady","pocDone"]);
 
 /* ---------- slider (auth shell only) ----------
    The img URLs are placeholder photography [DEMO] — swap for real
@@ -743,13 +743,9 @@ verify(){
         setTimeout(()=>{
           emailOk=true;
           $("#emailOk").innerHTML=`<div class="okband"><span class="tick">✓</span> Email verified</div>`;
-          if(S.pocMode&&S.acctType!=="corporate"){
-            $("#emailOk").insertAdjacentHTML("beforeend",`<button class="btn" style="margin-top:14px" onclick="go('pocReady')">Continue — get IPO-ready</button>`);
-          }else{
-            $("#pwSec").style.display="";
-            pw1.focus();
-            check();
-          }
+          $("#pwSec").style.display="";
+          pw1.focus();
+          check();
         },900);
       }
       btn.disabled=true;return;
@@ -760,7 +756,7 @@ verify(){
     btn.disabled=!(alnum&&match);
   }
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
-  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset("dashOffers");};
+  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.pocMode&&S.acctType!=="corporate"?"pocReady":"dashOffers");};
 },
 
 pocReady(){
@@ -775,15 +771,13 @@ pocReady(){
       </div>
       <div class="sec">
         <div class="sh">🏦 Bank account</div>
-        <div class="sd">We prefilled the account linked to your BVN — confirm or change it. Dividends and refunds are paid here.</div>
         <label class="fl">Bank</label>
-        <select class="in" id="pbB">${["GTBank","Access Bank","Zenith Bank","UBA","First Bank"].map(b=>`<option${(S.bank&&S.bank.name===b)?" selected":""}>${b}</option>`).join("")}</select>
+        <select class="in" id="pbB"><option value="">Select bank</option>${["GTBank","Access Bank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
         <label class="fl">Account number</label>
-        <input class="in" id="pbN" inputmode="numeric" maxlength="10" value="${esc((S.bank&&S.bank.number)||("0"+(S.user.bvn||"1234567890").slice(-9)))}">
+        <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
-        <button class="btn ghost" style="margin-top:10px" id="pbVerify">Verify account name</button>
       </div>
-      <div class="footbar"><button class="btn" id="prGo" disabled>Continue — create your password</button></div>
+      <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
   let cscsOk=false,bankOk=false;
   const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
@@ -814,46 +808,25 @@ pocReady(){
     }
     cscsOk=true;upd();
   },1200);
-  const n=$("#pbN"),fb=$("#pbFb");
-  n.addEventListener("input",()=>{n.value=n.value.replace(/\D/g,"").slice(0,10);bankOk=false;fb.innerHTML="";upd();});
-  $("#pbB").addEventListener("change",()=>{bankOk=false;fb.innerHTML="";upd();});
-  $("#pbVerify").onclick=()=>{
-    if(n.value.length!==10){fb.innerHTML=`<div class="errline">Account number must be 10 digits.</div>`;return;}
-    fb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Verifying account name…</div>`;
+  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb");
+  const tryVerify=()=>{
+    bankOk=false;upd();
+    if(!(bSel.value&&n.value.length===10)){fb.innerHTML="";return;}
+    fb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Looking up account…</div>`;
+    const num=n.value,bank=bSel.value;
     setTimeout(()=>{
-      S.bank={name:$("#pbB").value,number:n.value};
-      S.user.bank=S.bank.name;S.user.acct=S.bank.number;
-      fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name.toUpperCase())} · ${esc(S.bank.name)} ••••${S.bank.number.slice(-4)} <span class="demoTag">DEMO</span></div>`;
+      if(n.value!==num||bSel.value!==bank)return;
+      S.bank={name:bank,number:num};
+      S.user.bank=bank;S.user.acct=num;
+      fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name.toUpperCase())} · ${esc(bank)} ••••${num.slice(-4)} <span class="demoTag">DEMO</span></div>`;
       bankOk=true;upd();
-    },1000);
+    },900);
   };
-  $("#prGo").onclick=()=>go("pocPass");
+  n.addEventListener("input",()=>{n.value=n.value.replace(/\D/g,"").slice(0,10);tryVerify();});
+  bSel.addEventListener("change",tryVerify);
+  $("#prGo").onclick=()=>reset("pocDone");
 },
 
-pocPass(){
-  screenEl.innerHTML=nav("Create password")+`
-    <div class="pad">
-      <h2 class="big">Last step — create your password</h2>
-      <p class="lead">Used to log in and approve transactions.</p>
-      <label class="fl" for="pw1">Create a password</label>
-      <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
-      <div class="hint">At least 8 characters, letters and numbers.</div>
-      <label class="fl" for="pw2">Re-enter password</label>
-      <div class="pwwrap"><input id="pw2" class="in" type="password" placeholder="Repeat the same password"><button type="button" class="pweye" data-target="pw2" aria-label="Show password">Show</button></div>
-      <div class="errline" id="pwErr" style="display:none">Passwords don't match</div>
-      <div class="footbar"><button class="btn" id="ppGo" disabled>Finish setup</button></div>
-    </div>`;
-  wirePwToggles();
-  const pw1=$("#pw1"),pw2=$("#pw2"),err=$("#pwErr"),btn=$("#ppGo");
-  function check(){
-    const alnum=/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pw1.value);
-    const match=pw1.value===pw2.value&&pw2.value.length>0;
-    err.style.display=(pw2.value&&!match)?"block":"none";
-    btn.disabled=!(alnum&&match);
-  }
-  pw1.addEventListener("input",check);pw2.addEventListener("input",check);
-  btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset("pocDone");};
-},
 
 pocDone(){
   S.registered=true;
@@ -864,7 +837,7 @@ pocDone(){
       <p class="lead" style="text-align:center">Onboarding complete — your seat at the table is prepared.</p>
       <div class="card" style="margin-top:14px">
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
-        <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+S.bank.number.slice(-4):"—"}</span></div>
+        <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+String(S.bank.number).slice(-4):"—"}</span></div>
         ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
       <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
