@@ -461,7 +461,7 @@ function corpMinShares(){const raw=Math.ceil(CORP_MIN_NGN/OFFER.price);const st=
 const S={
   registered:false, acctType:"individual",
   user:{name:"Adaeze Okafor",email:"adaeze.okafor@gmail.com",phone:"08031234567",dob:"12 Sep 1990",address:"14 Adeola Odeku Street, Victoria Island, Lagos",nationality:"Nigerian",state:"Lagos",lga:"Eti-Osa",bank:"Access Bank",acct:"5635665556"}, // BVN lookup returns firstName/lastName/address/nationality/state/lga/phone/email
-  selfSub:null, minors:[], corp:null, corpSub:null, intentAmount:null, waitlisted:false, offerLive:true, txns:[], phoneVerified:false,
+  selfSub:null, minors:[], corp:null, corpSub:null, intentAmount:null, waitlisted:false, offerLive:false, txns:[], phoneVerified:false,
 };
 let flow={};
 const hist=[];
@@ -1783,8 +1783,8 @@ function openWaitlist(){
 const demo={
   pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
   pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
-  oldUser(){S.registered=true;S.offerLive=true;reset("login");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
+  oldUser(){S.registered=true;S.offerLive=false;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.corpSub=null;S.txns=[];reset("dashOffers");},
   minor(){S.registered=true;S.offerLive=true;hist.length=0;hist.push({name:"dashOffers"});go("subscribe",{mode:"minor"});},
@@ -1802,7 +1802,7 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
