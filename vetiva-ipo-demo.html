@@ -157,8 +157,6 @@
   .optrow .radio{width:20px;height:20px;border-radius:50%;border:2px solid #C9C6AE;flex:0 0 20px;position:relative}
   .optrow.on .radio{border-color:var(--olive)}
   .optrow.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
-  .optrow.on .radio{border-color:var(--olive)}
-  .optrow.on .radio::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--olive)}
   /* timeline */
   .tl{margin-top:6px}
   .tl .step{display:flex;gap:14px;position:relative;padding-bottom:22px}
@@ -171,6 +169,11 @@
   .tl .st .tag{font-weight:600;font-size:.72rem;margin-left:8px}
   .tl .st .tag.done{color:var(--good)}
   .tl .st .tag.up{color:#A09D8B}
+  .pwreq{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px}
+  .pwreq .req{font-size:.72rem;color:var(--muted);transition:color .15s}
+  .pwreq .req::before{content:"○ "}
+  .pwreq .req.ok{color:var(--good);font-weight:600}
+  .pwreq .req.ok::before{content:"✓ "}
   .tl .st .tag.todo{color:#fff;background:#B3261E;border-radius:20px;padding:2px 9px;font-weight:700}
   .tl .step.urgent .st{color:#B3261E;font-weight:800}
   .tl .step.urgent .dot{border-color:#B3261E}
@@ -572,7 +575,14 @@ verify(){
       <div id="emailOk"></div>
       <div id="pwSec">
       <label class="fl" for="pw1">Create a password</label>
-      <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
+      <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Create a strong password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
+      <div class="pwreq" id="pwReq" aria-live="polite">
+        <span class="req" data-k="len">8+ characters</span>
+        <span class="req" data-k="up">Capital letter</span>
+        <span class="req" data-k="low">Small letter</span>
+        <span class="req" data-k="num">Number</span>
+        <span class="req" data-k="sp">Special character</span>
+      </div>
       <div class="hint">Used to log in and approve transactions.</div>
       <label class="fl" for="pw2">Re-enter password</label>
       <div class="pwwrap"><input id="pw2" class="in" type="password" placeholder="Repeat the same password"><button type="button" class="pweye" data-target="pw2" aria-label="Show password">Show</button></div>
@@ -589,10 +599,13 @@ verify(){
   function check(){
     const otpOk=boxes.every(b=>b.value.length===1);
     $("#emailOk").innerHTML=otpOk?`<div class="okband"><span class="tick">✓</span> Email verified</div>`:"";
-    const alnum=/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pw1.value);
+    const v=pw1.value;
+    const rules={len:v.length>=8,up:/[A-Z]/.test(v),low:/[a-z]/.test(v),num:/\d/.test(v),sp:/[^A-Za-z0-9]/.test(v)};
+    document.querySelectorAll("#pwReq .req").forEach(el=>el.classList.toggle("ok",!!rules[el.dataset.k]));
+    const strong=Object.values(rules).every(Boolean);
     const match=pw1.value===pw2.value&&pw2.value.length>0;
     err.style.display=(pw2.value&&!match)?"block":"none";
-    btn.disabled=!(otpOk&&alnum&&match);
+    btn.disabled=!(otpOk&&strong&&match);
   }
   pw1.addEventListener("input",check);pw2.addEventListener("input",check);
   btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.pocMode&&S.acctType!=="corporate"?"pocReady":(S.offerLive?"live":"prelive"));};
