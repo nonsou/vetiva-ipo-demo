@@ -252,6 +252,8 @@
     <h1>Vetiva · Dangote IPO <span class="pill">DEMO v3</span></h1>
     <div class="sub">Clickable prototype — one-page subscription flow. All figures, fees and rates are placeholders marked [DEMO].</div>
     <div class="grp">Journeys</div>
+    <button onclick="demo.pocHas()">🎯 POC — existing Vetiva CSCS</button>
+    <button onclick="demo.pocNone()">🎯 POC — no CSCS (create + educate)</button>
     <button onclick="demo.newUser()">🆕 New user — full journey</button>
     <button onclick="demo.oldUser()">🔁 Returning user — login</button>
     <div class="grp">Jump to state</div>
@@ -259,8 +261,6 @@
     <button onclick="demo.liveFresh()">🟢 Live — not subscribed</button>
     <button onclick="demo.minor()">🧒 Subscribe for a minor</button>
     <button onclick="demo.corp()">🏢 Corporate — registered (₦50m intent)</button>
-    <button onclick="demo.pocHas()">🎯 POC — existing Vetiva CSCS</button>
-    <button onclick="demo.pocNone()">🎯 POC — no CSCS (create + educate)</button>
   <button onclick="demo.subscribed()">📈 Live — subscribed (top-up)</button>
     <div class="grp">Controls</div>
     <button onclick="demo.reset()">♻️ Reset demo</button>
@@ -340,6 +340,20 @@ function go(name,arg){hist.push({name,arg});render(name,arg);}
 function back(){hist.pop();const p=hist[hist.length-1];if(p)render(p.name,p.arg);else render("entry");}
 function reset(name,arg){hist.length=0;go(name,arg);}
 const PERSIST_KEY="vetivaIpoDemo.mobile.v1";
+function regSharePopup(){
+  if(!S.registered||S.regShareSeen)return;
+  S.regShareSeen=true;
+  const veil=document.createElement("div");veil.className="sheet-veil";
+  veil.innerHTML=`<div class="sheet" style="max-width:380px;text-align:center">
+    <div style="font-size:2rem">🎉</div>
+    <h3 style="margin-top:6px">You're in — spread the word</h3>
+    <p class="hint" style="margin-top:8px">Share your personal card. Every referred subscription is tracked to you.</p>
+    <button class="btn" style="margin-top:14px" onclick="this.closest('.sheet-veil').remove();openShareCard('reg')">📤 Share your Ready card</button>
+    <button class="linkbtn" style="margin-top:8px;width:100%;text-align:center" onclick="this.closest('.sheet-veil').remove()">Close</button></div>`;
+  $(".phone").appendChild(veil);
+  veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
+}
+function phMask(p){p=String(p||"");return S.phoneVerified?p:(p.slice(0,4)+"•••"+p.slice(-3));}
 function persist(name,arg){
   if(name==="processing")return;
   try{localStorage.setItem(PERSIST_KEY,JSON.stringify({v:1,S,flow,screen:name,arg:arg===undefined?null:arg,ts:Date.now()}));}catch(e){}
@@ -496,16 +510,27 @@ bvn(){
       <label class="fl" for="bvnIn">BVN</label>
       <input id="bvnIn" class="in" inputmode="numeric" maxlength="11" placeholder="11-digit BVN" autocomplete="off">
       <div class="errline" id="bvnErr" style="display:none">BVN must be 11 digits</div>
+      <label class="fl" for="dobIn">Date of birth</label>
+      <input id="dobIn" class="in" type="date" max="2008-12-31">
+      <div id="bvnMatch"></div>
       <div class="hint">Used only to verify your identity — never shared.</div>
-      <button class="linkbtn" style="margin-top:8px" onclick="document.getElementById('bvnIn').value='22212345678';document.getElementById('bvnIn').dispatchEvent(new Event('input'))">Use demo BVN <span class="demoTag">DEMO</span></button>
+      <button class="linkbtn" style="margin-top:8px" onclick="document.getElementById('bvnIn').value='22212345678';document.getElementById('bvnIn').dispatchEvent(new Event('input'));document.getElementById('dobIn').value='1990-09-12';document.getElementById('dobIn').dispatchEvent(new Event('input'))">Use demo BVN <span class="demoTag">DEMO</span></button>
       <div class="footbar"><button class="btn" id="bvnGo" disabled>Continue</button></div>
     </div>`;
-  const inp=$("#bvnIn"),btn=$("#bvnGo"),err=$("#bvnErr");
-  inp.addEventListener("input",()=>{inp.value=inp.value.replace(/\D/g,"").slice(0,11);
-    const bad=inp.value.length>0&&inp.value.length<11;
+  const inp=$("#bvnIn"),btn=$("#bvnGo"),err=$("#bvnErr"),dob=$("#dobIn");
+  const check=()=>{const bad=inp.value.length>0&&inp.value.length<11;
     err.style.display=bad?"block":"none";inp.classList.toggle("err",bad);
-    btn.disabled=inp.value.length!==11;});
-  btn.onclick=()=>go("isYou");
+    btn.disabled=!(inp.value.length===11&&dob.value);};
+  inp.addEventListener("input",()=>{inp.value=inp.value.replace(/\D/g,"").slice(0,11);check();});
+  dob.addEventListener("input",check);
+  btn.onclick=()=>{
+    btn.disabled=true;
+    $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
+    setTimeout(()=>{
+      $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
+      setTimeout(()=>go("isYou"),500);
+    },1100);
+  };
 },
 
 isYou(){
@@ -519,7 +544,7 @@ isYou(){
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
-        <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(u.phone)}</span></div>
+        <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(phMask(u.phone))}</span></div>
       </div>
       <div class="hint">Pulled from your BVN — can't be edited here. You can verify your phone number later from your profile.</div>
       <label class="fl" for="emIn">Email address</label>
@@ -657,7 +682,7 @@ pocDone(){
         ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
       <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
-      <button class="btn ghost" style="margin-top:8px" onclick="reset(S.offerLive?'live':'prelive')">${S.offerLive?"See the offer":"Join the waitlist"}</button>
+      <button class="btn ghost" style="margin-top:8px" onclick="reset(S.offerLive?'live':'prelive')">Continue</button>
     </div>`;
 },
 
@@ -677,6 +702,7 @@ login(){
 
 /* ---------- landings ---------- */
 prelive(){
+  setTimeout(regSharePopup,600);
   screenEl.innerHTML=`
     <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 20px">
       <span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span>
@@ -686,12 +712,10 @@ prelive(){
       <div class="card" style="background:linear-gradient(150deg,#FFFFFF,#F4F3E7)">
         <span class="chip soon">OPENS SOON</span>
         <h2 class="big" style="margin:10px 0 4px;font-size:1.25rem">${OFFER.name} <span style="color:var(--muted);font-weight:600">(${OFFER.ticker})</span></h2>
-        <div class="sumrow"><span class="k">Offer opens</span><span class="v">10 Jul 2026, 9:00 AM <span class="demoTag">DEMO</span></span></div>
-        <p class="hint" style="margin-top:8px">Offer opens in:</p>
-        ${countdownHTML("cdOpen")}
-        <div style="margin-top:16px">${S.waitlisted
-          ?`<div class="okband"><span class="tick">✓</span> You're on the waiting list — we'll notify you the moment it opens.</div>`
-          :`<button class="btn" onclick="openWaitlist()">Join the waiting list</button>`}</div>
+        
+        
+        
+        
         <button class="linkbtn" style="margin-top:8px" onclick="toast('Downloading the offer prospectus (PDF) — [DEMO]')">Download the offer prospectus →</button>
       </div>
       <h3 style="font-size:.95rem;margin:22px 0 10px">While you wait — other offerings</h3>
@@ -702,7 +726,6 @@ prelive(){
       </div>
       <button class="btn ghost" style="margin-top:14px" onclick="demo.liveFresh();toast('Demo: offer switched to LIVE')">▶ Demo: simulate offer going live</button>
     </div>`;
-  tickCountdown("cdOpen",OFFER.opensAt.getTime());
 },
 
 live(){
@@ -726,7 +749,7 @@ live(){
       </div>
       <div style="margin-top:16px">
         <button class="btn" onclick="startSubscribeAuto()">Subscribe${S.acctType==='corporate'?" as "+esc(S.corp?S.corp.name.split(' ')[0]:'Corporate'):(hasAny?" for a child":" now")}</button>
-        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="openShareCard('sub')">📤 Share your card</button>`:`<div class="card" style="margin-top:12px;display:flex;gap:10px;align-items:center"><span style="font-size:1.3rem">🎉</span><div style="flex:1"><b style="font-size:.85rem">You're in — spread the word</b><div class="hint" style="margin:2px 0 0">Share your personal card. Every referred subscription is tracked to you.</div></div><button class="linkbtn" style="padding:0;font-weight:700" onclick="openShareCard('reg')">Share →</button></div>`}
+        ${hasAny?`<button class="btn ghost" style="margin-top:10px" onclick="openShareCard('sub')">📤 Share your card</button>`:""}
       </div>
     </div>`;
   tickCountdown("cdClose",OFFER.closesAt.getTime());
@@ -746,7 +769,7 @@ profile(){
         <div class="sh">📱 Phone number ${S.phoneVerified?'<span class="chip">✓ VERIFIED</span>':'<span class="chip soon">UNVERIFIED</span>'}</div>
         <div class="sd">Keep your phone number verified so you don't miss communications from us — allotment updates, payment confirmations, and offer news. Your number comes from your BVN and can't be changed here.</div>
         <label class="fl">Phone number</label>
-        <input class="in" value="${esc(S.user.phone)}" disabled>
+        <input class="in" value="${esc(phMask(S.user.phone))}" disabled>
         <div class="hint">Pulled from your BVN — view only.</div>
         <div id="pvArea">
           ${S.phoneVerified?"":`<button class="btn" style="margin-top:14px" id="pvSend">Send verification code</button>`}
@@ -756,7 +779,7 @@ profile(){
   if($("#pvSend"))$("#pvSend").onclick=()=>{
     const num=S.user.phone;
     $("#pvArea").innerHTML=`
-      <p class="hint" style="margin-top:12px">Enter the 6-digit code we sent to ${esc(num)} by SMS. <span class="demoTag">DEMO</span></p>
+      <p class="hint" style="margin-top:12px">Enter the 6-digit code we sent to ${esc(phMask(num))} by SMS. <span class="demoTag">DEMO</span></p>
       <div style="display:flex;gap:8px" id="pvOtp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
       <button class="linkbtn" id="pvFill">Autofill code <span class="demoTag">DEMO</span></button>
       <button class="btn" style="margin-top:12px" id="pvGo" disabled>Verify phone number</button>`;
@@ -1412,9 +1435,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
@@ -1430,13 +1453,13 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
 try{
   const __ref=new URLSearchParams(location.search).get("ref");
-  if(new URLSearchParams(location.search).get("poc"))S.pocMode=true;
+  if(new URLSearchParams(location.search).get("poc")){S.pocMode=true;S.offerLive=false;}
   if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
   let __resumed=false;
   try{
