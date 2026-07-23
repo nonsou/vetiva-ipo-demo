@@ -101,6 +101,27 @@
   @media (prefers-reduced-motion:reduce){.momentum .pulse-dot::after{animation:none}}
   .momentum b{color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700}
   .chero .note{margin-top:12px;font-size:.6rem;color:#8F8E83}
+  .csteps{display:flex;gap:8px;margin-top:22px;align-self:stretch}
+  .cstp{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(211,205,139,.22);border-radius:11px;padding:11px 8px 10px}
+  .cstp .n{width:24px;height:24px;margin:0 auto 7px;border-radius:50%;background:rgba(211,205,139,.16);
+    color:#D3CD8B;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid rgba(211,205,139,.4)}
+  .cstp .tt{font-size:.66rem;font-weight:700;line-height:1.25;color:#F0EDDD}
+  .cstp .dd{font-size:.56rem;color:#9B9A8E;margin-top:3px;line-height:1.4}
+  .csteps-note{margin-top:9px;font-size:.6rem;color:#8F8E83;font-style:italic}
+  .cbvn{margin-top:16px;align-self:stretch;background:rgba(211,205,139,.07);border:1px solid rgba(211,205,139,.22);
+    border-radius:12px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start;text-align:left}
+  .cbvn .lock{flex:none;width:28px;height:28px;border-radius:8px;background:rgba(211,205,139,.14);
+    display:flex;align-items:center;justify-content:center;color:#D3CD8B;font-size:.8rem;border:1px solid rgba(211,205,139,.35)}
+  .cbvn h4{font-size:.66rem;font-weight:800;color:#F0EDDD;margin-bottom:3px}
+  .cbvn p{font-size:.6rem;color:#9B9A8E;line-height:1.5}
+  .cbvn b{color:#D3CD8B}
+  .cherit{margin-top:16px}
+  .cherit .line{font-size:.72rem;font-weight:700;line-height:1.5;color:#F0EDDD}
+  .cherit .line span{color:#D3CD8B}
+  .cherit .seal{font-size:.54rem;font-weight:800;letter-spacing:.28em;color:#8F8E83;margin-top:5px}
+  @media (max-height:880px){.cherit{display:none}}
+  @media (max-height:800px){.cbvn{display:none}.csteps-note{display:none}}
+  @media (max-height:720px){.csteps{display:none}}
   .ticker-wrap{margin-top:auto;padding:18px 0 16px;overflow:hidden;align-self:stretch;
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
@@ -535,6 +556,23 @@ function buildSliderCard(){
         </div>
         <div class="momentum"><span class="pulse-dot"></span> Nigerians are getting ready right now — <b id="momCount">1,247</b> today <span class="demoTag">DEMO</span></div>
         <div class="note">Free · Takes about a minute · SEC-regulated</div>
+        <div class="csteps">
+          <div class="cstp"><div class="n">1</div><div class="tt">Your details</div><div class="dd">Name, email, phone — the basics</div></div>
+          <div class="cstp"><div class="n">2</div><div class="tt">Verify with BVN</div><div class="dd">Your bank already proved who you are</div></div>
+          <div class="cstp"><div class="n">✓</div><div class="tt">Done — you're ready</div><div class="dd">Your Ready Card is waiting</div></div>
+        </div>
+        <div class="csteps-note">No branch. No paper. No "come back tomorrow."</div>
+        <div class="cbvn">
+          <span class="lock">🔒</span>
+          <div>
+            <h4>"Is my BVN safe here?" — fair question.</h4>
+            <p><b>Verified through official channels. Encrypted. Never shared.</b> Your bank already did the hard part — that's why this takes a minute, not a week.</p>
+          </div>
+        </div>
+        <div class="cherit">
+          <div class="line">20 years. Nigeria's biggest names. <span>One standard.</span></div>
+          <div class="seal">VETIVA · PASSIONATELY PROFESSIONAL</div>
+        </div>
         <div class="ticker-wrap"><div class="ticker">${tick}</div></div>
       </div>
     </div>
