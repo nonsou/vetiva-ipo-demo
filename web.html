@@ -767,18 +767,17 @@ bvn(){
 
 isYou(){
   const u=S.user;const corp=S.acctType==="corporate";
-  screenEl.innerHTML=nav(corp?"Corporate account":"Create account")+`
+  screenEl.innerHTML=nav(corp?"Corporate account":"")+`
     <div class="pad">
       ${corp?`<div class="okband" style="margin-bottom:10px"><span class="tick">✓</span> ${esc(S.corp.name)} · RC ${esc(S.corp.rc)}</div>`:""}
       <h2 class="big">Is this you?</h2>
-      <p class="lead">${corp?"We pulled these details from the director's BVN — confirm they're correct.":"We pulled these details from your BVN."}</p>
+      <p class="lead">${corp?"We pulled these details from the director's BVN — confirm they're correct.":"We pulled these details from your BVN. You can verify your phone number later from your profile."}</p>
       <div class="avat" style="width:64px;height:64px;font-size:1.2rem;margin-bottom:8px">${initials(u.name)}</div>
       <div class="card">
         <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(u.name)}</span></div>
         <div class="sumrow"><span class="k">Date of birth</span><span class="v">${esc(u.dob)}</span></div>
         <div class="sumrow"><span class="k">Phone number</span><span class="v">${esc(phMask(u.phone))}</span></div>
       </div>
-      <div class="hint">Pulled from your BVN — can't be edited here. You can verify your phone number later from your profile.</div>
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div id="emFb"></div>
@@ -795,7 +794,7 @@ isYou(){
 },
 
 verify(){
-  screenEl.innerHTML=nav("Create account")+`
+  screenEl.innerHTML=nav("")+`
     <div class="pad">
       <h2 class="big">Verify your email</h2>
       <p class="lead">Enter the 6-digit code we sent to ${esc(S.user.email)}.</p>
@@ -804,7 +803,6 @@ verify(){
       <div class="hint" style="margin-top:10px">📱 You'll be able to verify your phone number later from your profile — do it so you don't miss communications from us.</div>
       <div id="emailOk"></div>
       <div id="pwSec">
-      <div class="hint" style="margin-top:14px"><b>Last step:</b> create your password.</div>
       <label class="fl" for="pw1">Create a password</label>
       <div class="pwwrap"><input id="pw1" class="in" type="password" placeholder="Alphanumeric password"><button type="button" class="pweye" data-target="pw1" aria-label="Show password">Show</button></div>
       <div class="hint">Used to log in and approve transactions.</div>
@@ -875,7 +873,7 @@ pocReady(){
         </div>`;
       $("#prEdu").innerHTML=`
         <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:10px">
-          <span class="radio"></span><span class="grow">📚 Yes — enrol me in free investor education from Ask Vetiva</span>
+          <span class="radio"></span><span class="grow">📚 Yes — enrol me in free investor education</span>
         </button>`;
       $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocReady");};
     }
@@ -903,6 +901,7 @@ pocReady(){
 
 pocDone(){
   S.registered=true;
+  setTimeout(()=>{if(!document.querySelector(".sheet-veil"))openShareCard("reg");},1000);
   screenEl.innerHTML=nav("You're ready")+`
     <div class="pad">
       <div class="bighalo">✓</div>
@@ -1010,7 +1009,7 @@ dashOffers(arg){
     </div>`;
   }
   screenEl.innerHTML=`
-    <div class="offersband">Explore. Invest. Own.</div>
+    <div class="offersband">${S.offerLive?"Explore. Invest. Own.":"How ready are you?"}</div>
     <div class="dtabs">
       <button class="${tab==="avail"?"on":""}" onclick="go('dashOffers',{tab:'avail'})">Available Offers</button>
       <button class="${tab==="history"?"on":""}" onclick="go('dashOffers',{tab:'history'})">Purchase History</button>
