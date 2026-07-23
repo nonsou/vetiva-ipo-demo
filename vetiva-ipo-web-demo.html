@@ -422,8 +422,8 @@ function back(){hist.pop();const p=hist[hist.length-1];if(p)render(p.name,p.arg)
 function reset(name,arg){hist.length=0;go(name,arg);}
 const PERSIST_KEY="vetivaIpoDemo.web.v1";
 function regSharePopup(){
-  if(!S.registered||S.regShareSeen)return;
-  S.regShareSeen=true;
+  if(!S.registered)return;
+  if(document.querySelector(".sheet-veil"))return;
   const veil=document.createElement("div");veil.className="sheet-veil";
   veil.innerHTML=`<div class="sheet" style="max-width:380px;text-align:center">
     <div style="font-size:2rem">🎉</div>
