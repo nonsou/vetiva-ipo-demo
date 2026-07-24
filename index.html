@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vetiva · Dangote IPO — Flow Demo v3</title>
+<title>Vetiva · Public Offers — Flow Demo v3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&display=swap" rel="stylesheet">
@@ -398,10 +398,23 @@ const SCREENS={
 entry(){
   screenEl.innerHTML=`
     <div style="display:flex;padding:10px 20px"><span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span></div>
-    <div class="hero-illus"><div class="hero-circle">📈</div></div>
+    <div class="hero-illus" style="display:flex;justify-content:center;padding-top:6px"><svg viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Offer documents delivered digitally" style="width:200px;max-width:60%;display:block;margin:0 auto">
+  <g fill="none" stroke="#5F673A" stroke-width="2.2" stroke-linecap="round">
+    <rect x="14" y="14" width="88" height="92" rx="8"/>
+    <line x1="28" y1="34" x2="88" y2="34"/><line x1="28" y1="48" x2="88" y2="48"/><line x1="28" y1="62" x2="70" y2="62"/>
+    <circle cx="82" cy="86" r="12" stroke="#967842"/>
+    <path d="M77 86l4 4 7-8" stroke="#967842"/>
+    <path d="M112 60h32" stroke="#967842" stroke-dasharray="4 5"/>
+    <path d="M138 52l10 8-10 8" stroke="#967842"/>
+    <rect x="158" y="24" width="48" height="82" rx="10"/>
+    <line x1="174" y1="30" x2="190" y2="30"/>
+    <rect x="166" y="42" width="32" height="40" rx="4" stroke="#967842"/>
+    <line x1="172" y1="52" x2="192" y2="52" stroke="#967842"/><line x1="172" y1="62" x2="192" y2="62" stroke="#967842"/>
+  </g>
+</svg></div>
     <div class="pad">
       <h2 class="big" style="text-align:center;margin-top:20px">Invest in Nigeria's biggest IPOs</h2>
-      <p class="lead" style="text-align:center;margin-bottom:8px">Early access to offers like the Dangote Petroleum Refinery & Petrochemicals IPO.</p>
+      <p class="lead" style="text-align:center;margin-bottom:8px">Subscribe to public offers and rights issues — digitally delivered.</p>
       <div class="sec" style="margin-top:14px">
         <div class="sh">I'm subscribing as</div>
         <div class="seg">
@@ -552,7 +565,7 @@ isYou(){
       <label class="fl" for="emIn">Email address</label>
       <input id="emIn" class="in" type="email" value="${esc(u.email)}">
       <div id="emFb"></div>
-      <div class="hint">Also from BVN, but editable — this creates ${corp?"the company account":"your account"}, so update it if needed.</div>
+      <div class="hint">Your email is editable — update it if needed. This creates ${corp?"the company account":"your account"}.</div>
       <button class="linkbtn" style="margin-top:10px" onclick="go('bvn')">Not you? Re-enter BVN</button>
       <div class="footbar"><button class="btn" id="isYouGo">${corp?"Continue — company details":"Send verification code"}</button></div>
     </div>`;
@@ -583,7 +596,6 @@ verify(){
         <span class="req" data-k="num">Number</span>
         <span class="req" data-k="sp">Special character</span>
       </div>
-      <div class="hint">Used to log in and approve transactions.</div>
       <label class="fl" for="pw2">Re-enter password</label>
       <div class="pwwrap"><input id="pw2" class="in" type="password" placeholder="Repeat the same password"><button type="button" class="pweye" data-target="pw2" aria-label="Show password">Show</button></div>
       <div class="errline" id="pwErr" style="display:none">Passwords don't match</div>
@@ -1365,7 +1377,7 @@ function drawShareCard(type){
   x.fillStyle=IVORY;x.font="700 46px Georgia, serif";
   x.fillText("V E T I V A",W/2,sy+164);
   x.fillStyle=GOLD_SOFT;x.font="600 22px 'Helvetica Neue', Arial, sans-serif";
-  x.fillText("DANGOTE PETROLEUM REFINERY & PETROCHEMICALS IPO",W/2,sy+206);
+  x.fillText(type==="reg"?"PUBLIC OFFERS & RIGHTS ISSUES · DIGITALLY DELIVERED":"DANGOTE PETROLEUM REFINERY & PETROCHEMICALS IPO",W/2,sy+206);
   x.fillStyle=GOLD;x.fillRect(W/2-44,sy+232,88,2);
   // headline
   let who=(flow&&(flow.mode==="corp"||flow.for==="corp")&&S.corp)?S.corp.name:S.user.name;
@@ -1404,7 +1416,7 @@ function openShareCard(type){
   const veil=document.createElement("div");veil.className="sheet-veil";
   const cv=drawShareCard(type);
   const msg=(type==="reg"
-    ?"My seat at the table is taken — I'm verified & ready for the "+OFFER.name+" IPO on Vetiva. #VetivaReady Join me, my invitation code is "+refCode()+": "
+    ?"My seat at the table is taken — I'm verified & ready for public offers on Vetiva. #VetivaReady Join me, my invitation code is "+refCode()+": "
     :"Some inherit a legacy. Some begin one. I'm a Founding Owner of the "+OFFER.name+" IPO on Vetiva. #FoundingOwner Join me, my invitation code is "+refCode()+": ")+shareLink();
   veil.innerHTML=`<div class="sheet" style="max-width:400px">
     <h3 style="text-align:center">${type==="reg"?"Your Ready card":"Your Founding Owner card"}</h3>
