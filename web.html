@@ -78,50 +78,33 @@
   .chero .regline{align-self:stretch;display:flex;justify-content:space-between;align-items:center;font-size:.62rem;letter-spacing:.04em;color:#C9C7BC}
   .chero .regline .brand{font-weight:800;letter-spacing:.3em;font-size:.72rem;color:#fff}
   .chero .regline .sec{color:#D3CD8B}
-  .chero .eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.34em;color:#D3CD8B;margin-top:30px}
-  .chero h1{font-size:clamp(1.5rem,2vw,1.9rem);font-weight:800;line-height:1.12;letter-spacing:-.015em;margin-top:12px}
+  .chero .cheroMain{margin-top:auto;padding-top:56px;align-self:stretch;text-align:left}
+  .chero .eyebrow{font-size:.62rem;font-weight:700;letter-spacing:.34em;color:#D3CD8B}
+  .chero h1{font-size:clamp(1.5rem,2vw,1.9rem);font-weight:800;line-height:1.16;letter-spacing:-.015em;margin-top:14px;text-wrap:balance}
+  .cspeed{display:inline-flex;align-items:center;gap:7px;margin-top:14px;background:rgba(211,205,139,.12);
+    border:1px solid rgba(211,205,139,.35);border-radius:999px;padding:7px 14px;font-size:.66rem;font-weight:600;color:#D3CD8B}
+  .cspeed .bolt{font-size:.72rem;line-height:1}
+  .cprog{align-self:stretch;text-align:left;margin-top:36px}
+  .cprogHead{display:flex;justify-content:space-between;align-items:baseline;font-size:.6rem;font-weight:700;letter-spacing:.18em;color:#8F8E83;margin-bottom:6px}
+  .cprogStep{color:#D3CD8B;letter-spacing:.08em}
+  .cprogBar{height:2px;background:rgba(255,255,255,.1);overflow:hidden}
+  .cprogFill{height:100%;width:33%;background:#D3CD8B;transition:width .5s cubic-bezier(.2,.7,.3,1)}
+  .cstp{text-align:center;opacity:.5;transition:opacity .3s,background .3s,border-color .3s}
+  .cstp.on{opacity:1;background:rgba(211,205,139,.14);border-color:rgba(211,205,139,.55)}
+  .cstp.on .n{background:#D3CD8B;border-color:#D3CD8B;color:#353735}
+  .cstp.on .tt{color:#fff}
+  .cstp.done .n::before{content:"✓"}
+  .cstp.done .n>span{display:none}
   .chero h1 em{font-style:normal;color:#D3CD8B}
-  .chero .sub{margin-top:12px;font-size:.78rem;color:#BDBBAF;max-width:280px;line-height:1.6}
-  .cdial{width:132px;height:132px;margin-top:24px;position:relative}
-  .cdial svg{width:100%;height:100%;transform:rotate(-90deg)}
-  .cdial .track{stroke:#4A4D48;stroke-width:5;fill:none}
-  .cdial .arc{stroke:#D3CD8B;stroke-width:5;fill:none;stroke-linecap:round;stroke-dasharray:326;stroke-dashoffset:11}
-  @media (prefers-reduced-motion:no-preference){
-    .cdial .arc{animation:sweep 2.4s cubic-bezier(.6,0,.3,1) .3s both}
-    @keyframes sweep{from{stroke-dashoffset:326}to{stroke-dashoffset:11}}
-  }
-  .cdial .readout{position:absolute;top:0;right:0;bottom:0;left:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-  .cdial .t{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:1.75rem;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
-  .cdial .cap{font-size:.56rem;font-weight:700;letter-spacing:.26em;color:#D3CD8B;margin-top:4px}
-  .momentum{display:inline-flex;align-items:center;gap:8px;margin-top:20px;background:rgba(211,205,139,.12);
-    border:1px solid rgba(211,205,139,.35);border-radius:999px;padding:7px 14px;font-size:.66rem;color:#D3CD8B;font-weight:600}
-  .momentum .pulse-dot{width:7px;height:7px;border-radius:50%;background:#5B8F22;position:relative;flex:none}
-  .momentum .pulse-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:1.5px solid #5B8F22;animation:ring 1.8s ease-out infinite}
-  @keyframes ring{0%{transform:scale(.6);opacity:.9}100%{transform:scale(2.1);opacity:0}}
-  @media (prefers-reduced-motion:reduce){.momentum .pulse-dot::after{animation:none}}
-  .momentum b{color:#fff;font-family:'JetBrains Mono',monospace;font-weight:700}
-  .chero .note{margin-top:12px;font-size:.6rem;color:#8F8E83}
-  .csteps{display:flex;gap:8px;margin-top:22px;align-self:stretch}
+  .csteps{display:flex;gap:8px;margin-top:14px;align-self:stretch}
   .cstp{flex:1;background:rgba(255,255,255,.05);border:1px solid rgba(211,205,139,.22);border-radius:11px;padding:11px 8px 10px}
   .cstp .n{width:24px;height:24px;margin:0 auto 7px;border-radius:50%;background:rgba(211,205,139,.16);
     color:#D3CD8B;font-size:.66rem;font-weight:700;display:flex;align-items:center;justify-content:center;border:1px solid rgba(211,205,139,.4)}
   .cstp .tt{font-size:.66rem;font-weight:700;line-height:1.25;color:#F0EDDD}
   .cstp .dd{font-size:.56rem;color:#9B9A8E;margin-top:3px;line-height:1.4}
-  .csteps-note{margin-top:9px;font-size:.6rem;color:#8F8E83;font-style:italic}
-  .cbvn{margin-top:16px;align-self:stretch;background:rgba(211,205,139,.07);border:1px solid rgba(211,205,139,.22);
-    border-radius:12px;padding:11px 13px;display:flex;gap:10px;align-items:flex-start;text-align:left}
-  .cbvn .lock{flex:none;width:28px;height:28px;border-radius:8px;background:rgba(211,205,139,.14);
-    display:flex;align-items:center;justify-content:center;color:#D3CD8B;font-size:.8rem;border:1px solid rgba(211,205,139,.35)}
-  .cbvn h4{font-size:.66rem;font-weight:800;color:#F0EDDD;margin-bottom:3px}
-  .cbvn p{font-size:.6rem;color:#9B9A8E;line-height:1.5}
-  .cbvn b{color:#D3CD8B}
-  .cherit{margin-top:16px}
-  .cherit .line{font-size:.72rem;font-weight:700;line-height:1.5;color:#F0EDDD}
-  .cherit .line span{color:#D3CD8B}
-  .cherit .seal{font-size:.54rem;font-weight:800;letter-spacing:.28em;color:#8F8E83;margin-top:5px}
-  @media (max-height:880px){.cherit{display:none}}
-  @media (max-height:800px){.cbvn{display:none}.csteps-note{display:none}}
-  @media (max-height:720px){.csteps{display:none}}
+  .cstp .secs{font-size:.52rem;font-weight:800;letter-spacing:.14em;color:#8F8E83;margin-top:7px}
+  .cstp.on .secs{color:#D3CD8B}
+  @media (max-height:640px){.csteps .dd{display:none}}
   .ticker-wrap{margin-top:auto;padding:18px 0 16px;overflow:hidden;align-self:stretch;
     -webkit-mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);
     mask-image:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
@@ -534,48 +517,46 @@ function buildSliderCard(){
       <div class="confetti" aria-hidden="true"></div>
       <div class="cin">
         <div class="regline"><span class="brand">VETIVA</span><span class="sec">Regulated by the SEC, Nigeria</span></div>
-        <div class="eyebrow">GET INVESTMENT-READY</div>
-        <h1>One minute <em>to own it.</em><br>Twenty years behind it.</h1>
-        <p class="sub">Get ready to invest in about a minute — nothing to install, no paperwork.</p>
-        <div class="cdial" aria-hidden="true">
-          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="52"/><circle class="arc" cx="60" cy="60" r="52"/></svg>
-          <div class="readout"><div class="t">0:58</div><div class="cap">START → READY</div></div>
+        <div class="cheroMain">
+          <div class="eyebrow">GET INVESTMENT-READY</div>
+          <h1>Subscribe to public offers and rights issues — <em>digitally delivered.</em></h1>
+          <div class="cspeed"><span class="bolt">⚡</span> Set up in seconds — no branch, no paperwork</div>
         </div>
-        <div class="momentum"><span class="pulse-dot"></span> Nigerians are getting ready right now — <b id="momCount">1,247</b> today <span class="demoTag">DEMO</span></div>
-        <div class="note">Free · Takes about a minute · SEC-regulated</div>
+        <div class="cprog">
+          <div class="cprogHead"><span>YOUR PROGRESS</span><span class="cprogStep" id="cprogStep">STEP 1 OF 3</span></div>
+          <div class="cprogBar"><div class="cprogFill" id="cprogFill"></div></div>
+        </div>
         <div class="csteps">
-          <div class="cstp"><div class="n">1</div><div class="tt">Your details</div><div class="dd">Name, email, phone — the basics</div></div>
-          <div class="cstp"><div class="n">2</div><div class="tt">Verify with BVN</div><div class="dd">Your bank already proved who you are</div></div>
-          <div class="cstp"><div class="n">✓</div><div class="tt">Done — you're ready</div><div class="dd">Your Ready Card is waiting</div></div>
-        </div>
-        <div class="csteps-note">No branch. No paper. No "come back tomorrow."</div>
-        <div class="cbvn">
-          <span class="lock">🔒</span>
-          <div>
-            <h4>"Is my BVN safe here?" — fair question.</h4>
-            <p><b>Verified through official channels. Encrypted. Never shared.</b> Your bank already did the hard part — that's why this takes a minute, not a week.</p>
-          </div>
-        </div>
-        <div class="cherit">
-          <div class="line">20 years. Nigeria's biggest names. <span>One standard.</span></div>
-          <div class="seal">VETIVA · PASSIONATELY PROFESSIONAL</div>
+          <div class="cstp" data-step="1"><div class="n">1</div><div class="tt">Your details</div><div class="dd">Name, email, phone</div><div class="secs">DONE</div></div>
+          <div class="cstp" data-step="2"><div class="n">2</div><div class="tt">Verify &amp; secure</div><div class="dd">Code and password</div><div class="secs">DONE</div></div>
+          <div class="cstp" data-step="3"><div class="n">3</div><div class="tt">Start investing</div><div class="dd">Offers open to you</div><div class="secs">DONE</div></div>
         </div>
         <div class="ticker-wrap"><div class="ticker">${tick}</div></div>
       </div>
     </div>
   </section>`;
 }
-function initSlider(){
+const RAIL_STEP={entry:1,login:1,verify:2,bvn:3,isYou:3,corpDetails:3,pocReady:3,pocDone:3,rc:3};
+function initSlider(screen){
   clearInterval(sliderTimer);
-  const el=document.getElementById("momCount");if(!el)return;
-  const target=1247,start=target-140;let t0=null;
-  function step(ts){if(!t0)t0=ts;const p=Math.min(1,(ts-t0)/900);
-    el.textContent=Math.round(start+(target-start)*p).toLocaleString();
-    if(p<1)requestAnimationFrame(step);}
-  requestAnimationFrame(step);
+  setRailStep(RAIL_STEP[screen]||1);
+}
+function setRailStep(n){
+  const fill=document.getElementById("cprogFill"),lab=document.getElementById("cprogStep");
+  if(!fill)return;
+  fill.style.width=(n/3*100)+"%";
+  lab.textContent="STEP "+n+" OF 3";
+  document.querySelectorAll(".cstp").forEach(el=>{
+    const s=+el.dataset.step;
+    el.classList.toggle("on",s===n);
+    el.classList.toggle("done",s<n);
+    el.querySelector(".n").textContent=s<n?"✓":String(s);
+    el.querySelector(".secs").textContent=s<n?"DONE":(s===n?"IN PROGRESS":"NEXT UP");
+  });
 }
 
 let currentShell=null; // "auth" | "app"
+let pendingScreen=null;
 function ensureShell(mode){
   const root=document.getElementById("appRoot");
   if(currentShell===mode&&document.getElementById("screen"))return;
@@ -584,7 +565,7 @@ function ensureShell(mode){
       ${buildSliderCard()}
       <div class="authArea" id="authArea"><div class="authBox"><div id="screen" aria-live="polite"></div></div></div>
     </div>`;
-    initSlider();
+    initSlider(pendingScreen);
   }else{
     clearInterval(sliderTimer);
     const first=S.user.name.split(" ")[0].toUpperCase();
@@ -618,7 +599,9 @@ function ensureShell(mode){
 const NAV_FOR={dashHome:"dashHome",dashWallet:"dashWallet",dashOffers:"dashOffers",dashInvest:"dashInvest",dashPortfolio:"dashPortfolio",
   subscribe:"dashOffers",topup:"dashOffers",processing:"dashOffers",success:"dashOffers",profile:"dashHome"};
 function render(name,arg){
+  pendingScreen=name;
   ensureShell(AUTH_SCREENS.has(name)?"auth":"app");
+  if(AUTH_SCREENS.has(name))setRailStep(RAIL_STEP[name]||1);
   screenEl=document.getElementById("screen");
   SCREENS[name](arg);
   persist(name,arg);
@@ -898,16 +881,12 @@ pocReady(){
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
-        <div id="ninWrap">
-        <label class="fl">NIN</label>
-        <input class="in" id="pbNin" inputmode="numeric" maxlength="11" placeholder="11-digit National Identification Number" value="${esc(S.nin||"")}">
-        <div id="ninFb"></div>
-        </div>
+
       </div>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
-  let cscsOk=false,bankOk=false,ninOk=false;
-  const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk&&ninOk);};
+  let cscsOk=false,bankOk=false;
+  const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
   setTimeout(()=>{
     const box=$("#prCscs");if(!box)return;
     const has=S.pocForce?S.pocForce==="has":(parseInt((S.user.bvn||"0").slice(-1),10)%2===0);
@@ -920,8 +899,6 @@ pocReady(){
           <b style="font-size:1.05rem;letter-spacing:.06em">${esc(S.cscsNo)}</b>
           <div class="hint" style="margin-top:6px">We'll link this account to your subscriptions automatically.</div>
         </div>`;
-      const nw=$("#ninWrap");if(nw)nw.style.display="none";
-      ninOk=true;
     }else{
       S.pocCscsPending=true;S.cscsNo=null;
       box.innerHTML=`
@@ -931,23 +908,13 @@ pocReady(){
         </div>`;
       $("#prEdu").innerHTML=`
         <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:10px">
-          <span class="radio"></span><span class="grow">📚 Yes — enrol me in free investor education</span>
+          <span class="radio"></span><span class="grow">📚 Yes — Investor Education and Readiness Program</span>
         </button>`;
       $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocReady");};
     }
     cscsOk=true;upd();
   },1200);
-  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb"),nin=$("#pbNin"),ninFb=$("#ninFb");
-  ninOk=!!(S.nin&&String(S.nin).length===11);
-  if(ninOk)ninFb.innerHTML=`<div class="okband"><span class="tick">✓</span> NIN captured</div>`;
-  const ninCheck=()=>{
-    nin.value=nin.value.replace(/\D/g,"").slice(0,11);
-    ninOk=nin.value.length===11;
-    if(ninOk){S.nin=nin.value;ninFb.innerHTML=`<div class="okband"><span class="tick">✓</span> NIN captured</div>`;}
-    else{ninFb.innerHTML="";}
-    upd();
-  };
-  nin.addEventListener("input",ninCheck);
+  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb");
   const tryVerify=()=>{
     bankOk=false;upd();
     if(!(bSel.value&&n.value.length===10)){fb.innerHTML="";return;}
@@ -978,8 +945,7 @@ pocDone(){
       <div class="card" style="margin-top:14px">
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
         <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+String(S.bank.number).slice(-4):"—"}</span></div>
-        ${S.nin?`<div class="sumrow"><span class="k">NIN</span><span class="v">•••••••${esc(String(S.nin).slice(-4))} ✓</span></div>`:""}
-        ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
+        ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor Education and Readiness Program</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
       <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
       <button class="btn ghost" style="margin-top:8px" onclick="reset('dashOffers')">See the offers</button>
@@ -1837,9 +1803,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=false;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.corpSub=null;S.txns=[];reset("dashOffers");},
@@ -1858,7 +1824,7 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
