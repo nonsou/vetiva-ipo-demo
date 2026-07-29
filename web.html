@@ -519,7 +519,7 @@ function buildSliderCard(){
         <div class="regline"><span class="brand">VETIVA</span><span class="sec">Regulated by the SEC, Nigeria</span></div>
         <div class="cheroMain">
           <div class="eyebrow">GET INVESTMENT-READY</div>
-          <h1>Subscribe to public offers and rights issues — <em>digitally delivered.</em></h1>
+          <h1>Subscribe to public offers and <em>rights issues.</em></h1>
           <div class="cspeed"><span class="bolt">⚡</span> Set up in seconds — no branch, no paperwork</div>
         </div>
         <div class="cprog">
@@ -655,7 +655,7 @@ entry(){
     <line x1="172" y1="52" x2="192" y2="52" stroke="#967842"/><line x1="172" y1="62" x2="192" y2="62" stroke="#967842"/>
   </g>
 </svg></div>
-      <p class="lead" style="margin-bottom:8px">Subscribe to public offers and rights issues — digitally delivered.</p>
+      <p class="lead" style="margin-bottom:8px">Subscribe to public offers and rights issues.</p>
       <div class="sec" style="margin-top:14px">
         <div class="sh">I'm subscribing as</div>
         <div class="seg">
@@ -824,7 +824,7 @@ verify(){
       <h2 class="big">Verify your email</h2>
       <p class="lead">Enter the 6-digit code we sent to ${esc(S.user.email)}.</p>
       <div style="display:flex;gap:8px" id="otp">${Array.from({length:6},(_,i)=>`<input class="in" style="text-align:center;padding:14px 0;font-weight:700" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}">`).join("")}</div>
-      <button class="linkbtn" id="otpFill" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button>
+      <button class="linkbtn" id="otpFill" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button> <button class="linkbtn" id="otpResend" style="margin-left:10px">Resend code</button>
       <div class="hint" style="margin-top:10px">📱 You'll be able to verify your phone number later from your profile — do it so you don't miss communications from us.</div>
       <div id="emailOk"></div>
       <div id="pwSec">
@@ -847,6 +847,17 @@ verify(){
   const boxes=[...document.querySelectorAll("#otp input")];
   boxes.forEach((b,i)=>{b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"");if(b.value&&i<5)boxes[i+1].focus();check();});
     b.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!b.value&&i>0)boxes[i-1].focus();});});
+  const rs=$("#otpResend");let rsT=null;
+  rs.onclick=()=>{
+    boxes.forEach(b=>{b.value="";});
+    check();boxes[0].focus();
+    toast("New code sent to "+S.user.email+" ✓");
+    let t=30;rs.disabled=true;rs.style.opacity=".45";rs.textContent="Resend code ("+t+"s)";
+    clearInterval(rsT);
+    rsT=setInterval(()=>{t--;
+      if(t<=0){clearInterval(rsT);rs.disabled=false;rs.style.opacity="";rs.textContent="Resend code";}
+      else rs.textContent="Resend code ("+t+"s)";},1000);
+  };
   const pw1=$("#pw1"),pw2=$("#pw2"),err=$("#pwErr"),btn=$("#finBtn");
   window.fillOtp=()=>{["4","8","2","9","1","7"].forEach((d,i)=>boxes[i].value=d);check();};
   function check(){
