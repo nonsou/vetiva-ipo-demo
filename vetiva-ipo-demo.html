@@ -640,9 +640,11 @@ pocReady(){
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
+        <div id="ninWrap">
         <label class="fl">NIN</label>
         <input class="in" id="pbNin" inputmode="numeric" maxlength="11" placeholder="11-digit National Identification Number" value="${esc(S.nin||"")}">
         <div id="ninFb"></div>
+        </div>
       </div>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
@@ -660,6 +662,8 @@ pocReady(){
           <b style="font-size:1.05rem;letter-spacing:.06em">${esc(S.cscsNo)}</b>
           <div class="hint" style="margin-top:6px">We'll link this account to your subscriptions automatically.</div>
         </div>`;
+      const nw=$("#ninWrap");if(nw)nw.style.display="none";
+      ninOk=true;
     }else{
       S.pocCscsPending=true;S.cscsNo=null;
       box.innerHTML=`
@@ -716,7 +720,7 @@ pocDone(){
       <div class="card" style="margin-top:14px">
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
         <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+String(S.bank.number).slice(-4):"—"}</span></div>
-        <div class="sumrow"><span class="k">NIN</span><span class="v">${S.nin?"•••••••"+esc(String(S.nin).slice(-4))+" ✓":"—"}</span></div>
+        ${S.nin?`<div class="sumrow"><span class="k">NIN</span><span class="v">•••••••${esc(String(S.nin).slice(-4))} ✓</span></div>`:""}
         ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
       <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
@@ -1473,9 +1477,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
@@ -1491,7 +1495,7 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,nin:null});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
