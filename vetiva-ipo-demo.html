@@ -640,11 +640,14 @@ pocReady(){
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
+        <label class="fl">NIN</label>
+        <input class="in" id="pbNin" inputmode="numeric" maxlength="11" placeholder="11-digit National Identification Number" value="${esc(S.nin||"")}">
+        <div id="ninFb"></div>
       </div>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
-  let cscsOk=false,bankOk=false;
-  const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
+  let cscsOk=false,bankOk=false,ninOk=false;
+  const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk&&ninOk);};
   setTimeout(()=>{
     const box=$("#prCscs");if(!box)return;
     const has=S.pocForce?S.pocForce==="has":(parseInt((S.user.bvn||"0").slice(-1),10)%2===0);
@@ -672,7 +675,17 @@ pocReady(){
     }
     cscsOk=true;upd();
   },1200);
-  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb");
+  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb"),nin=$("#pbNin"),ninFb=$("#ninFb");
+  ninOk=!!(S.nin&&String(S.nin).length===11);
+  if(ninOk)ninFb.innerHTML=`<div class="okband"><span class="tick">✓</span> NIN captured</div>`;
+  const ninCheck=()=>{
+    nin.value=nin.value.replace(/\D/g,"").slice(0,11);
+    ninOk=nin.value.length===11;
+    if(ninOk){S.nin=nin.value;ninFb.innerHTML=`<div class="okband"><span class="tick">✓</span> NIN captured</div>`;}
+    else{ninFb.innerHTML="";}
+    upd();
+  };
+  nin.addEventListener("input",ninCheck);
   const tryVerify=()=>{
     bankOk=false;upd();
     if(!(bSel.value&&n.value.length===10)){fb.innerHTML="";return;}
@@ -703,6 +716,7 @@ pocDone(){
       <div class="card" style="margin-top:14px">
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
         <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+String(S.bank.number).slice(-4):"—"}</span></div>
+        <div class="sumrow"><span class="k">NIN</span><span class="v">${S.nin?"•••••••"+esc(String(S.nin).slice(-4))+" ✓":"—"}</span></div>
         ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor education</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
       <button class="btn" style="margin-top:16px" onclick="openShareCard('reg')">📤 Share your Ready card</button>
@@ -869,7 +883,7 @@ subscribe(arg){
       <div class="sec">
         <div class="sh" id="cscsQ">🏛️ Do you have a CSCS account with Vetiva Securities?</div>
         <div class="sd" id="cscsHelp">If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.</div>
-        <input id="cscsIn" class="in" style="margin-top:12px" inputmode="numeric" maxlength="11" placeholder="Enter your 11-digit Vetiva CSCS number">
+        <input id="cscsIn" class="in" style="margin-top:12px" inputmode="numeric" maxlength="11" placeholder="Enter your Vetiva CSCS number (8 or 11 digits)">
         <div id="cscsFb"></div>
         <button class="linkbtn" onclick="document.getElementById('cscsIn').value='56854667865';document.getElementById('cscsIn').dispatchEvent(new Event('input'))">Use demo number <span class="demoTag">DEMO</span></button>
         <button class="optrow" id="cscsNone" onclick="subCscsNone()">
@@ -927,7 +941,7 @@ subscribe(arg){
     if(flow.cscsChoice==="none")return;
     flow.cscsChoice="have";
     cscsIn.value=cscsIn.value.replace(/\D/g,"").slice(0,11);
-    if(cscsIn.value.length===11){
+    if(cscsIn.value.length===8||cscsIn.value.length===11){
       const nm=flow.mode==="corp"?S.corp.name:(flow.mode==="minor"&&flow.child?flow.child.name:S.user.name);
       const last4=cscsIn.value.slice(-4);
       cscsFb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Looking up CSCS account…</div>`;
@@ -949,7 +963,7 @@ subscribe(arg){
   if(corp){
     $("#cscsQ").innerHTML=`🏛️ Do you have a corporate CSCS account with Vetiva Securities?`;
     $("#cscsHelp").innerHTML=`Your CSCS account must be with Vetiva Securities for this subscription. If the company's account is with another stockbroker — or you're not sure — select "I don't know / I don't have one" and we'll create one for the company at no cost.`;
-    $("#cscsIn").placeholder="Enter the company's 11-digit CSCS number";
+    $("#cscsIn").placeholder="Enter the company's CSCS number (8 or 11 digits)";
     renderDividend();
     validate();
   } else subMode(flow.mode);
@@ -1098,7 +1112,7 @@ window.subMode=(m)=>{
       :`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name)}</div>`;
     $("#cscsQ").innerHTML=`🏛️ Do you have a CSCS account with Vetiva Securities?`;
     $("#cscsHelp").innerHTML=`If your CSCS account is with another stockbroker, select "I don't know / I don't have one" — we'll create a Vetiva account for you at no cost.`;
-    $("#cscsIn").placeholder="Enter your 11-digit Vetiva CSCS number";
+    $("#cscsIn").placeholder="Enter your Vetiva CSCS number (8 or 11 digits)";
   }else{
     body.innerHTML=`
       <label class="fl">Child's NIN</label>
@@ -1108,7 +1122,7 @@ window.subMode=(m)=>{
       <button class="linkbtn" onclick="document.getElementById('ninIn').value='98765432101';document.getElementById('ninIn').dispatchEvent(new Event('input'))">Use demo NIN <span class="demoTag">DEMO</span></button>`;
     $("#cscsQ").innerHTML=`🏛️ Does your child have CSCS with Vetiva Securities?`;
     $("#cscsHelp").innerHTML=`If yes, enter the child's Vetiva CSCS account number. If not, select "I don't know / I don't have one" — we'll create one in the child's name, with you as guardian.`;
-    $("#cscsIn").placeholder="Enter the child's 11-digit CSCS number";
+    $("#cscsIn").placeholder="Enter the child's CSCS number (8 or 11 digits)";
     const nin=$("#ninIn"),fb=$("#ninFb");
     nin.addEventListener("input",()=>{
       nin.value=nin.value.replace(/\D/g,"").slice(0,11);
