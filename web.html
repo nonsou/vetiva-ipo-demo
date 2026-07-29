@@ -877,7 +877,10 @@ pocReady(){
       <div class="sec">
         <div class="sh">🏦 Bank account</div>
         <label class="fl">Bank</label>
-        <select class="in" id="pbB"><option value="">Select bank</option>${["GTBank","Access Bank","Zenith Bank","UBA","First Bank"].map(b=>`<option>${b}</option>`).join("")}</select>
+        <div style="position:relative">
+        <input class="in" id="pbB" placeholder="Start typing your bank…" autocomplete="off" value="${esc((S.bank&&S.bank.name)||"")}">
+        <div id="pbSug"></div>
+        </div>
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
@@ -914,22 +917,36 @@ pocReady(){
     }
     cscsOk=true;upd();
   },1200);
-  const n=$("#pbN"),bSel=$("#pbB"),fb=$("#pbFb");
+  const n=$("#pbN"),bIn=$("#pbB"),bSug=$("#pbSug"),fb=$("#pbFb");
+  const BANKS=["Access Bank","Citibank","Ecobank","FCMB","Fidelity Bank","First Bank","GTBank","Jaiz Bank","Keystone Bank","Kuda","Moniepoint","Opay","PalmPay","Polaris Bank","Providus Bank","Stanbic IBTC","Standard Chartered","Sterling Bank","SunTrust Bank","Titan Trust Bank","UBA","Union Bank","Unity Bank","Wema Bank","Zenith Bank"];
+  let bankSel=(S.bank&&S.bank.name)||null;
   const tryVerify=()=>{
     bankOk=false;upd();
-    if(!(bSel.value&&n.value.length===10)){fb.innerHTML="";return;}
+    if(!(bankSel&&n.value.length===10)){fb.innerHTML="";return;}
     fb.innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Looking up account…</div>`;
-    const num=n.value,bank=bSel.value;
+    const num=n.value,bank=bankSel;
     setTimeout(()=>{
-      if(n.value!==num||bSel.value!==bank)return;
+      if(n.value!==num||bankSel!==bank)return;
       S.bank={name:bank,number:num};
       S.user.bank=bank;S.user.acct=num;
       fb.innerHTML=`<div class="okband"><span class="tick">✓</span> ${esc(S.user.name.toUpperCase())} · ${esc(bank)} ••••${num.slice(-4)} <span class="demoTag">DEMO</span></div>`;
       bankOk=true;upd();
     },900);
   };
+  const pickBank=b=>{bankSel=b;bIn.value=b;bSug.innerHTML="";tryVerify();};
+  bIn.addEventListener("input",()=>{
+    const q=bIn.value.trim().toLowerCase();
+    bankSel=null;bankOk=false;fb.innerHTML="";upd();
+    if(!q){bSug.innerHTML="";return;}
+    const hits=BANKS.filter(b=>b.toLowerCase().includes(q)).slice(0,6);
+    const exact=BANKS.find(b=>b.toLowerCase()===q);
+    if(exact){pickBank(exact);return;}
+    if(hits.length===1&&hits[0].toLowerCase().startsWith(q)&&q.length>=3){pickBank(hits[0]);return;}
+    bSug.innerHTML=hits.length?`<div class="card" style="position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:8;padding:6px">${hits.map(b=>`<button class="linkbtn" style="display:block;width:100%;text-align:left;padding:8px">🏦 ${b}</button>`).join("")}</div>`:"";
+    bSug.querySelectorAll("button").forEach(btn=>btn.onclick=()=>pickBank(btn.textContent.replace("🏦 ","").trim()));
+  });
+  bIn.addEventListener("blur",()=>{setTimeout(()=>{if(!bSug.contains(document.activeElement))bSug.innerHTML="";},150);});
   n.addEventListener("input",()=>{n.value=n.value.replace(/\D/g,"").slice(0,10);tryVerify();});
-  bSel.addEventListener("change",tryVerify);
   $("#prGo").onclick=()=>reset("pocDone");
 },
 
