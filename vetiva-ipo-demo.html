@@ -652,22 +652,29 @@ pocReady(){
       <div class="sec">
         <div class="sh">🏛️ Vetiva CSCS account</div>
         <div id="prCscs"><div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Checking your BVN against our records…</div></div>
-        <div id="prEdu"></div>
       </div>
       <div class="sec">
         <div class="sh">🏦 Bank account</div>
+        <div class="sd">This is the account your dividends will be paid into.</div>
         <label class="fl">Bank</label>
         <div style="position:relative">
         <input class="in" id="pbB" placeholder="Start typing your bank…" autocomplete="off" value="${esc((S.bank&&S.bank.name)||"")}">
         <div id="pbSug"></div>
         </div>
+        <div class="hint" style="margin-top:4px">NGX-approved banks for dividend collection.</div>
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
-
+      </div>
+      <div class="sec">
+        <div class="sh">Opt in</div>
+        <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:8px">
+          <span class="radio"></span><span class="grow">📚 Investor Education and Readiness Program</span>
+        </button>
       </div>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
+  $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocReady");};
   let cscsOk=false,bankOk=false;
   const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
   setTimeout(()=>{
@@ -689,11 +696,7 @@ pocReady(){
           <b style="font-size:.9rem">No Vetiva CSCS account yet — we'll create one for you</b>
           <div class="hint" style="margin:6px 0 0">So you're ready the moment the offer opens, we'll set up your Vetiva CSCS account now at no cost. It will be provided in your profile once available.</div>
         </div>`;
-      $("#prEdu").innerHTML=`
-        <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:10px">
-          <span class="radio"></span><span class="grow">📚 Yes — Investor Education and Readiness Program</span>
-        </button>`;
-      $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocReady");};
+
     }
     cscsOk=true;upd();
   },1200);
