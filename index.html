@@ -646,35 +646,32 @@ verify(){
 
 pocReady(){
   screenEl.innerHTML=nav("Get ready")+`
-    <div class="pad">
-      <h2 class="big">Get IPO-ready</h2>
-      <p class="lead">Two quick things — your CSCS account and where we should pay you.</p>
-      <div class="sec">
+    <div class="pad" style="padding-top:6px">
+      <h2 class="big" style="margin:0 0 2px">Get IPO-ready</h2>
+      <p class="lead" style="margin:0 0 4px;font-size:.82rem">Two quick things — your CSCS account and where we should pay you.</p>
+      <div class="sec" style="margin-top:8px;padding-top:8px">
         <div class="sh">🏛️ Vetiva CSCS account</div>
         <div id="prCscs"><div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Checking your BVN against our records…</div></div>
       </div>
-      <div class="sec">
-        <div class="sh">🏦 Bank account</div>
+      <div class="sec" style="margin-top:8px;padding-top:8px">
+        <div class="sh">🏦 Bank account <span style="font-weight:400;font-size:.66rem;color:var(--muted)">· NGX-approved banks for dividend collection</span></div>
         <div class="sd">This is the account your dividends will be paid into.</div>
         <label class="fl">Bank</label>
         <div style="position:relative">
         <input class="in" id="pbB" placeholder="Start typing your bank…" autocomplete="off" value="${esc((S.bank&&S.bank.name)||"")}">
         <div id="pbSug"></div>
         </div>
-        <div class="hint" style="margin-top:4px">NGX-approved banks for dividend collection.</div>
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
         <div id="pbFb"></div>
       </div>
-      <div class="sec">
-        <div class="sh">Opt in</div>
-        <button class="optrow${S.eduOptIn?" on":""}" id="pocEdu" style="margin-top:8px">
-          <span class="radio"></span><span class="grow">📚 Investor Education and Readiness Program</span>
-        </button>
-      </div>
+      <label style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;cursor:pointer">
+        <input type="checkbox" id="pocEdu" ${S.eduOptIn?"checked":""} style="width:18px;height:18px;margin-top:1px;accent-color:var(--olive);flex:none">
+        <span style="font-size:.8rem;line-height:1.4">📚 Sign up — Investor Education and Readiness Program.</span>
+      </label>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
-  $("#pocEdu").onclick=()=>{S.eduOptIn=!S.eduOptIn;$("#pocEdu").classList.toggle("on",S.eduOptIn);persist("pocReady");};
+  $("#pocEdu").onchange=e=>{S.eduOptIn=e.target.checked;persist("pocReady");};
   let cscsOk=false,bankOk=false;
   const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
   setTimeout(()=>{
@@ -694,7 +691,6 @@ pocReady(){
       box.innerHTML=`
         <div class="card" style="margin-top:8px;background:#FBF6E9">
           <b style="font-size:.9rem">No Vetiva CSCS account yet — we'll create one for you</b>
-          <div class="hint" style="margin:6px 0 0">So you're ready the moment the offer opens, we'll set up your Vetiva CSCS account now at no cost. It will be provided in your profile once available.</div>
         </div>`;
 
     }
