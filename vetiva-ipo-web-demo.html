@@ -45,7 +45,16 @@
   .authBox{width:min(470px,100%)}
   @media (max-width:900px){
     .sliderCard{display:none}
-    .authArea{padding:24px 16px}
+    .authArea{padding:16px 14px}
+    .authBox{width:100%}
+    .pad{padding:12px 4px}
+    h2.big{font-size:1.3rem}
+    .authArea .in,.authArea select.in{font-size:16px}
+    .authArea .otp input{font-size:16px}
+    .sec{padding:12px;margin-top:10px}
+    .footbar{padding:10px 0 2px}
+    .btn{padding:14px 16px}
+    .sumrow .v{max-width:58%;text-align:right;word-break:break-word}
   }
   /* ---------- slider (inside the auth card) ---------- */
   .slide{position:absolute;inset:0;opacity:0;transition:opacity 1s ease;display:flex;align-items:flex-end}
@@ -885,7 +894,7 @@ pocReady(){
         <div id="prCscs"><div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Checking your BVN against our records…</div></div>
       </div>
       <div class="sec" style="margin-top:8px;padding-top:8px">
-        <div class="sh">🏦 Bank account <span style="font-weight:400;font-size:.66rem;color:var(--muted)">· NGX-approved banks for dividend collection</span></div>
+        <div class="sh" style="display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:1px"><span style="white-space:nowrap">🏦 Bank account</span><span style="font-weight:400;font-size:.64rem;color:var(--muted);letter-spacing:0;text-transform:none">NGX-approved banks for dividend collection</span></div>
         <div class="sd">This is the account your dividends will be paid into.</div>
         <label class="fl">Bank</label>
         <div style="position:relative">
@@ -921,7 +930,7 @@ pocReady(){
       S.pocCscsPending=true;S.cscsNo=null;
       box.innerHTML=`
         <div class="card" style="margin-top:6px;background:#FBF6E9;padding:8px 12px">
-          <b style="font-size:.78rem">No Vetiva CSCS account yet — we'll create one for you</b>
+          <span style="font-size:.78rem;font-weight:500;color:#6B6852">No Vetiva CSCS account yet — we'll create one for you</span>
         </div>`;
 
     }
