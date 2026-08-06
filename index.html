@@ -264,8 +264,8 @@
     <h1>Vetiva · Dangote IPO <span class="pill">DEMO v3</span></h1>
     <div class="sub">Clickable prototype — one-page subscription flow. All figures, fees and rates are placeholders marked [DEMO].</div>
     <div class="grp">Journeys</div>
-    <button onclick="demo.pocHas()">🎯 POC — existing Vetiva CSCS</button>
-    <button onclick="demo.pocNone()">🎯 POC — no CSCS (create + educate)</button>
+    <button onclick="demo.pocHas()">🎯 POC — existing Vetiva customer</button>
+    <button onclick="demo.pocNone()">🎯 POC — new to Vetiva (create + educate)</button>
     <button onclick="demo.newUser()">🆕 New user — full journey</button>
     <button onclick="demo.oldUser()">🔁 Returning user — login</button>
     <div class="grp">Jump to state</div>
@@ -551,11 +551,30 @@ bvn(){
   dob.addEventListener("input",check);
   btn.onclick=()=>{
     btn.disabled=true;
-    $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
-    setTimeout(()=>{
-      $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
-      setTimeout(()=>go("isYou"),500);
-    },1100);
+    if(S.pocMode&&S.acctType!=="corporate"){
+      $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Checking Vetiva records…</div>`;
+      const existing=S.pocForce?S.pocForce==="has":(parseInt(inp.value.slice(-1),10)%2===0);
+      setTimeout(()=>{
+        if(existing){
+          S.vetivaCustomer=true;
+          $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> Vetiva account found <span class="demoTag">DEMO</span></div>`;
+          setTimeout(()=>go("vetFound"),500);
+        }else{
+          S.vetivaCustomer=false;
+          $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
+          setTimeout(()=>{
+            $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
+            setTimeout(()=>go("isYou"),500);
+          },1000);
+        }
+      },900);
+    }else{
+      $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
+      setTimeout(()=>{
+        $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
+        setTimeout(()=>go("isYou"),500);
+      },1100);
+    }
   };
 },
 
@@ -644,6 +663,59 @@ verify(){
   btn.onclick=()=>{S.registered=true;toast("Account created — welcome, "+S.user.name.split(" ")[0]+"!");reset(S.pocMode&&S.acctType!=="corporate"?"pocReady":(S.offerLive?"live":"prelive"));};
 },
 
+vetFound(){
+  screenEl.innerHTML=nav("")+`
+    <div class="pad">
+      <h2 class="big">Welcome back — you're already with Vetiva</h2>
+      <p class="lead">No need to create an account. This is the information associated with your BVN on the Vetiva platform.</p>
+      <div class="card" style="margin-top:10px">
+        <div class="sumrow"><span class="k">Full name</span><span class="v">${esc(S.user.name)}</span></div>
+        <div class="sumrow"><span class="k">Email</span><span class="v">${esc(S.user.email)}</span></div>
+      </div>
+      <div class="hint" style="margin-top:8px">These details can't be edited here. Verify it's you to continue.</div>
+      <div class="footbar"><button class="btn" onclick="go('vetOtp')">Send verification code</button></div>
+    </div>`;
+},
+
+vetOtp(){
+  screenEl.innerHTML=nav("")+`
+    <div class="pad">
+      <h2 class="big">Verify your email</h2>
+      <p class="lead">Enter the 6-digit code we sent to ${esc(S.user.email)}.</p>
+      <div class="otp">${Array(6).fill('<input inputmode="numeric" maxlength="1">').join("")}</div>
+      <button class="linkbtn" onclick="fillOtp()">Autofill code <span class="demoTag">DEMO</span></button> <button class="linkbtn" id="vetResend" style="margin-left:10px">Resend code</button>
+      <div id="vetOk"></div>
+    </div>`;
+  const boxes=[...document.querySelectorAll(".otp input")];
+  let done=false;
+  function check(){
+    if(done||!boxes.every(b=>b.value.length===1))return;
+    done=true;
+    $("#vetOk").innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Verifying and signing you in…</div>`;
+    setTimeout(()=>{
+      $("#vetOk").innerHTML=`<div class="okband"><span class="tick">✓</span> Verified — access token issued <span class="demoTag">DEMO</span></div>`;
+      S.registered=true;
+      setTimeout(()=>{toast("Welcome back, "+S.user.name.split(" ")[0]+"!");reset("pocReady");},700);
+    },1100);
+  }
+  boxes.forEach((b,i)=>{
+    b.addEventListener("input",()=>{b.value=b.value.replace(/\D/g,"").slice(0,1);if(b.value&&i<5)boxes[i+1].focus();check();});
+    b.addEventListener("keydown",e=>{if(e.key==="Backspace"&&!b.value&&i>0)boxes[i-1].focus();});
+  });
+  window.fillOtp=()=>{["4","8","2","9","1","7"].forEach((d,i)=>boxes[i].value=d);check();};
+  const rs=$("#vetResend");let rsT=null;
+  rs.onclick=()=>{
+    if(done)return;
+    boxes.forEach(b=>{b.value="";});boxes[0].focus();
+    toast("New code sent to "+S.user.email+" ✓");
+    let t=30;rs.disabled=true;rs.style.opacity=".45";rs.textContent="Resend code ("+t+"s)";
+    clearInterval(rsT);
+    rsT=setInterval(()=>{t--;
+      if(t<=0){clearInterval(rsT);rs.disabled=false;rs.style.opacity="";rs.textContent="Resend code";}
+      else rs.textContent="Resend code ("+t+"s)";},1000);
+  };
+},
+
 pocReady(){
   screenEl.innerHTML=nav("Get ready")+`
     <div class="pad" style="padding-top:6px">
@@ -656,14 +728,20 @@ pocReady(){
       <div class="sec" style="margin-top:8px;padding-top:8px">
         <div class="sh" style="display:flex;flex-wrap:wrap;align-items:baseline;column-gap:8px;row-gap:1px"><span style="white-space:nowrap">🏦 Bank account</span><span style="font-weight:400;font-size:.78rem;color:var(--muted);letter-spacing:0;text-transform:none">NGX-approved banks for dividend collection</span></div>
         <div class="sd">This is the account your dividends will be paid into.</div>
-        <label class="fl">Bank</label>
+        ${S.vetivaCustomer?`
+        <div class="card" style="margin-top:6px"><div class="row"><span style="font-size:1.2rem">🏦</span>
+          <div class="grow"><b style="font-size:.85rem">${esc(S.user.bank)}</b>
+          <div class="hint" style="margin-top:1px">${esc(S.user.name.toUpperCase())} · ${esc(S.user.acct)}</div></div>
+          <span class="chip">On file</span></div></div>
+        <div class="hint" style="margin-top:6px">This account can't be changed here.</div>`
+        :`<label class="fl">Bank</label>
         <div style="position:relative">
         <input class="in" id="pbB" placeholder="Start typing your bank…" autocomplete="off" value="${esc((S.bank&&S.bank.name)||"")}">
         <div id="pbSug"></div>
         </div>
         <label class="fl">Account number</label>
         <input class="in" id="pbN" inputmode="numeric" maxlength="10" placeholder="10-digit account number">
-        <div id="pbFb"></div>
+        <div id="pbFb"></div>`}
       </div>
       <label style="display:flex;gap:10px;align-items:flex-start;margin-top:12px;cursor:pointer">
         <input type="checkbox" id="pocEdu" ${S.eduOptIn?"checked":""} style="width:18px;height:18px;margin-top:1px;accent-color:var(--olive);flex:none">
@@ -696,6 +774,10 @@ pocReady(){
     }
     cscsOk=true;upd();
   },1200);
+  if(S.vetivaCustomer){
+    S.bank={name:S.user.bank,number:S.user.acct};
+    bankOk=true;upd();
+  }else{
   const n=$("#pbN"),bIn=$("#pbB"),bSug=$("#pbSug"),fb=$("#pbFb");
   const BANKS=["Access Bank","Citibank","Ecobank","FCMB","Fidelity Bank","First Bank","GTBank","Jaiz Bank","Keystone Bank","Kuda","Moniepoint","Opay","PalmPay","Polaris Bank","Providus Bank","Stanbic IBTC","Standard Chartered","Sterling Bank","SunTrust Bank","Titan Trust Bank","UBA","Union Bank","Unity Bank","Wema Bank","Zenith Bank"];
   let bankSel=(S.bank&&S.bank.name)||null;
@@ -726,6 +808,7 @@ pocReady(){
   });
   bIn.addEventListener("blur",()=>{setTimeout(()=>{if(!bSug.contains(document.activeElement))bSug.innerHTML="";},150);});
   n.addEventListener("input",()=>{n.value=n.value.replace(/\D/g,"").slice(0,10);tryVerify();});
+  }
   $("#prGo").onclick=()=>reset("pocDone");
 },
 
@@ -1497,9 +1580,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — the BVN check will find a Vetiva CSCS account [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("bvn");toast("POC — no Vetiva CSCS on file; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("bvn");toast("POC — the BVN check will find an existing Vetiva customer [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("bvn");toast("POC — new to Vetiva; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
@@ -1515,7 +1598,7 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
