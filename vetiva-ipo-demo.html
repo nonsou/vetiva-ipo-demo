@@ -2,6 +2,23 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Meta Pixel Code -->
+<script>
+!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', '226244067226793');
+fbq('track', 'PageView');
+</script>
+<noscript><img height="1" width="1" style="display:none"
+src="https://www.facebook.com/tr?id=226244067226793&ev=PageView&noscript=1"
+/></noscript>
+<!-- End Meta Pixel Code -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Vetiva · Public Offers — Flow Demo v3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -365,6 +382,15 @@ function regSharePopup(){
   $(".phone").appendChild(veil);
   veil.addEventListener("click",e=>{if(e.target===veil)veil.remove();});
 }
+function px(ev,params,custom){
+  try{
+    if(!window.fbq||!S.pxOn)return;
+    S.__px=S.__px||{};
+    if(S.__px[ev])return;
+    S.__px[ev]=1;
+    if(custom)fbq('trackCustom',ev,params||{});else fbq('track',ev,params||{});
+  }catch(e){}
+}
 function phMask(p){p=String(p||"");return S.phoneVerified?p:(p.slice(0,4)+"•••"+p.slice(-3));}
 function persist(name,arg){
   if(name==="processing")return;
@@ -405,6 +431,7 @@ const SCREENS={
 
 /* ---------- entry: account type + create/login, one page ---------- */
 entry(){
+  px('ViewContent',{content_name:'poc_entry'});
   screenEl.innerHTML=`
     <div style="display:flex;padding:10px 20px"><span style="font-weight:800;color:var(--olive-deep)">Ⓥ vetiva</span></div>
     <div class="hero-illus" style="display:flex;justify-content:center;padding-top:6px;height:180px"><svg viewBox="0 0 220 120" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Offer documents delivered digitally" style="width:170px;max-width:52%;display:block;margin:0 auto">
@@ -529,6 +556,7 @@ corpDetails(){
 },
 
 bvn(){
+  px('StartOnboarding',null,true);
   screenEl.innerHTML=nav(S.acctType==="corporate"?"Corporate account":"Create account")+`
     <div class="pad">
       <h2 class="big">Verify your identity</h2>
@@ -557,13 +585,13 @@ bvn(){
       setTimeout(()=>{
         if(existing){
           S.vetivaCustomer=true;
-          $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> Vetiva account found <span class="demoTag">DEMO</span></div>`;
+          px('BVNVerified',null,true);$("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> Vetiva account found <span class="demoTag">DEMO</span></div>`;
           setTimeout(()=>go("vetFound"),500);
         }else{
           S.vetivaCustomer=false;
           $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
           setTimeout(()=>{
-            $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
+            px('BVNVerified',null,true);$("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
             setTimeout(()=>go("isYou"),500);
           },1000);
         }
@@ -571,7 +599,7 @@ bvn(){
     }else{
       $("#bvnMatch").innerHTML=`<div class="hint" style="margin-top:8px"><span class="minispin"></span>&nbsp; Matching BVN and date of birth…</div>`;
       setTimeout(()=>{
-        $("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
+        px('BVNVerified',null,true);$("#bvnMatch").innerHTML=`<div class="okband"><span class="tick">✓</span> BVN and date of birth matched <span class="demoTag">DEMO</span></div>`;
         setTimeout(()=>go("isYou"),500);
       },1100);
     }
@@ -650,7 +678,7 @@ verify(){
   window.fillOtp=()=>{["4","8","2","9","1","7"].forEach((d,i)=>boxes[i].value=d);check();};
   function check(){
     const otpOk=boxes.every(b=>b.value.length===1);
-    $("#emailOk").innerHTML=otpOk?`<div class="okband"><span class="tick">✓</span> Email verified</div>`:"";
+    $("#emailOk").innerHTML=otpOk?`<div class="okband"><span class="tick">✓</span> Email verified</div>`:"";if(otpOk)px('EmailVerified',null,true);
     const v=pw1.value;
     const rules={len:v.length>=8,up:/[A-Z]/.test(v),low:/[a-z]/.test(v),num:/\d/.test(v),sp:/[^A-Za-z0-9]/.test(v)};
     document.querySelectorAll("#pwReq .req").forEach(el=>el.classList.toggle("ok",!!rules[el.dataset.k]));
@@ -693,7 +721,7 @@ vetOtp(){
     done=true;
     $("#vetOk").innerHTML=`<div class="hint" style="margin-top:10px"><span class="minispin"></span>&nbsp; Verifying and signing you in…</div>`;
     setTimeout(()=>{
-      $("#vetOk").innerHTML=`<div class="okband"><span class="tick">✓</span> Verified — access token issued <span class="demoTag">DEMO</span></div>`;
+      px('EmailVerified',null,true);$("#vetOk").innerHTML=`<div class="okband"><span class="tick">✓</span> Verified — access token issued <span class="demoTag">DEMO</span></div>`;
       S.registered=true;
       setTimeout(()=>{toast("Welcome back, "+S.user.name.split(" ")[0]+"!");reset("pocReady");},700);
     },1100);
@@ -717,6 +745,7 @@ vetOtp(){
 },
 
 pocReady(){
+  px('ReadinessPageViewed',null,true);
   screenEl.innerHTML=nav("Get ready")+`
     <div class="pad" style="padding-top:6px">
       <h2 class="big" style="margin:0 0 2px">Get IPO-ready</h2>
@@ -749,7 +778,7 @@ pocReady(){
       </label>
       <div class="footbar"><button class="btn" id="prGo" disabled>Continue</button></div>
     </div>`;
-  $("#pocEdu").onchange=e=>{S.eduOptIn=e.target.checked;persist("pocReady");};
+  $("#pocEdu").onchange=e=>{S.eduOptIn=e.target.checked;if(e.target.checked)px('EducationOptIn',null,true);persist("pocReady");};
   let cscsOk=false,bankOk=false;
   const upd=()=>{$("#prGo").disabled=!(cscsOk&&bankOk);};
   setTimeout(()=>{
@@ -815,6 +844,7 @@ pocReady(){
 
 pocDone(){
   S.registered=true;
+  px('CompleteRegistration',{content_name:S.vetivaCustomer?'existing_customer':'new_customer',status:true});
   setTimeout(()=>{if(!document.querySelector(".sheet-veil"))openShareCard("reg");},1000);
   screenEl.innerHTML=nav("You're ready")+`
     <div class="pad">
@@ -1580,9 +1610,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("bvn");toast("POC — the BVN check will find an existing Vetiva customer [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("bvn");toast("POC — new to Vetiva; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("bvn");toast("POC — the BVN check will find an existing Vetiva customer [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("bvn");toast("POC — new to Vetiva; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=true;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("prelive");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];reset("live");},
@@ -1598,13 +1628,14 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("live");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:true,phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
 try{
   const __ref=new URLSearchParams(location.search).get("ref");
-  if(new URLSearchParams(location.search).get("poc")){S.pocMode=true;S.offerLive=false;}
+  if(new URLSearchParams(location.search).get("poc")){S.pocMode=true;S.offerLive=false;S.pxOn=true;}
+  if(/utm_/.test(location.search))S.pxOn=true;
   if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
   let __resumed=false;
   try{
