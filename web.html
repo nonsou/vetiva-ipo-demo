@@ -1990,6 +1990,10 @@ try{
     if(__raw){const sv=JSON.parse(__raw);
       if(sv&&sv.v===1&&sv.screen&&sv.screen!=="entry"&&SCREENS[sv.screen]){
         Object.assign(S,sv.S||{});flow=sv.flow||{};window.__resumedFlow=sv.flow||null;
+        if(new URLSearchParams(location.search).get("poc")||/utm_/.test(location.search)){
+          S.pxOn=true;
+          const _cr=S.__px&&S.__px.CompleteRegistration;S.__px=_cr?{CompleteRegistration:1}:{};
+        }
         if(__ref)S.pendingRef=__ref.toUpperCase().slice(0,16);
         reset(sv.screen,sv.arg==null?undefined:sv.arg);
         toast("Welcome back — we saved your progress ✓");__resumed=true;}}
