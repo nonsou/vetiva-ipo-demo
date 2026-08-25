@@ -1363,15 +1363,19 @@
   function q(sel){ return document.querySelector(sel); }
   function popupEligible(){
     try{
-      if(localStorage.getItem('vetiva_cta_clicked')) return false;
+      if(ctaRecent()) return false;
       var seen = localStorage.getItem('vetiva_popup_seen');
       if(seen && Date.now()-Number(seen) < 7*24*60*60*1000) return false;
       return true;
     }catch(e){ return true; }
   }
-  function leadDone(){
-    try{ return !!(localStorage.getItem('vetiva_cta_clicked') || popupState==='done'); }catch(e){ return false; }
+  function ctaRecent(){
+    try{ var c = localStorage.getItem('vetiva_cta_clicked'); if(!c) return false;
+      if(c==='1'){ localStorage.removeItem('vetiva_cta_clicked'); return false; } // legacy flag from older builds
+      return Date.now()-Number(c) < 7*24*60*60*1000; }catch(e){ return false; }
   }
+  function markCta(){ try{ localStorage.setItem('vetiva_cta_clicked', String(Date.now())); }catch(e){} }
+  function leadDone(){ return ctaRecent() || popupState==='done'; }
   function markSeen(){ try{ localStorage.setItem('vetiva_popup_seen', String(Date.now())); }catch(e){} }
   function showRoot(show){ if(root) root.style.display = show ? 'flex' : 'none'; }
   function setView(v){
@@ -1421,8 +1425,8 @@
     if(act==='dismiss') dismissPopup();
     else if(act==='stop') e.stopPropagation();
     else if(act==='submit') submitLead();
-    else if(act==='reopen'){ popupState='form'; setView('form'); }
-    else if(act==='cta'){ try{localStorage.setItem('vetiva_cta_clicked','1');}catch(e2){} markSeen(); popupState='closed'; showRoot(false); }
+    else if(act==='reopen'){ popupShown=true; popupState='form'; clearError(); setView('form'); showRoot(true); setTimeout(function(){ var inp = root && root.querySelector('input'); if(inp) inp.focus(); }, 60); }
+    else if(act==='cta'){ markCta(); markSeen(); popupState='closed'; showRoot(false); }
   });
   document.addEventListener('input', function(e){
     var el = e.target.closest && e.target.closest('[data-popup-input]');
@@ -1437,7 +1441,7 @@
     // mark cta clicked on Get started links to #start
     document.addEventListener('click', function(e){
       var a = e.target.closest && e.target.closest('a[href="#start"]');
-      if(a && !a.closest('[data-vt-popup]')){ try{localStorage.setItem('vetiva_cta_clicked','1');}catch(err){} }
+      if(a && !a.closest('[data-vt-popup]')) markCta();
     }, true);
     document.addEventListener('keydown', function(e){
       if(popupState==='closed') return;
@@ -1450,7 +1454,7 @@
         else if(!e.shiftKey && document.activeElement===last){ e.preventDefault(); first.focus(); }
       }
     });
-    var isMobile = window.matchMedia('(max-width: 760px)').matches || 'ontouchstart' in window;
+    var isMobile = window.matchMedia('(max-width: 760px)').matches || window.matchMedia('(pointer: coarse)').matches;
     if(!isMobile){
       document.addEventListener('mouseout', function(e){
         if(!e.relatedTarget && e.clientY<=0 && !leadDone()) openPopup(true);
