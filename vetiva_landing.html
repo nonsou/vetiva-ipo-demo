@@ -1080,6 +1080,19 @@
   });
   function initPopup(){
     root=q('#vt-popup-root');
+    // --- Testing/demo overrides via URL (does not affect normal visitors) ---
+    var _params;
+    try { _params = new URLSearchParams(window.location.search); } catch(e) { _params = null; }
+    var _popupParam = _params && _params.get('popup');
+    if (_popupParam === 'reset') {
+      try { ['vetiva_cta_clicked','vetiva_popup_count','vetiva_popup_seen'].forEach(function(k){ localStorage.removeItem(k); }); } catch(e) {}
+    }
+    if (_popupParam === '1' || _popupParam === 'open' || _popupParam === 'true') {
+      // Force the popup open immediately, bypassing eligibility/caps.
+      popupShown = true; popupState = 'open'; showRoot(true);
+      var _fi = root && root.querySelector('input'); if (_fi) { try { _fi.focus(); } catch(e){} }
+      return; // skip auto-trigger wiring; it's already open
+    }
     document.addEventListener('click',function(e){
       var a=e.target.closest&&e.target.closest('a[href="#start"]');
       if(a&&!a.closest('[data-vt-popup]')){ try{localStorage.setItem('vetiva_cta_clicked','1');}catch(err){} }
