@@ -1025,6 +1025,7 @@
 <script>
 (function(){
   "use strict";
+  // ---------- Individual / Corporate toggle ----------
   var subType='Individual';
   function segStyle(a){
     var base="flex:1; display:flex; align-items:center; justify-content:center; gap:8px; font-family:var(--fb); font-weight:700; font-size:15px; padding:14px 10px; border-radius:10px; border:0; cursor:pointer; transition:all .15s ease;";
@@ -1043,24 +1044,25 @@
     if(p){ subType=p.getAttribute('data-pick'); applySub(); }
   });
 
+  // ---------- Informational exit-intent popup (no form) ----------
   var popupState='closed', popupShown=false, scrollFired=false, root=null;
   function q(s){ return document.querySelector(s); }
-  function popupCount(){ try{ return Number(localStorage.getItem('vetiva_popup_count')||0);}catch(e){return 0;} }
+  function popupCount(){ try{ return Number(localStorage.getItem('vetiva_popup_count')||0); }catch(e){ return 0; } }
   function eligible(){
     try{
       if(localStorage.getItem('vetiva_cta_clicked')) return false;
-      if(popupCount()>=2) return false;
+      if(popupCount()>=3) return false;
       var seen=localStorage.getItem('vetiva_popup_seen');
-      if(seen&&Date.now()-Number(seen)<7*24*60*60*1000) return false;
+      if(seen && Date.now()-Number(seen)<7*24*60*60*1000) return false;
       return true;
     }catch(e){ return true; }
   }
-  function leadDone(){ try{ return !!localStorage.getItem('vetiva_cta_clicked'); }catch(e){ return false; } }
+  function leadDone(){ try{ return !!(localStorage.getItem('vetiva_cta_clicked')||popupState==='done'); }catch(e){ return false; } }
   function markSeen(){ try{ localStorage.setItem('vetiva_popup_seen',String(Date.now())); }catch(e){} }
   function showRoot(s){ if(root) root.style.display=s?'flex':'none'; }
   function openPopup(force){
-    if(popupCount()>=2) return;
-    if(!force&&(popupShown||!eligible())) return;
+    if(popupCount()>=3) return;
+    if(!force && (popupShown||!eligible())) return;
     if(popupState!=='closed') return;
     popupShown=true;
     try{ localStorage.setItem('vetiva_popup_count',String(popupCount()+1)); }catch(e){}
