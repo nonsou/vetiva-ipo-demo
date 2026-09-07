@@ -810,9 +810,32 @@ bvn(){
       <input id="dobIn" class="in" type="date" max="2008-12-31">
       <div id="bvnMatch"></div>
       <div class="hint">Used only to verify your identity — never shared.</div>
+      ${S.acctType==="corporate"?"":`
+      <label class="fl" for="refIn">Invite code <span style="font-weight:400;color:var(--muted)">(optional)</span></label>
+      <input id="refIn" class="in" autocomplete="off" maxlength="8" placeholder="e.g. ADA-QQ82" style="text-transform:uppercase" value="${esc(S.invitedBy||S.pendingRef||"")}">
+      <div id="refFb"></div>`}
       <button class="linkbtn" style="margin-top:8px" onclick="document.getElementById('bvnIn').value='22212345678';document.getElementById('bvnIn').dispatchEvent(new Event('input'));document.getElementById('dobIn').value='1990-09-12';document.getElementById('dobIn').dispatchEvent(new Event('input'))">Use demo BVN <span class="demoTag">DEMO</span></button>
       <div class="footbar"><button class="btn" id="bvnGo" disabled>Continue</button></div>
     </div>`;
+  const rIn=$("#refIn"),rFb=$("#refFb");
+  if(rIn){
+    const REF_NAMES={ADA:"Ada O.",KIK:"Kike A.",EMA:"Emeka N.",TUN:"Tunde B.",CHU:"Chuka M."};
+    const refCheck=()=>{
+      rIn.value=rIn.value.toUpperCase().replace(/[^A-Z0-9-]/g,"").slice(0,8);
+      const v=rIn.value;
+      if(/^[A-Z]{3}-[A-Z0-9]{4}$/.test(v)){
+        S.invitedBy=v;
+        const nm=REF_NAMES[v.slice(0,3)]||"a Vetiva investor";
+        rFb.innerHTML=`<div class="okband"><span class="tick">✓</span> Invited by ${nm} <span class="demoTag">DEMO</span></div>`;
+        px('ReferralApplied',{content_name:v},true);
+      }else{
+        S.invitedBy=null;
+        rFb.innerHTML=v.length>=4?`<div class="hint" style="margin-top:6px">Codes look like ADA-QQ82</div>`:"";
+      }
+    };
+    rIn.addEventListener("input",refCheck);
+    if(rIn.value)refCheck();
+  }
   const inp=$("#bvnIn"),btn=$("#bvnGo"),err=$("#bvnErr"),dob=$("#dobIn");
   const check=()=>{const bad=inp.value.length>0&&inp.value.length<11;
     err.style.display=bad?"block":"none";inp.classList.toggle("err",bad);
@@ -1095,6 +1118,7 @@ pocDone(){
       <p class="lead" style="text-align:center">Onboarding complete — your seat at the table is prepared.</p>
       <div class="card" style="margin-top:14px">
         <div class="sumrow"><span class="k">CSCS account</span><span class="v">${S.cscsNo?esc(S.cscsNo)+" ✓":"Creation in progress ✓"}</span></div>
+        ${S.invitedBy&&!S.vetivaCustomer?`<div class="sumrow"><span class="k">Invited by</span><span class="v">${esc(S.invitedBy)} ✓</span></div>`:""}
         <div class="sumrow"><span class="k">Bank account</span><span class="v">${S.bank?esc(S.bank.name)+" ••••"+String(S.bank.number).slice(-4):"—"}</span></div>
         ${S.eduOptIn?`<div class="sumrow"><span class="k">Investor Education and Readiness Program</span><span class="v">Enrolled ✓</span></div>`:""}
       </div>
@@ -1954,9 +1978,9 @@ function openWaitlist(){
 
 /* =================== PRESENTER =================== */
 const demo={
-  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("bvn");toast("POC — the BVN check will find an existing Vetiva customer [DEMO]");},
-  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("bvn");toast("POC — new to Vetiva; create + educate path [DEMO]");},
-  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});reset("entry");},
+  pocHas(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"has",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false,invitedBy:null});reset("bvn");toast("POC — the BVN check will find an existing Vetiva customer [DEMO]");},
+  pocNone(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:true,pocForce:"none",cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false,invitedBy:null});reset("bvn");toast("POC — new to Vetiva; create + educate path [DEMO]");},
+  newUser(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false,invitedBy:null});reset("entry");},
   oldUser(){S.registered=true;S.offerLive=false;reset("login");},
   prelive(){S.registered=true;S.offerLive=false;S.waitlisted=false;reset("dashOffers");},
   liveFresh(){S.registered=true;S.offerLive=true;S.selfSub=null;S.minors=[];S.corpSub=null;S.txns=[];reset("dashOffers");},
@@ -1975,7 +1999,7 @@ const demo={
     S.corp={rc:"4567891",name:CORP_DEMO.name,type:CORP_DEMO.type,status:"ACTIVE",rcDate:CORP_DEMO.rcDate,tin:CORP_DEMO.tin,bank:"Zenith Bank",acct:"0123456789",state:"Lagos",lga:"Eti-Osa",address:"14 Adeola Odeku Street, Victoria Island",nationality:"Nigerian",website:"",nin:""};
     reset("dashOffers");
   },
-  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
+  reset(){Object.assign(S,{registered:false,acctType:"individual",selfSub:null,minors:[],corp:null,corpSub:null,intentAmount:null,waitlisted:false,offerLive:false,txns:[],phoneVerified:false,pocMode:false,pocForce:null,cscsNo:null,pocCscsPending:false,bank:null,eduOptIn:false,regShareSeen:false,vetivaCustomer:false,pxOn:false,invitedBy:null});hist.length=0;try{localStorage.removeItem(PERSIST_KEY)}catch(e){}reset("entry");toast("Demo reset");},
 };
 
 /* boot */
