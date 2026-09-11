@@ -449,6 +449,14 @@ a, button { -webkit-tap-highlight-color:transparent; }
   .v-stats{ grid-template-columns:1fr 1fr !important; row-gap:21px !important; }
   .v-valuegrid{ gap:21px !important; }
 }
+
+/* --- Hero card compaction (phones) --- */
+@media (max-width:760px){
+  #start{ padding:21px !important; }
+  #start .v-cobrand{ padding:8px 13px !important; margin:0 0 13px !important; border-radius:8px !important; }
+  #start .v-cobrand img{ width:150px !important; }
+  #start h3{ font-size:24px !important; }
+}
 </style>
 </head>
 <body>
@@ -901,7 +909,7 @@ a, button { -webkit-tap-highlight-color:transparent; }
 
       <!-- Get started card -->
       <aside id="start" style="background:#081F16; border:1px solid rgba(255,255,255,0.12); border-radius:14px; padding:clamp(21px,2.4vw,34px); box-shadow:0 30px 70px -30px rgba(0,0,0,0.8); color:#fff;">
-        <div style="background:#fff; border-radius:10px; padding:13px 13px; display:flex; justify-content:center; margin:0 0 21px;"><img src="assets/img/c9c1138e-09b6-4351-b4de-cb2ea3e012c3.png" alt="Dangote Petroleum Refinery — The IPO for the people" style="width:230px; max-width:100%; display:block;"></div>
+        <div class="v-cobrand" style="background:#fff; border-radius:10px; padding:13px 13px; display:flex; justify-content:center; margin:0 0 21px;"><img src="assets/img/c9c1138e-09b6-4351-b4de-cb2ea3e012c3.png" alt="Dangote Petroleum Refinery — The IPO for the people" style="width:230px; max-width:100%; display:block;"></div>
         <h3 style="font-family:'Poppins',sans-serif; font-weight:600; font-size:28px; letter-spacing:-0.01em;">Get started</h3>
         <p style="font-size:14px; line-height:1.55; margin-top:8px; color:rgba(255,255,255,0.8);">Create your VETIVA-INVEST account to access public offers and more.</p>
         <div style="display:flex; gap:8px; margin-top:21px;">
