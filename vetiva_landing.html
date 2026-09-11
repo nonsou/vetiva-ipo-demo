@@ -457,6 +457,24 @@ a, button { -webkit-tap-highlight-color:transparent; }
   #start .v-cobrand img{ width:150px !important; }
   #start h3{ font-size:24px !important; }
 }
+
+/* --- Polish pass (phones) --- */
+@media (max-width:760px){
+  /* stacked step list: tighter rhythm */
+  .v-steps{ gap:21px !important; }
+  /* download section: less dead space above the phone mockup */
+  .v-app > div:first-child{ padding-top:13px !important; }
+  /* comfortable reading line-height for body copy on small screens */
+  p{ line-height:1.55 !important; }
+  /* ease the largest inline gaps/margins that read as desktop-scale */
+  .v-tagline{ margin-top:21px !important; gap:13px !important; }
+  .v-tagline > span:last-child{ gap:21px !important; }
+  /* consistent card radii */
+  #start, .v-popup-card{ border-radius:13px !important; }
+}
+@media (max-width:420px){
+  .v-steps{ gap:13px !important; }
+}
 </style>
 </head>
 <body>
