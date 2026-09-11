@@ -475,6 +475,21 @@ a, button { -webkit-tap-highlight-color:transparent; }
 @media (max-width:420px){
   .v-steps{ gap:13px !important; }
 }
+
+/* --- Alignment fixes (phones) --- */
+@media (max-width:1100px){
+  /* fix grid overflow: 1fr = minmax(auto,1fr); force 0 min so card can't exceed viewport */
+  .v-hero{ grid-template-columns:minmax(0,1fr) !important; }
+  .v-hero > *{ min-width:0 !important; }
+  #start{ width:100% !important; max-width:100% !important; min-width:0 !important; margin:0 auto !important; box-sizing:border-box !important; }
+}
+@media (max-width:760px){
+  /* remove the floating pill: sticky bar already carries the CTA and the card has the store badges */
+  .v-pill{ display:none !important; }
+  /* sticky bar: clean vertical centring and spacing */
+  .v-sticky{ align-items:center !important; gap:13px !important; }
+  .v-sticky > *{ min-width:0 !important; }
+}
 </style>
 </head>
 <body>
