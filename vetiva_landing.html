@@ -484,11 +484,24 @@ a, button { -webkit-tap-highlight-color:transparent; }
   #start{ width:100% !important; max-width:100% !important; min-width:0 !important; margin:0 auto !important; box-sizing:border-box !important; }
 }
 @media (max-width:760px){
-  /* remove the floating pill: sticky bar already carries the CTA and the card has the store badges */
-  .v-pill{ display:none !important; }
   /* sticky bar: clean vertical centring and spacing */
   .v-sticky{ align-items:center !important; gap:13px !important; }
   .v-sticky > *{ min-width:0 !important; }
+}
+
+/* --- Sticky bar + pill alignment (phones) --- */
+@media (max-width:760px){
+  /* pill: visible, bottom-LEFT, clear of the sticky bar so it never stacks on the Get started button */
+  .v-pill{ display:inline-flex !important; left:14px !important; right:auto !important;
+           bottom:calc(89px + env(safe-area-inset-bottom)) !important; }
+  /* Get started: compact, centred, no stretching, proper edge clearance */
+  .v-sticky{ padding:13px 13px calc(13px + env(safe-area-inset-bottom)) !important; align-items:center !important; }
+  .v-sticky a[href="#start"]{
+    align-self:center !important; flex:0 0 auto !important;
+    display:inline-flex !important; align-items:center !important; justify-content:center !important;
+    height:44px !important; min-height:44px !important; max-height:44px !important;
+    padding:0 21px !important; line-height:1 !important; white-space:nowrap !important;
+  }
 }
 </style>
 </head>
